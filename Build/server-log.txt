@@ -9,20 +9,205 @@ Metal devices available: 1
 Using device Apple M2 (high power)
 Initializing Metal device caps: Apple M2
 Begin MonoManager ReloadAssembly
-- Completed reload, in  0.157 seconds
-UnloadTime: 3.117958 ms
+- Completed reload, in  0.169 seconds
+UnloadTime: 0.956208 ms
+[Netcode] StartServer
+[Netcode] Initialize
 [Netcode] Runtime Network Prefabs was not empty at initialization time. Network Prefab registrations made before initialization will be replaced by NetworkPrefabsList.
-Thread 0x16ef0f000 may have been prematurely finalized
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Client Connected
+[Netcode] [Server-Side Client-Synchronization] NetworkObject serialization order:
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+Setting network variable!
+Setting network variable!
+Setting network variable!
+Setting network variable!
+Setting network variable!
+Setting network variable!
+Setting network variable!
+Setting network variable!
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] Syncing Time To Clients
+[Netcode] ShutdownInternal
+Thread 0x16c9fb000 may have been prematurely finalized
 Setting up 4 worker threads for Enlighten.
-Thread 0x16e117000 may have been prematurely finalized
-Thread 0x16de5b000 may have been prematurely finalized
-Thread 0x16dfff000 may have been prematurely finalized
-Thread 0x16dee7000 may have been prematurely finalized
+Thread 0x16b8bb000 may have been prematurely finalized
+Thread 0x16bc03000 may have been prematurely finalized
+Thread 0x16b9d3000 may have been prematurely finalized
+Thread 0x16baeb000 may have been prematurely finalized
+Thread 0x16ba5f000 may have been prematurely finalized
 Memory Statistics:
 [ALLOC_TEMP_TLS] TLS Allocator
   StackAllocators : 
     [ALLOC_TEMP_MAIN]
-      Peak usage frame count: [1.0 KB-2.0 KB]: 404 frames, [2.0 KB-4.0 KB]: 1 frames, [2.0 MB-4.0 MB]: 1 frames
+      Peak usage frame count: [1.0 KB-2.0 KB]: 658 frames, [2.0 KB-4.0 KB]: 9206 frames, [4.0 KB-8.0 KB]: 5 frames, [16.0 KB-32.0 KB]: 25 frames, [256.0 KB-0.5 MB]: 1 frames, [2.0 MB-4.0 MB]: 1 frames
       Initial Block Size 4.0 MB
       Current Block Size 4.0 MB
       Peak Allocated Bytes 2.2 MB
@@ -30,12 +215,12 @@ Memory Statistics:
     [ALLOC_TEMP_Loading.AsyncRead]
       Initial Block Size 64.0 KB
       Current Block Size 64.0 KB
-      Peak Allocated Bytes 144 B
+      Peak Allocated Bytes 136 B
       Overflow Count 0
     [ALLOC_TEMP_Loading.PreloadManager]
       Initial Block Size 256.0 KB
       Current Block Size 256.0 KB
-      Peak Allocated Bytes 33.5 KB
+      Peak Allocated Bytes 155.6 KB
       Overflow Count 4
     [ALLOC_TEMP_Background Job.Worker 8]
       Initial Block Size 32.0 KB
@@ -45,12 +230,12 @@ Memory Statistics:
     [ALLOC_TEMP_Job.Worker 6]
       Initial Block Size 256.0 KB
       Current Block Size 256.0 KB
-      Peak Allocated Bytes 0.8 KB
+      Peak Allocated Bytes 26.8 KB
       Overflow Count 0
     [ALLOC_TEMP_Job.Worker 0]
       Initial Block Size 256.0 KB
       Current Block Size 256.0 KB
-      Peak Allocated Bytes 0 B
+      Peak Allocated Bytes 26.8 KB
       Overflow Count 0
     [ALLOC_TEMP_Background Job.Worker 10]
       Initial Block Size 32.0 KB
@@ -65,7 +250,7 @@ Memory Statistics:
     [ALLOC_TEMP_Job.Worker 5]
       Initial Block Size 256.0 KB
       Current Block Size 256.0 KB
-      Peak Allocated Bytes 0 B
+      Peak Allocated Bytes 26.8 KB
       Overflow Count 0
     [ALLOC_TEMP_Background Job.Worker 14]
       Initial Block Size 32.0 KB
@@ -80,12 +265,12 @@ Memory Statistics:
     [ALLOC_TEMP_Job.Worker 4]
       Initial Block Size 256.0 KB
       Current Block Size 256.0 KB
-      Peak Allocated Bytes 152 B
+      Peak Allocated Bytes 26.8 KB
       Overflow Count 0
     [ALLOC_TEMP_Job.Worker 3]
       Initial Block Size 256.0 KB
       Current Block Size 256.0 KB
-      Peak Allocated Bytes 0 B
+      Peak Allocated Bytes 26.8 KB
       Overflow Count 0
     [ALLOC_TEMP_Background Job.Worker 12]
       Initial Block Size 32.0 KB
@@ -145,12 +330,12 @@ Memory Statistics:
     [ALLOC_TEMP_Job.Worker 1]
       Initial Block Size 256.0 KB
       Current Block Size 256.0 KB
-      Peak Allocated Bytes 285 B
+      Peak Allocated Bytes 26.8 KB
       Overflow Count 0
     [ALLOC_TEMP_Job.Worker 2]
       Initial Block Size 256.0 KB
       Current Block Size 256.0 KB
-      Peak Allocated Bytes 0.8 KB
+      Peak Allocated Bytes 26.8 KB
       Overflow Count 0
     [ALLOC_TEMP_Background Job.Worker 3]
       Initial Block Size 32.0 KB
@@ -178,22 +363,22 @@ Memory Statistics:
       Peak Allocated Bytes 0 B
       Overflow Count 0
 [ALLOC_DEFAULT] Dual Thread Allocator
-  Peak main deferred allocation count 9
+  Peak main deferred allocation count 597
     [ALLOC_BUCKET]
       Large Block size 4.0 MB
       Used Block count 1
-      Peak Allocated bytes 1.8 MB
+      Peak Allocated bytes 2.2 MB
     [ALLOC_DEFAULT_MAIN]
-      Peak usage frame count: [16.0 MB-32.0 MB]: 406 frames
+      Peak usage frame count: [8.0 MB-16.0 MB]: 171 frames, [16.0 MB-32.0 MB]: 9725 frames
       Requested Block Size 16.0 MB
       Peak Block count 2
-      Peak Allocated memory 18.0 MB
+      Peak Allocated memory 20.4 MB
       Peak Large allocation bytes 0 B
     [ALLOC_DEFAULT_THREAD]
-      Peak usage frame count: [16.0 MB-32.0 MB]: 406 frames
+      Peak usage frame count: [16.0 MB-32.0 MB]: 9896 frames
       Requested Block Size 16.0 MB
       Peak Block count 1
-      Peak Allocated memory 17.9 MB
+      Peak Allocated memory 18.8 MB
       Peak Large allocation bytes 16.0 MB
 [ALLOC_TEMP_JOB_1_FRAME]
   Initial Block Size 2.0 MB
@@ -216,56 +401,56 @@ Memory Statistics:
   Overflow Count (too large) 0
   Overflow Count (full) 0
 [ALLOC_GFX] Dual Thread Allocator
-  Peak main deferred allocation count 1
+  Peak main deferred allocation count 3
     [ALLOC_BUCKET]
       Large Block size 4.0 MB
       Used Block count 1
-      Peak Allocated bytes 1.8 MB
+      Peak Allocated bytes 2.2 MB
     [ALLOC_GFX_MAIN]
-      Peak usage frame count: [32.0 KB-64.0 KB]: 405 frames, [2.0 MB-4.0 MB]: 1 frames
+      Peak usage frame count: [1.0 MB-2.0 MB]: 9895 frames, [2.0 MB-4.0 MB]: 1 frames
       Requested Block Size 16.0 MB
       Peak Block count 1
-      Peak Allocated memory 2.7 MB
+      Peak Allocated memory 2.8 MB
       Peak Large allocation bytes 0 B
     [ALLOC_GFX_THREAD]
-      Peak usage frame count: [16.0 KB-32.0 KB]: 406 frames
+      Peak usage frame count: [8.0 KB-16.0 KB]: 693 frames, [64.0 KB-128.0 KB]: 9203 frames
       Requested Block Size 16.0 MB
       Peak Block count 1
-      Peak Allocated memory 31.9 KB
+      Peak Allocated memory 84.5 KB
       Peak Large allocation bytes 0 B
 [ALLOC_CACHEOBJECTS] Dual Thread Allocator
   Peak main deferred allocation count 0
     [ALLOC_BUCKET]
       Large Block size 4.0 MB
       Used Block count 1
-      Peak Allocated bytes 1.8 MB
+      Peak Allocated bytes 2.2 MB
     [ALLOC_CACHEOBJECTS_MAIN]
-      Peak usage frame count: [16.0 MB-32.0 MB]: 406 frames
+      Peak usage frame count: [16.0 MB-32.0 MB]: 9896 frames
       Requested Block Size 4.0 MB
       Peak Block count 5
       Peak Allocated memory 28.2 MB
       Peak Large allocation bytes 12.3 MB
     [ALLOC_CACHEOBJECTS_THREAD]
-      Peak usage frame count: [128.0 KB-256.0 KB]: 371 frames, [256.0 KB-0.5 MB]: 35 frames
+      Peak usage frame count: [0.5 MB-1.0 MB]: 9895 frames, [1.0 MB-2.0 MB]: 1 frames
       Requested Block Size 4.0 MB
       Peak Block count 1
-      Peak Allocated memory 494.9 KB
+      Peak Allocated memory 1.2 MB
       Peak Large allocation bytes 0 B
 [ALLOC_TYPETREE] Dual Thread Allocator
   Peak main deferred allocation count 0
     [ALLOC_BUCKET]
       Large Block size 4.0 MB
       Used Block count 1
-      Peak Allocated bytes 1.8 MB
+      Peak Allocated bytes 2.2 MB
     [ALLOC_TYPETREE_MAIN]
-      Peak usage frame count: [0-1.0 KB]: 406 frames
+      Peak usage frame count: [0-1.0 KB]: 439 frames, [8.0 KB-16.0 KB]: 9457 frames
       Requested Block Size 2.0 MB
       Peak Block count 1
-      Peak Allocated memory 1.1 KB
+      Peak Allocated memory 9.4 KB
       Peak Large allocation bytes 0 B
     [ALLOC_TYPETREE_THREAD]
-      Peak usage frame count: [0-1.0 KB]: 406 frames
+      Peak usage frame count: [8.0 KB-16.0 KB]: 9896 frames
       Requested Block Size 2.0 MB
       Peak Block count 1
-      Peak Allocated memory 0.8 KB
+      Peak Allocated memory 14.3 KB
       Peak Large allocation bytes 0 B

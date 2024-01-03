@@ -1,10 +1,12 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/MainMenu/MainMenu.uss?fileID=7433441132597879392&amp;guid=a6f8f2b2f1e794590b201283c987e52a&amp;type=3#MainMenu" />
     <ui:VisualElement name="root" style="align-items: flex-start; flex-direction: row; flex-grow: 1;">
-        <ui:VisualElement name="button-root" class="spacers">
-            <ui:Button text="Start as Server" display-tooltip-when-elided="true" name="server-button" />
-            <ui:Button text="Start as Client" display-tooltip-when-elided="true" name="client-button" />
+        <ui:VisualElement name="button-root" class="spacers" style="flex-grow: 0; width: 100%; height: 100%;">
+            <ui:Label display-tooltip-when-elided="true" name="error-label" style="color: rgb(255, 0, 0); flex-shrink: 1;" />
+            <ui:TextField picking-mode="Ignore" label="Address:" value="127.0.0.1" text="127.0.0.1" name="address-field" style="flex-shrink: 1;" />
+            <ui:TextField picking-mode="Ignore" label="Port:" value="5555" text="5555" name="port-field" style="flex-shrink: 1;" />
+            <ui:Button text="Start as Server" display-tooltip-when-elided="true" name="server-button" style="flex-shrink: 1;" />
+            <ui:Button text="Start as Client" display-tooltip-when-elided="true" name="client-button" style="flex-shrink: 1;" />
         </ui:VisualElement>
-        <ui:VisualElement name="spacer" class="spacers" />
     </ui:VisualElement>
 </ui:UXML>

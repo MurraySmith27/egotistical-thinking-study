@@ -3,19 +3,27 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Unity.Netcode;
+using Unity.Netcode.Transports.UTP;
 
 public class ServerManager : MonoBehaviour
 {
     
-    [SerializeField] private UIDocument mainMenu;
-    [SerializeField] private UIDocument serverControlMenu;
+    [SerializeField] private GameObject mainMenu;
+    [SerializeField] private GameObject serverControlMenu;
 
     [SerializeField] private MapGenerator mapGenerator;
 
-    public void StartServer() {
-        NetworkManager.Singleton.StartServer(); 
+    public void StartServer(string address, int port) {
+        NetworkManager.Singleton.GetComponent<UnityTransport>().SetConnectionData(address, (ushort)port);
+        
+        bool success = NetworkManager.Singleton.StartServer();
+        
+        if (!success) {
+            Debug.LogError("Could not start server!");
+            return;
+        }
 
-        mainMenu.enabled = false;
-        serverControlMenu.enabled = true;
+        mainMenu.SetActive(false);
+        serverControlMenu.SetActive(true);
     }
 }
