@@ -284,13 +284,15 @@ MonoBehaviour:
   tileWidth: 7
   tileHeight: 7
   roadLetter: 82
+  playerLetter: 80
+  playerPrefab: {fileID: 3455635103054594336, guid: 67f917de9a9f847ef81257adfec24f8a, type: 3}
   tileNames: 5700
   tilePrefabs:
   - {fileID: 1354401770332528486, guid: 6b0707f80e7d5490d9d309d5ebac1a48, type: 3}
-  roadConnectionLettersNorth: 52005700
-  roadConnectionLettersEast: 5200
-  roadConnectionLettersSouth: 5200
-  roadConnectionLettersWest: 5200
+  roadConnectionLettersNorth: 520050005700
+  roadConnectionLettersEast: 52005000
+  roadConnectionLettersSouth: 52005000
+  roadConnectionLettersWest: 52005000
 --- !u!4 &981120885
 Transform:
   m_ObjectHideFlags: 0

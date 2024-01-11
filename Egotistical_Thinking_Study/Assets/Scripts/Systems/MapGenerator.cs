@@ -9,6 +9,8 @@ public class MapGenerator : MonoBehaviour
     [SerializeField] private float tileHeight = 7f;
 
     [SerializeField] private char roadLetter = 'R';
+    [SerializeField] private char playerLetter = 'P';
+    [SerializeField] private GameObject playerPrefab;
     [SerializeField] private List<char> tileNames = new List<char>();
     [SerializeField] private List<GameObject> tilePrefabs = new List<GameObject>();
 
@@ -39,7 +41,7 @@ public class MapGenerator : MonoBehaviour
 
                     go.GetComponent<NetworkObject>().Spawn();
                 }
-                else if (textMap[row][col] == roadLetter) {
+                else if (textMap[row][col] == roadLetter || textMap[row][col] == playerLetter) {
                     string roadConnectionsSuffix = "";
                     if (row != 0 && roadConnectionLettersNorth.Contains(textMap[row - 1][col])) {
                         roadConnectionsSuffix += "N";
@@ -61,6 +63,12 @@ public class MapGenerator : MonoBehaviour
                     }
                     else {
                         GameObject go = Instantiate((GameObject)roadPrefab, new Vector3(col * tileWidth, -row * tileHeight, 0), Quaternion.identity);
+
+                        go.GetComponent<NetworkObject>().Spawn();
+                    }
+
+                    if (textMap[row][col] == playerLetter) {
+                        GameObject go = Instantiate(playerPrefab, new Vector3(col * tileWidth, -row * tileHeight, -1), Quaternion.identity);
 
                         go.GetComponent<NetworkObject>().Spawn();
                     }

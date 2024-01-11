@@ -9,7 +9,6 @@ public class MapNetworkBehaviour : NetworkBehaviour
 
     public override void OnNetworkSpawn() {
         if (this.IsServer) {
-            Debug.Log("Setting network variable!");
             position.Value = gameObject.transform.position;
         }
     }
