@@ -339,7 +339,8 @@ GameObject:
   - component: {fileID: 3792410101528136289}
   - component: {fileID: 2779722927573151361}
   - component: {fileID: 3639817271706156607}
-  - component: {fileID: 6610326408961795388}
+  - component: {fileID: 6413788132366789303}
+  - component: {fileID: 7258517803644338267}
   m_Layer: 6
   m_Name: Wearhouse
   m_TagString: Untagged
@@ -375,7 +376,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 487643057
+  GlobalObjectIdHash: 2255402769
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
   ActiveSceneSynchronization: 0
@@ -395,7 +396,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9aea58df798474e45b2ff6a12196c22b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!65 &6610326408961795388
+--- !u!114 &6413788132366789303
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1354401770332528486}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff6d370cf7c5942f79a401b7a0b87d8f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mapGenerator: {fileID: 0}
+--- !u!65 &7258517803644338267
 BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

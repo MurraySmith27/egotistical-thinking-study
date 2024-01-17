@@ -27,10 +27,10 @@ public class MapGenerator : MonoBehaviour
     void Start() {
         nameToPrefabMap = new Dictionary<char, GameObject>();
 
-        for (int i = 0; i < tileNames.Count; i++) {
+        for (int i = 0; i < tileNames.Count; i++)
+        {
             nameToPrefabMap.Add(tileNames[i], tilePrefabs[i]);
         }
-
     }
 
     public void GenerateMap(string[] textMap) {
@@ -56,7 +56,8 @@ public class MapGenerator : MonoBehaviour
                         roadConnectionsSuffix += "W";
                     }
 
-                    Object roadPrefab = Resources.Load("Prefabs/Roads/Road" + roadConnectionsSuffix);
+                    Object roadPrefab = Resources.Load("Prefabs/MapItems/Roads/Road" + roadConnectionsSuffix);
+                    Debug.Log(roadConnectionsSuffix);
 
                     if (roadPrefab == null) {
                         Debug.LogError("Road Failed to load!");

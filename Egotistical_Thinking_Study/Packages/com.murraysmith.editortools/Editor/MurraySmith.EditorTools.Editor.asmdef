@@ -1,0 +1,16 @@
+{
+    "name": "MurraySmith.EditorTools.Editor",
+    "rootNamespace": "",
+    "references": [
+        "MurraySmith.EditorTools"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
