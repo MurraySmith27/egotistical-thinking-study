@@ -181,7 +181,7 @@ GameObject:
   - component: {fileID: 2452848552409698369}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -214,7 +214,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3259472190
+  GlobalObjectIdHash: 3737684693
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
   ActiveSceneSynchronization: 0
@@ -235,6 +235,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   clientInput: {fileID: -944628639613478452, guid: 33e8d8f2ecf2f174a8412294faf437f3, type: 3}
+  secondsPerGridMove: 0.5
 --- !u!1 &4463006061340529928
 GameObject:
   m_ObjectHideFlags: 0

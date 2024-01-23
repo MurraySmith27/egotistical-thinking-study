@@ -293,6 +293,7 @@ MonoBehaviour:
   roadConnectionLettersEast: 52005000
   roadConnectionLettersSouth: 52005000
   roadConnectionLettersWest: 52005000
+  gridOrigin: {x: 0, y: 0}
 --- !u!4 &981120885
 Transform:
   m_ObjectHideFlags: 0
@@ -405,18 +406,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   serverManager: {fileID: 861436898}
   clientManager: {fileID: 861436897}
---- !u!134 &1240324958
-PhysicMaterial:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: 
-  dynamicFriction: 0.6
-  staticFriction: 0.6
-  bounciness: 0
-  frictionCombine: 0
-  bounceCombine: 0
 --- !u!1 &1246304675
 GameObject:
   m_ObjectHideFlags: 0
@@ -613,8 +602,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1978482503}
   - component: {fileID: 1978482504}
+  - component: {fileID: 1978482505}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: ClientConnectionHandler
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -629,33 +619,46 @@ Transform:
   m_GameObject: {fileID: 1978482501}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.1349776, y: 15.393672, z: -66.66998}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &1978482504
-BoxCollider:
+--- !u!114 &1978482504
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1978482501}
-  m_Material: {fileID: 1240324958}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 7, y: 7, z: 1}
-  m_Center: {x: 3.5, y: -3.5, z: 0}
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 2002142880
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+--- !u!114 &1978482505
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1978482501}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b4416abd9774d8bb2a4dcddc348757f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerPrefabs:
+  - {fileID: 3455635103054594336, guid: 67f917de9a9f847ef81257adfec24f8a, type: 3}
 --- !u!1 &2117876675
 GameObject:
   m_ObjectHideFlags: 0
@@ -718,7 +721,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 25
+  orthographic size: 35
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2

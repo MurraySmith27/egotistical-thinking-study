@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Unity.Netcode;
@@ -8,12 +10,17 @@ using UnityEditor;
 
 public class PlayerNetworkBehaviour : NetworkBehaviour
 {
-    public InputActionAsset clientInput;
+    
+    
+    [SerializeField] private InputActionAsset clientInput;
+    [SerializeField] private float secondsPerGridMove;
+    
     private InputAction clickAction;
     private InputAction mousePosition;
     private NetworkVariable<Vector3> position = new NetworkVariable<Vector3>();
 
-    private List<GUID> serverSideClientList;
+    private Coroutine moveCoroutine;
+    
 
     
     void Awake() {
@@ -25,25 +32,13 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
     public override void OnNetworkSpawn() {
         if (this.IsServer) {
             position.Value = gameObject.transform.position;
-            serverSideClientList = new List<GUID>();
-            NetworkManager.Singleton.OnClientConnectedCallback += Server_RegisterClient;
-            NetworkManager.Singleton.OnClientDisconnectCallback += Server_DeregisterClient;
+           
         }
         else if (this.IsClient) {
             clickAction.performed += OnClick; 
         }
 
         position.OnValueChanged += UpdatePosition;
-    }
-
-    private void Server_RegisterClient(ulong clientId)
-    {
-        
-    }
-
-    private void Server_DeregisterClient(ulong clientId)
-    {
-        
     }
     
     public void OnClick(InputAction.CallbackContext context) {
@@ -59,16 +54,63 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
         if (Physics.Raycast(ray.origin, ray.direction, out hit, 100, ~LayerMask.NameToLayer("MapTile")))
         {
             Vector3 hitPos = hit.transform.position;
-            
-            
+
+            if (hit.transform.gameObject.name.Contains("Road"))
+            {
+                MovePlayerTo_ServerRpc(hitPos);
+            }
         }
     }
     
 
-    [ServerRpc]
-    void MovePlayerTo()
+    [ServerRpc(RequireOwnership=false)]
+    void MovePlayerTo_ServerRpc(Vector3 worldPos, ServerRpcParams serverRpcParams = default)
     {
+        if (moveCoroutine != null)
+        {
+            StopCoroutine(moveCoroutine);
+        }
         
+        Vector2Int destinationPos = new((int)(worldPos.x / MapGenerator.Instance.tileWidth), (int)(worldPos.y / MapGenerator.Instance.tileHeight));
+        Vector3 playerPos = GameObject.FindGameObjectWithTag("Player").transform.position;
+        Vector2 playerPosVec2 = new((playerPos.x / MapGenerator.Instance.tileWidth),
+            (playerPos.y / MapGenerator.Instance.tileHeight));
+        Vector2Int playerGridPos = new((int)Math.Round(playerPosVec2.x),(int)Math.Round(playerPosVec2.y));
+
+        List<Vector2Int> path = MapGenerator.Instance.NavigateRoads(playerGridPos, destinationPos);
+
+        List<Vector2> vec2Path = new List<Vector2>(path.Select(obj => new Vector2(obj.x, obj.y)).ToArray());
+
+        vec2Path[0] = playerPosVec2;
+        
+
+        moveCoroutine = StartCoroutine(MovePlayerAlongPath(vec2Path));
+    }
+
+    private IEnumerator MovePlayerAlongPath(List<Vector2> path)
+    {
+        float playerZ = GameObject.FindGameObjectWithTag("Player").transform.position.z;
+
+        Vector3 lastPosition = Vector3.zero;
+        Vector3 nextPosition = new Vector3(path[0].x * MapGenerator.Instance.tileWidth,
+            path[0].y * MapGenerator.Instance.tileHeight, playerZ);
+        
+        Debug.Log("path:");
+        Debug.Log($"{path[0]}");
+        foreach (Vector2 destination in path.Skip(1))
+        {
+
+            Debug.Log($"{destination}");
+            lastPosition = nextPosition;
+            nextPosition = new Vector3(destination.x * MapGenerator.Instance.tileWidth,
+                destination.y * MapGenerator.Instance.tileHeight, playerZ);
+            
+            for (float t = 0; t < secondsPerGridMove; t += Time.deltaTime)
+            {
+                position.Value = Vector3.Lerp(lastPosition, nextPosition, t / secondsPerGridMove);
+                yield return null;
+            }
+        }
     }
 
     private void UpdatePosition(Vector3 prev, Vector3 current) {
