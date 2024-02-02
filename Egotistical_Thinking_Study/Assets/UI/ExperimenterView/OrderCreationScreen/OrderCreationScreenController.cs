@@ -29,11 +29,9 @@ public class OrderCreationScreenController : MonoBehaviour
         InventorySystem.Instance.onInventoryChanged += OnInventoryChanged;
     }
 
-    private void OnInventoryChanged(int playerIdx, InventoryChangeType change)
+    private void OnInventoryChanged(int inventoryNum, bool isPlayer, InventoryChangeType change)
     {
-        foreach (ItemDetails item in InventorySystem.Instance.m_inventoryPerPlayer[playerIdx])
-        {
-            
-        }
+        
+        //TODO:
     }
 }

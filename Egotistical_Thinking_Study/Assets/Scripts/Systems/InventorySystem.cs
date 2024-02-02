@@ -18,11 +18,13 @@ public class ItemDetails
 public enum InventoryChangeType
 {
     Pickup,
-    Drop
+    Drop,
+    Add,
+    Remove
 }
 
 
-public delegate void InventoryChangedEvent(int inventoryNum, bool isPlayer);
+public delegate void InventoryChangedEvent(int inventoryNum, bool isPlayer, InventoryChangeType changeType);
 public class InventorySystem : NetworkBehaviour
 {
     private static InventorySystem _instance;
@@ -144,7 +146,7 @@ public class InventorySystem : NetworkBehaviour
             }
             
             
-            onInventoryChanged(inventoryNum, isPlayer);
+            onInventoryChanged(inventoryNum, isPlayer,  InventoryChangeType.Add);
         }
     }
     
@@ -184,7 +186,7 @@ public class InventorySystem : NetworkBehaviour
                 MapGenerator.Instance.warehouses[inventoryNum].GetComponent<InventoryNetworkBehaviour>().RemoveItem(itemIdx);
             }
             
-            onInventoryChanged(inventoryNum, itemGuid, isPlayer);
+            onInventoryChanged(inventoryNum, isPlayer, InventoryChangeType.Remove);
         }
     }
 }
