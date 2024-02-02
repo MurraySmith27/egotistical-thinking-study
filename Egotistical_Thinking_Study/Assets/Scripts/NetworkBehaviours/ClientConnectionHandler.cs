@@ -1,17 +1,39 @@
 using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using UnityEngine;
 using Unity.Netcode;
 
 public class ClientConnectionHandler : NetworkBehaviour
 {
+    private static ClientConnectionHandler _instance;
+    public static ClientConnectionHandler Instance
+    {
+        get { return _instance; }
+    }
     [SerializeField] private List<GameObject> playerPrefabs;
+
+    public int m_numConnectedClients = 0;
+
+    void Awake()
+    {
+        if (_instance != null && _instance != this)
+        {
+            Destroy(this.gameObject);
+        }
+        else
+        {
+            _instance = this;
+        }
+    }
     
-    private struct PlayerSessionInfo
+    public struct PlayerSessionInfo
     {
         public int playerNum;
+        public ulong clientId;
     }
-    private Dictionary<Guid, PlayerSessionInfo> serverSideClientList;
+    
+    public Dictionary<Guid, PlayerSessionInfo> serverSideClientList;
     
     public override void OnNetworkSpawn()
     {
@@ -33,22 +55,19 @@ public class ClientConnectionHandler : NetworkBehaviour
         if (serverSideClientList.ContainsKey(playerSessionGuid))
         {
             sessionInfo = serverSideClientList[playerSessionGuid];
+            sessionInfo.clientId = clientId;
         }
         else
         {
-            sessionInfo.playerNum = serverSideClientList.Keys.Count + 1;
+            sessionInfo.playerNum = serverSideClientList.Keys.Count;
+            sessionInfo.clientId = clientId;
             serverSideClientList.Add(playerSessionGuid, sessionInfo);
+            m_numConnectedClients++;
         }
-
         
-
         response.Approved = true;
         response.CreatePlayerObject = true;
         response.PlayerPrefabHash = (uint)typeof(NetworkObject).GetProperty("GlobalObjectIdHash").GetValue(playerPrefabs[sessionInfo.playerNum].GetComponent<NetworkObject>());
-
-        Debug.Log($"Hash: {response.PlayerPrefabHash}");
-
-
     }
     
 }

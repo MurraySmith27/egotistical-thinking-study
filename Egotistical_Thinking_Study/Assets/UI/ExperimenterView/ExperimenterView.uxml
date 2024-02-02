@@ -1,0 +1,18 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement name="root" style="flex-grow: 1; flex-basis: 100%; flex-direction: row;">
+        <ui:VisualElement name="button-rack" style="flex-grow: 1; flex-basis: 30%;">
+            <ui:VisualElement name="placeholder-root" style="flex-grow: 1; flex-basis: auto; background-color: rgb(255, 255, 255); border-top-left-radius: 10px; border-top-right-radius: 10px; border-bottom-right-radius: 10px; border-bottom-left-radius: 10px;">
+                <ui:VisualElement style="flex-grow: 1;" />
+                <ui:Button text="Button" parse-escape-sequences="true" display-tooltip-when-elided="true" style="flex-basis: auto; justify-content: center; align-self: auto; align-items: stretch;" />
+                <ui:VisualElement style="flex-grow: 1;" />
+            </ui:VisualElement>
+            <ui:VisualElement name="create-order-root" style="flex-grow: 1; flex-basis: auto; background-color: rgb(255, 255, 255); border-top-left-radius: 10px; border-top-right-radius: 10px; border-bottom-right-radius: 10px; border-bottom-left-radius: 10px;">
+                <ui:VisualElement style="flex-grow: 1;" />
+                <ui:Button text="Create Order" parse-escape-sequences="true" display-tooltip-when-elided="true" name="create-order-button" style="flex-basis: auto;" />
+                <ui:VisualElement style="flex-grow: 1;" />
+            </ui:VisualElement>
+            <ui:VisualElement name="button-rack-bottom-spacer" style="flex-grow: 6; flex-basis: auto; flex-shrink: 6;" />
+        </ui:VisualElement>
+        <ui:VisualElement name="right-spacer" style="flex-grow: 1; flex-basis: 70%;" />
+    </ui:VisualElement>
+</ui:UXML>

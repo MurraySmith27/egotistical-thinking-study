@@ -26,6 +26,8 @@ public class MapGenerator : MonoBehaviour
 
     [SerializeField] private List<char> roadConnectionLettersWest;
 
+    [SerializeField] private List<char> warehouseLetters;
+
     private Dictionary<char, GameObject> nameToPrefabMap;
 
     public List<List<GameObject>> map;
@@ -34,6 +36,14 @@ public class MapGenerator : MonoBehaviour
 
     public Vector2Int gridOrigin;
 
+    public int numWarehouses { 
+        get {
+            return warehouses.Count;
+        }
+    }
+
+    public List<GameObject> warehouses;
+    
     void Awake()
     {
         if (_instance != null && _instance != this)
@@ -71,6 +81,11 @@ public class MapGenerator : MonoBehaviour
 
                     go.GetComponent<NetworkObject>().Spawn();
                     map[col].Add(go);
+
+                    if (warehouseLetters.Contains(textMap[row][col]))
+                    {
+                        warehouses.Add(go);
+                    }
                 }
                 else if (textMap[row][col] == roadLetter || textMap[row][col] == playerLetter) {
                     string roadConnectionsSuffix = "";
