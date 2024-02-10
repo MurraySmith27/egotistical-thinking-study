@@ -34,6 +34,8 @@ public class ClientConnectionHandler : NetworkBehaviour
     }
     
     public Dictionary<Guid, PlayerSessionInfo> serverSideClientList;
+
+    public PlayerSessionInfo clientSideSessionInfo;
     
     public override void OnNetworkSpawn()
     {
@@ -41,7 +43,39 @@ public class ClientConnectionHandler : NetworkBehaviour
         {
             serverSideClientList = new Dictionary<Guid, PlayerSessionInfo>();
             NetworkManager.Singleton.ConnectionApprovalCallback += Server_ApproveConnection;
+            NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
         }   
+        else if (this.IsClient)
+        {
+            
+        }
+    }
+
+    private void OnClientConnected(ulong clientId)
+    {
+        foreach (Guid guid in serverSideClientList.Keys)
+        {
+            if (serverSideClientList[guid].clientId == clientId)
+            {
+                ClientRpcParams clientRpcParams = new ClientRpcParams
+                {
+                    Send = new ClientRpcSendParams
+                    {
+                        TargetClientIds = new ulong[] { clientId }
+                    }
+                };
+                RecievePlayerSessionInfo_ClientRpc(serverSideClientList[guid].playerNum, clientRpcParams);
+                break;
+            }
+        }
+    }
+    
+    [ClientRpc]
+    private void RecievePlayerSessionInfo_ClientRpc(int playerNum, ClientRpcParams clientRpcParams = default)
+    {
+        clientSideSessionInfo = new PlayerSessionInfo();
+        clientSideSessionInfo.playerNum = playerNum;
+        clientSideSessionInfo.clientId = NetworkManager.Singleton.LocalClientId;
     }
     
     private void Server_ApproveConnection(NetworkManager.ConnectionApprovalRequest request,

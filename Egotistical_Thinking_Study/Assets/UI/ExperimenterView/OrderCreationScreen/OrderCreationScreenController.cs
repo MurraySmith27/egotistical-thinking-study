@@ -12,12 +12,11 @@ public class OrderCreationScreenController : MonoBehaviour
     private VisualElement m_Root;
     private VisualElement m_SlotContainer;
 
-    private void Awake()
+    private void Start()
     {
         m_Root = GetComponent<UIDocument>().rootVisualElement;
 
         m_SlotContainer = m_Root.Q<VisualElement>("slot-container");
-
         for (int i = 0; i < InventorySystem.Instance.m_numInventorySlotsPerPlayer; i++)
         {
             InventorySlot item = new InventorySlot();

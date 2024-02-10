@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
 using UnityEditor;
+using UnityEditor.PackageManager;
 using UnityEngine;
 
 [Serializable]
@@ -57,59 +58,115 @@ public class InventorySystem : NetworkBehaviour
     {
         if (this.IsServer)
         {
-            foreach (Guid guid in ClientConnectionHandler.Instance.serverSideClientList.Keys)
-            {
-                ClientConnectionHandler.PlayerSessionInfo sessionInfo =
-                    ClientConnectionHandler.Instance.serverSideClientList[guid];
-                GameObject playerObj = NetworkManager.Singleton.ConnectedClients[sessionInfo.clientId].PlayerObject.gameObject;
-                InventoryNetworkBehaviour inventory = playerObj.GetComponent<InventoryNetworkBehaviour>();
-                
-                inventory.InitializeEmpty(m_items.Count);
-            }
 
             NetworkManager.Singleton.OnClientConnectedCallback += OnNewClientConnected;
+
+            //initialize warehouse inventories
+            for (int i = 0; i < MapGenerator.Instance.warehouses.Count; i++)
+            {
+                GameObject warehouse = MapGenerator.Instance.warehouses[i];
+                InventoryNetworkBehaviour inventory = warehouse.GetComponent<InventoryNetworkBehaviour>();
+                
+                inventory.InitializeEmpty(m_numInventorySlotsPerWarehouse);
+
+                foreach (int item in GameRoot.Instance.configData.WarehouseContents[i])
+                {
+                    inventory.AddItem(item);
+                }
+            }
         }
     }
-    
-    
 
     private void OnNewClientConnected(ulong clientId)
     {
         if (this.IsServer)
         {
-            GameObject playerObj = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject.gameObject;
+            int playerNum = GetSessionInfo(clientId).playerNum;
+            GameObject playerObj =
+                MapGenerator.Instance.playerObjects[playerNum];
             InventoryNetworkBehaviour inventory = playerObj.GetComponent<InventoryNetworkBehaviour>();
-                
+            inventory.SetMaxInventorySlots(m_numInventorySlotsPerPlayer);
+            
             inventory.InitializeEmpty(m_items.Count);
         }
     }
-
-    private ulong GetClientId(int playerNum)
+    
+    private ClientConnectionHandler.PlayerSessionInfo GetSessionInfo(ulong clientId)
     {
+        ClientConnectionHandler.PlayerSessionInfo _sessionInfo = new ClientConnectionHandler.PlayerSessionInfo();
+        foreach (ClientConnectionHandler.PlayerSessionInfo sessionInfo in ClientConnectionHandler.Instance
+                     .serverSideClientList.Values)
+        {
+            if (sessionInfo.clientId == clientId)
+            {
+                _sessionInfo = sessionInfo;
+                break;
+            }
+        }
+
+        return _sessionInfo;
+    }
+
+    private ClientConnectionHandler.PlayerSessionInfo GetSessionInfo(int playerNum)
+    {
+        ClientConnectionHandler.PlayerSessionInfo _sessionInfo = new ClientConnectionHandler.PlayerSessionInfo();
         foreach (ClientConnectionHandler.PlayerSessionInfo sessionInfo in ClientConnectionHandler.Instance
                      .serverSideClientList.Values)
         {
             if (sessionInfo.playerNum == playerNum)
             {
-                return sessionInfo.clientId;
+                _sessionInfo = sessionInfo;
+                break;
             }
         }
 
-        return 0;
+        return _sessionInfo;
     }
+    
 
     public List<int> GetInventory(int inventoryNum, bool isPlayer)
     {
-        if (isPlayer)
+        if (this.IsServer)
         {
-            ulong clientId = GetClientId(inventoryNum);
-            return NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject
-                .GetComponent<InventoryNetworkBehaviour>().m_inventory;
+            if (isPlayer)
+            {
+                ulong clientId = GetSessionInfo(inventoryNum).clientId;
+                return NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject
+                    .GetComponent<InventoryNetworkBehaviour>().GetInventory();
+            }
+            else
+            {
+                return MapGenerator.Instance.warehouses[inventoryNum].GetComponent<InventoryNetworkBehaviour>()
+                    .GetInventory();
+            }
         }
-        else
+        else if (this.IsClient)
         {
-            return MapGenerator.Instance.warehouses[inventoryNum].GetComponent<InventoryNetworkBehaviour>().m_inventory;
+            if (isPlayer)
+            {
+                ulong playerNetworkObjectId = MapDataNetworkBehaviour.Instance.GetNetworkIdOfPlayer(inventoryNum);
+                foreach (NetworkObject networkObject in FindObjectsOfType<NetworkObject>())
+                {
+                    if (networkObject.NetworkObjectId == playerNetworkObjectId)
+                    {
+                        Debug.Log($"player object id: {playerNetworkObjectId}");
+                        return networkObject.GetComponent<InventoryNetworkBehaviour>().GetInventory();
+                    }
+                }
+            }
+            else
+            {
+                ulong warehouseNetworkObjectId = MapDataNetworkBehaviour.Instance.GetNetworkIdOfWarehouse(inventoryNum);
+                foreach (NetworkObject networkObject in FindObjectsOfType<NetworkObject>())
+                {
+                    if (networkObject.NetworkObjectId == warehouseNetworkObjectId)
+                    {
+                        return networkObject.GetComponent<InventoryNetworkBehaviour>().GetInventory();
+                    }
+                }
+            }
         }
+        return new();
     }
     
 
@@ -133,7 +190,7 @@ public class InventorySystem : NetworkBehaviour
         {
             if (isPlayer)
             {
-                ulong clientId = GetClientId(inventoryNum);
+                ulong clientId = GetSessionInfo(inventoryNum).clientId;
                 NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject
                             .GetComponent<InventoryNetworkBehaviour>().AddItem(itemIdx);
                  

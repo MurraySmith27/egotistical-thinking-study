@@ -36,6 +36,8 @@ public class MapGenerator : MonoBehaviour
 
     public Vector2Int gridOrigin;
 
+    public List<GameObject> playerObjects;
+
     public int numWarehouses { 
         get {
             return warehouses.Count;
@@ -69,6 +71,7 @@ public class MapGenerator : MonoBehaviour
     {
         map = new List<List<GameObject>>(textMap[0].Length);
         roadMap = new List<List<bool>>(textMap[0].Length);
+        playerObjects = new List<GameObject>();
         for (int col = 0; col < textMap.Length; col++)
         {
             map.Add(new List<GameObject>(textMap.Length));
@@ -116,8 +119,9 @@ public class MapGenerator : MonoBehaviour
 
                     if (textMap[row][col] == playerLetter) {
                         GameObject go = Instantiate(playerPrefab, new Vector3(col * tileWidth, -row * tileHeight, -1), Quaternion.identity);
-
+                        
                         go.GetComponent<NetworkObject>().Spawn();
+                        playerObjects.Add(go);
                     }
                     
                     isRoad = true;
@@ -129,6 +133,9 @@ public class MapGenerator : MonoBehaviour
                 roadMap[col].Add(isRoad);
             }
         }
+        
+        MapDataNetworkBehaviour.Instance.RegisterWareHouseNetworkObjectIds(warehouses);
+        MapDataNetworkBehaviour.Instance.RegisterPlayerNetworkObjectIds(playerObjects);
     }
 
     private Dictionary<Vector2Int, List<Vector2Int>> ConstructGraphFromMap()

@@ -1,0 +1,9 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement name="root" style="flex-grow: 1;">
+        <ui:VisualElement name="inventory-root" style="flex-grow: 5;" />
+        <ui:VisualElement name="button-root" style="flex-grow: 1; flex-direction: row;">
+            <ui:Button text="Back" parse-escape-sequences="true" display-tooltip-when-elided="true" name="back-button" />
+            <ui:VisualElement name="button-root-spacer" style="flex-grow: 1;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

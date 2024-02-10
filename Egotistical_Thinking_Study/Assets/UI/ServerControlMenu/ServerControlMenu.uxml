@@ -4,6 +4,7 @@
         <ui:VisualElement name="menu-root">
             <ui:Label text="Map File: None" display-tooltip-when-elided="true" name="map-file-label" />
             <ui:Button text="Load Map File" display-tooltip-when-elided="true" name="load-map-file-button" />
+            <ui:Button text="Load Config File" display-tooltip-when-elided="true" name="load-config-file-button" />
             <ui:Button text="Start Game" display-tooltip-when-elided="true" name="start-game-button" />
         </ui:VisualElement>
     </ui:VisualElement>
