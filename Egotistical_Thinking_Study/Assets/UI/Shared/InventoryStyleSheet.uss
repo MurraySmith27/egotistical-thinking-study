@@ -38,9 +38,18 @@ VisualElement {
     justify-content: center;
 }
 
+.item-count {
+    font-size: 14;
+    color: white;
+    align-self: flex-end;
+    -unity-text-align: upper-right;
+}
+
 .slot {
     width: 128px;
+    max-width: 128px;
     height: 128px;
+    max-height: 128px;
     margin: 5px;
     border-left-color: rgb(48, 48, 48);
     border-right-color: rgb(48, 48, 48);

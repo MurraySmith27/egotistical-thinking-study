@@ -20,8 +20,8 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
     private NetworkVariable<Vector3> position = new NetworkVariable<Vector3>();
 
     private Coroutine moveCoroutine;
-    
 
+    public int m_playerNum;
     
     void Awake() {
         clickAction = clientInput["mouseClick"];
@@ -32,7 +32,6 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
     public override void OnNetworkSpawn() {
         if (this.IsServer) {
             position.Value = gameObject.transform.position;
-           
         }
         else if (this.IsClient) {
             clickAction.performed += OnClick; 
@@ -57,22 +56,28 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
 
             if (hit.transform.gameObject.name.Contains("Road"))
             {
-                MovePlayerTo_ServerRpc(hitPos);
+                int playerNum = ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum;
+                MovePlayerTo_ServerRpc(hitPos, playerNum);
             }
         }
     }
     
 
     [ServerRpc(RequireOwnership=false)]
-    void MovePlayerTo_ServerRpc(Vector3 worldPos, ServerRpcParams serverRpcParams = default)
+    void MovePlayerTo_ServerRpc(Vector3 worldPos,  int playerNum, ServerRpcParams serverRpcParams = default)
     {
+        if (m_playerNum != playerNum)
+        {
+            return;
+        }
+        
         if (moveCoroutine != null)
         {
             StopCoroutine(moveCoroutine);
         }
         
         Vector2Int destinationPos = new((int)(worldPos.x / MapGenerator.Instance.tileWidth), (int)(worldPos.y / MapGenerator.Instance.tileHeight));
-        Vector3 playerPos = GameObject.FindGameObjectWithTag("Player").transform.position;
+        Vector3 playerPos = transform.position;
         Vector2 playerPosVec2 = new((playerPos.x / MapGenerator.Instance.tileWidth),
             (playerPos.y / MapGenerator.Instance.tileHeight));
         Vector2Int playerGridPos = new((int)Math.Round(playerPosVec2.x),(int)Math.Round(playerPosVec2.y));
@@ -84,23 +89,20 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
         vec2Path[0] = playerPosVec2;
         
 
-        moveCoroutine = StartCoroutine(MovePlayerAlongPath(vec2Path));
+        moveCoroutine = StartCoroutine(MovePlayerAlongPath(vec2Path, playerNum));
     }
 
-    private IEnumerator MovePlayerAlongPath(List<Vector2> path)
+    private IEnumerator MovePlayerAlongPath(List<Vector2> path, int playerNum)
     {
-        float playerZ = GameObject.FindGameObjectWithTag("Player").transform.position.z;
+        float playerZ = transform.position.z;
 
         Vector3 lastPosition = Vector3.zero;
         Vector3 nextPosition = new Vector3(path[0].x * MapGenerator.Instance.tileWidth,
             path[0].y * MapGenerator.Instance.tileHeight, playerZ);
         
-        Debug.Log("path:");
-        Debug.Log($"{path[0]}");
         foreach (Vector2 destination in path.Skip(1))
         {
 
-            Debug.Log($"{destination}");
             lastPosition = nextPosition;
             nextPosition = new Vector3(destination.x * MapGenerator.Instance.tileWidth,
                 destination.y * MapGenerator.Instance.tileHeight, playerZ);

@@ -35,14 +35,15 @@ public class PlayerInventoryMenuController : MonoBehaviour
         //get current player number
         int playerNum = ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum;
         
-        List<int> playerInventory = InventorySystem.Instance.GetInventory(playerNum, true);
+        
+        VisualElement inventoryContainer = m_inventoryElement.Q<VisualElement>("slot-container");
         
         //populate inventory
         for (int i = 0; i < InventorySystem.Instance.m_numInventorySlotsPerPlayer; i++)
         {
             InventorySlot itemSlot = new InventorySlot();
             m_inventoryItems.Add(itemSlot);
-            m_inventoryElement.Add(itemSlot);
+            inventoryContainer.Add(itemSlot);
         }
     }
 

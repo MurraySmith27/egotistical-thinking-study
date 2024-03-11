@@ -4,9 +4,24 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Windows.Speech;
 
+public struct Order
+{
+    public int RecievingPlayer;
+    public int[] MapDestination;
+    public Dictionary<string, int> RequiredItems;
+    public string TextDescription;
+}
+
+public struct Warehouse
+{
+    public Dictionary<string, int> Contents;
+    public int PlayerOwner;
+}
+
 public class ConfigData
 {
-    public int[][] WarehouseContents { get; set; }
+    public Warehouse[] Warehouses { get; set; }
+    public Order[] Orders;
 }
 
 public class GameRoot : MonoBehaviour
@@ -50,18 +65,14 @@ public class GameRoot : MonoBehaviour
     public void SetConfigData(ConfigData configData_)
     {
         this.configData = configData_;
-        
-        var warehouseContentsArray = configData.WarehouseContents;
-        for (int i = 0; i < warehouseContentsArray.Length; i++)
-        {
-            for (int j = 0; j < warehouseContentsArray[i].Length; j++)
-            {
-                Debug.Log(warehouseContentsArray[i][j]);
-            }
-        }
     }
     
     public void OnStart() {
         this.mapGenerator.GenerateMap(this.map);
+
+        InventorySystem.Instance.OnGameStart();
+
+        // OrderSystem.Instance.OnGameStart();
+
     }
 }

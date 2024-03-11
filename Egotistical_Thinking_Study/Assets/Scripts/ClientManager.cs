@@ -13,18 +13,28 @@ public class ClientManager : MonoBehaviour
     [SerializeField] private GameObject mainMenu;
     [SerializeField] private GameObject clientMenu;
 
-    public void StartClient(string address, int port) {
-        
-        //generate client-side guid in player prefs to identify machines
+    public bool m_testing = true;
+
+    public void StartClient(string address, int port)
+    {
+
         Guid playerGUID;
-        if (PlayerPrefs.HasKey("SessionGUID"))
+        if (m_testing)
         {
-            playerGUID = new Guid(PlayerPrefs.GetString("SessionGUID"));
+            playerGUID = Guid.NewGuid();
         }
         else
         {
-            playerGUID = Guid.NewGuid();
-            PlayerPrefs.SetString("SessionGUID", playerGUID.ToString());
+            //generate client-side guid in player prefs to identify machines
+            if (PlayerPrefs.HasKey("SessionGUID"))
+            {
+                playerGUID = new Guid(PlayerPrefs.GetString("SessionGUID"));
+            }
+            else
+            {
+                playerGUID = Guid.NewGuid();
+                PlayerPrefs.SetString("SessionGUID", playerGUID.ToString());
+            }
         }
 
         byte[] playerGUIDbyteArr = playerGUID.ToByteArray();
@@ -42,7 +52,7 @@ public class ClientManager : MonoBehaviour
 
         mainMenu.SetActive(false);
 
-        clientMenu.SetActive(true);
-
+        NetworkManager.Singleton.OnClientConnectedCallback += obj => { clientMenu.SetActive(true); };
+    
     }
 }

@@ -14,6 +14,8 @@ public class ServerControlMenuController : MonoBehaviour
 
     [SerializeField] private GameRoot gameRoot;
 
+    [SerializeField] private GameObject experimenterView;
+
     private Label mapFileLabel;
     private Button loadMapFileButton;
     private Button loadConfigFileButton;
@@ -35,8 +37,15 @@ public class ServerControlMenuController : MonoBehaviour
 
         loadConfigFileButton.clicked += LoadConfigFile;
 
-        startGameButton.clicked += gameRoot.OnStart;
+        startGameButton.clicked += OnGameStart;
 
+    }
+
+    void OnGameStart()
+    {
+        gameRoot.OnStart();
+        experimenterView.SetActive(true);
+        this.gameObject.SetActive(false);
     }
 
     void LoadMapFile() {

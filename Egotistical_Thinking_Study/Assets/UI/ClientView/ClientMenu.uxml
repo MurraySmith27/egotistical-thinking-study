@@ -1,8 +1,13 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <ui:VisualElement name="root" style="flex-grow: 1; flex-direction: row;">
+        <ui:VisualElement name="order-root" style="flex-grow: 1; max-width: 30%; background-color: rgb(255, 255, 255); visibility: visible; display: flex;" />
         <ui:VisualElement name="menu-root" style="flex-grow: 1;">
-            <ui:Button text="View Inventory" parse-escape-sequences="true" display-tooltip-when-elided="true" name="view-inventory-button" />
+            <ui:VisualElement name="inventory-root" style="flex-grow: 1; flex-direction: row; display: flex;">
+                <ui:VisualElement name="player-inventory-root" style="flex-grow: 1;" />
+                <ui:VisualElement name="warehouse-inventory-root" style="flex-grow: 1;" />
+            </ui:VisualElement>
+            <ui:VisualElement name="spacer" style="flex-grow: 2;" />
         </ui:VisualElement>
-        <ui:VisualElement name="spacer" style="flex-grow: 2;" />
+        <ui:VisualElement name="ghost-icon" style="flex-grow: 1; width: 128px; height: 128px; visibility: hidden; position: absolute;" />
     </ui:VisualElement>
 </ui:UXML>

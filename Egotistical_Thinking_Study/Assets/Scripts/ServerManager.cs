@@ -15,6 +15,9 @@ public class ServerManager : MonoBehaviour
 
     public void StartServer(string address, int port) {
         NetworkManager.Singleton.GetComponent<UnityTransport>().SetConnectionData(address, (ushort)port);
+
+        NetworkManager.Singleton.ConnectionApprovalCallback = ClientConnectionHandler.Instance.Server_ApproveConnection;
+        
         
         bool success = NetworkManager.Singleton.StartServer();
         

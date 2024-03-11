@@ -1,1 +1,18 @@
-VisualElement {}
+VisualElement {
+}
+
+.order-container {
+    font-size: 14;
+    color: white;
+    max-width: 30%;
+}
+
+.required-items-container {
+    flex-grow: 1;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.order {
+}

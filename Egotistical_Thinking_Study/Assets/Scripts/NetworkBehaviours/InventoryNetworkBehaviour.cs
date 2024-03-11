@@ -3,59 +3,135 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 
+
+public delegate void InventoryUpdatedEvent();
 public class InventoryNetworkBehaviour : NetworkBehaviour
 {
+    public InventoryUpdatedEvent m_inventoryUpdated;
     // each item type has an integer index associated with it, and this variable tells us how much of each
     //  item is in the inventory.
-    public NetworkVariable<NetworkSerializableIntArray> m_inventory;
+    public NetworkVariable<NetworkSerializableIntArray> m_itemQuantities = new NetworkVariable<NetworkSerializableIntArray>();
 
-    private NetworkVariable<int> m_numOccupiedSlots;
-    
-    public NetworkVariable<int> m_maxInventorySlots;
+    public NetworkVariable<NetworkSerializableIntArray> m_itemPlacements = new NetworkVariable<NetworkSerializableIntArray>();
 
-    private NetworkVariable<int> m_numItems;
-    void Awake()
-    {
-        m_inventory = new NetworkVariable<NetworkSerializableIntArray>();
-        m_numOccupiedSlots = new NetworkVariable<int>();
-        m_maxInventorySlots = new NetworkVariable<int>();
-        m_numItems = new NetworkVariable<int>();
+    private int m_numItemsInInventory {
+        get {
+            int numTotalItems = 0;
+            foreach (int quantity in m_itemQuantities.Value.arr)
+            {
+                numTotalItems += quantity;
+            }
+
+            return numTotalItems;
+        }
     }
+    
+    public NetworkVariable<int> m_maxInventorySlots = new NetworkVariable<int>();
 
-    public List<int> GetInventory()
+    private NetworkVariable<int> m_numItems = new NetworkVariable<int>();
+
+    private NetworkVariable<int> m_inventoryChangeAlert = new NetworkVariable<int>();
+
+
+    public override void OnNetworkSpawn()
     {
-        return new List<int>(m_inventory.Value.arr);
+        if (!this.IsServer)
+        {
+            m_inventoryChangeAlert.OnValueChanged += (int prevousValue, int newValue) =>
+            {
+                if (m_inventoryUpdated != null && m_inventoryUpdated.GetInvocationList().Length > 0)
+                {
+                    m_inventoryUpdated();
+                }
+            };
+        }
+    }
+    
+    public List<(int, int)> GetInventory()
+    {
+        List<(int, int)> inventory = new List<(int, int)>();
+        for (int i = 0; i < m_maxInventorySlots.Value; i++)
+        {
+            int itemInThisSlot = -1;
+            for (int j = 0; j < m_numItems.Value; j++)
+            {
+                if (m_itemPlacements.Value.arr[j] == i)
+                {
+                    itemInThisSlot = j;
+                    break;
+                }
+            }
+
+            if (itemInThisSlot != -1)
+            {
+                inventory.Add((itemInThisSlot, m_itemQuantities.Value.arr[itemInThisSlot]));
+            }
+            else
+            {
+                inventory.Add((-1, -1));
+            }
+        }
+
+        return inventory;
     }
     
     public void SetMaxInventorySlots(int maxInventorySlots)
     {
         m_maxInventorySlots.Value = maxInventorySlots;
+        m_inventoryChangeAlert.Value++;
     }
 
     public void InitializeEmpty(int numItems)
     {
         m_numItems.Value = numItems;
-        m_inventory.Value = new NetworkSerializableIntArray();
-        m_inventory.Value.arr = new int[numItems];
+        m_itemQuantities.Value = new NetworkSerializableIntArray();
+        m_itemQuantities.Value.arr = new int[numItems];
+        m_itemPlacements.Value = new NetworkSerializableIntArray();
+        m_itemPlacements.Value.arr = new int[numItems];
         for (int i = 0; i < m_numItems.Value; i++)
         {
-            m_inventory.Value.arr[i] = 0;
+            m_itemQuantities.Value.arr[i] = 0;
+            m_itemPlacements.Value.arr[i] = -1;
         }
+        m_inventoryChangeAlert.Value++;
+    }
 
-        m_numOccupiedSlots.Value = 0;
+    public bool SetItemPlacement(int itemIndex, int inventoryIndex)
+    {
+        foreach (int placement in m_itemPlacements.Value.arr)
+        {
+            if (placement == inventoryIndex)
+            {
+                
+                Debug.LogError(
+                    $"Cannot set placement for item with index {itemIndex} to inventory slot: {inventoryIndex}! This inventory slot is already occupied!.");
+                return false;       
+            }
+        }
+        m_itemPlacements.Value.arr[itemIndex] = inventoryIndex;
+        m_inventoryChangeAlert.Value++;
+        return true;
     }
 
     public bool AddItem(int itemIndex)
     {
-        if (m_inventory.Value.arr[itemIndex] > 0)
+        if (m_itemPlacements.Value.arr[itemIndex] == -1)
         {
-            m_inventory.Value.arr[itemIndex]++;
+            Debug.LogError(
+                $"Cannot add item with index {itemIndex}! Set a placement for this item in the inventory first.");
+            return false;
+        }
+        
+        if (m_itemQuantities.Value.arr[itemIndex] > 0)
+        {
+            m_itemQuantities.Value.arr[itemIndex]++;
+            m_inventoryChangeAlert.Value++;
             return true;
         }
-        else if (m_numOccupiedSlots != m_maxInventorySlots)
+        else if (m_numItemsInInventory < m_maxInventorySlots.Value)
         {
-            m_numOccupiedSlots.Value++;
-            m_inventory.Value.arr[itemIndex]++;
+            m_itemQuantities.Value.arr[itemIndex]++;
+            m_inventoryChangeAlert.Value++;
             return true;
         }
         
@@ -64,16 +140,18 @@ public class InventoryNetworkBehaviour : NetworkBehaviour
 
     public void RemoveItem(int itemIndex)
     {
-        if (m_inventory.Value.arr[itemIndex] == 0)
+        if (m_itemQuantities.Value.arr[itemIndex] == 0)
         {
             Debug.LogError($"Tried to remove an item from inventory when there aren't any left. Item index: {itemIndex}");
         }
-        m_inventory.Value.arr[itemIndex]--;
+        m_itemQuantities.Value.arr[itemIndex]--;
 
-        if (m_inventory.Value.arr[itemIndex] == 0)
+        if (m_itemQuantities.Value.arr[itemIndex] == 0)
         {
-            m_numOccupiedSlots.Value--;
+            //free the inventory slot
+            m_itemPlacements.Value.arr[itemIndex] = -1;
         }
         
+        m_inventoryChangeAlert.Value++;
     }
 }

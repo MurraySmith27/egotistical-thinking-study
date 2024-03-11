@@ -7,20 +7,45 @@ public class InventorySlot : VisualElement
 {
     public Image Icon;
     public string ItemGuid = "";
+    public int count = 0;
 
-    public InventorySlot()
+    private Label countLabel;
+
+    public InventorySlot(bool interactable = true)
     {
         Icon = new Image();
-        this.Add(Icon);
-        
         Icon.AddToClassList("slot-icon");
+        this.Add(Icon);
+
+        countLabel = new Label();
+        countLabel.AddToClassList("item-count");
+        this.Add(countLabel);
+        
         this.AddToClassList("slot");
+
+        if (interactable)
+        {
+            RegisterCallback<PointerDownEvent>(OnPointerDown);
+        }
     }
     
-    public void HoldItem(ItemDetails itemDetails)
+    public void HoldItem(ItemDetails itemDetails, int itemCount)
     {
         Icon.image = itemDetails.Icon.texture;
         ItemGuid = itemDetails.GUID;
+        count = itemCount;
+
+        countLabel.text = $"{itemCount}";
+    }
+
+    private void OnPointerDown(PointerDownEvent evt)
+    {
+        if (evt.button != 0 || ItemGuid.Equals(""))
+        {
+            return;
+        }
+
+        ClientMenuController.Instance.StartDrag(evt.position, this);
     }
 
     public void DropItem()

@@ -11,7 +11,6 @@ public class ClientConnectionHandler : NetworkBehaviour
     {
         get { return _instance; }
     }
-    [SerializeField] private List<GameObject> playerPrefabs;
 
     public int m_numConnectedClients = 0;
 
@@ -42,7 +41,7 @@ public class ClientConnectionHandler : NetworkBehaviour
         if (this.IsServer)
         {
             serverSideClientList = new Dictionary<Guid, PlayerSessionInfo>();
-            NetworkManager.Singleton.ConnectionApprovalCallback += Server_ApproveConnection;
+
             NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
         }   
         else if (this.IsClient)
@@ -53,6 +52,7 @@ public class ClientConnectionHandler : NetworkBehaviour
 
     private void OnClientConnected(ulong clientId)
     {
+        Debug.Log($"client connected! Client id: {clientId}");
         foreach (Guid guid in serverSideClientList.Keys)
         {
             if (serverSideClientList[guid].clientId == clientId)
@@ -78,7 +78,7 @@ public class ClientConnectionHandler : NetworkBehaviour
         clientSideSessionInfo.clientId = NetworkManager.Singleton.LocalClientId;
     }
     
-    private void Server_ApproveConnection(NetworkManager.ConnectionApprovalRequest request,
+    public void Server_ApproveConnection(NetworkManager.ConnectionApprovalRequest request,
         NetworkManager.ConnectionApprovalResponse response)
     {
         ulong clientId = request.ClientNetworkId;
@@ -94,14 +94,14 @@ public class ClientConnectionHandler : NetworkBehaviour
         else
         {
             sessionInfo.playerNum = serverSideClientList.Keys.Count;
+            Debug.Log($"adding new player to client list wtih player number: {sessionInfo.playerNum}");
             sessionInfo.clientId = clientId;
             serverSideClientList.Add(playerSessionGuid, sessionInfo);
             m_numConnectedClients++;
         }
         
         response.Approved = true;
-        response.CreatePlayerObject = true;
-        response.PlayerPrefabHash = (uint)typeof(NetworkObject).GetProperty("GlobalObjectIdHash").GetValue(playerPrefabs[sessionInfo.playerNum].GetComponent<NetworkObject>());
+        response.CreatePlayerObject = false;
     }
     
 }

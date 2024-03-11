@@ -46,6 +46,11 @@ public class MapDataNetworkBehaviour : NetworkBehaviour
         return playerNetworkObjectIds.Value.arr[playerNum];
     }
 
+    public List<ulong> GetAllWarehouseNetworkObjectIds()
+    {
+        return new List<ulong>(warehouseNetworkObjectIds.Value.arr);
+    }
+
     public override void OnNetworkSpawn()
     {
         if (this.IsServer)
@@ -55,6 +60,9 @@ public class MapDataNetworkBehaviour : NetworkBehaviour
             
             playerNetworkObjectIds.Value = new NetworkSerializableUlongArray();
             playerNetworkObjectIds.Value.arr = new ulong[0];
+        }
+        else
+        {
         }
     }
 

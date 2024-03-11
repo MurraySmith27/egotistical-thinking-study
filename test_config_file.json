@@ -1,5 +1,43 @@
 {
-    "WarehouseContents": [
-        [1, 2, 3]
+    "Warehouses": [
+        {
+            "Contents": {
+                "0": 1,
+                "1": 2,
+                "2": 2,
+                "3": 0,
+                "4": 1
+            },
+            "PlayerOwner": 0 
+        },
+        {
+            "Contents": {
+                "5": 1
+            },
+            "PlayerOwner": -1
+        }
+    ],
+    "Orders": [
+        {
+            "RecievingPlayer": 1,
+            "MapDestination": [0,1],
+            "RequiredItems": {
+                "0": 1,
+                "2": 2,
+                "4": 1
+            },
+            "TextDescription": "Example Order"   
+        },
+        {
+            "RecievingPlayer": 0,
+            "MapDestination": [0,1],
+            "RequiredItems": {
+                "1": 1,
+                "3": 2,
+                "5": 1
+            },
+            "TextDescription": "Example Order 2"   
+        }
     ]
+     
 }

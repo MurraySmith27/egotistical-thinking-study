@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/ExperimenterView/ExperimenterView.uss?fileID=7433441132597879392&amp;guid=4db16f4e505707543ad7a194ba4d15da&amp;type=3#ExperimenterView" />
+    <Style src="project://database/Assets/UI/Shared/InventoryStyleSheet.uss?fileID=7433441132597879392&amp;guid=12734419a02e5734c81a16aba3a1dd5c&amp;type=3#InventoryStyleSheet" />
+    <ui:VisualElement name="root" style="flex-grow: 1; flex-direction: row;">
+        <ui:VisualElement name="order-container" class="order-container" style="flex-grow: 1; background-color: rgb(255, 255, 255); border-top-left-radius: 2px; border-top-right-radius: 2px; border-bottom-right-radius: 2px; border-bottom-left-radius: 2px;" />
+        <ui:VisualElement name="spacer" style="flex-grow: 2; flex-shrink: 2;" />
+    </ui:VisualElement>
+</ui:UXML>

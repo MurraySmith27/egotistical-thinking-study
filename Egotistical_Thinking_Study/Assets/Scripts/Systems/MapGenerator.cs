@@ -14,7 +14,7 @@ public class MapGenerator : MonoBehaviour
 
     [SerializeField] private char roadLetter = 'R';
     [SerializeField] private char playerLetter = 'P';
-    [SerializeField] private GameObject playerPrefab;
+    [SerializeField] private List<GameObject> playerPrefabs;
     [SerializeField] private List<char> tileNames = new List<char>();
     [SerializeField] private List<GameObject> tilePrefabs = new List<GameObject>();
 
@@ -72,16 +72,16 @@ public class MapGenerator : MonoBehaviour
         map = new List<List<GameObject>>(textMap[0].Length);
         roadMap = new List<List<bool>>(textMap[0].Length);
         playerObjects = new List<GameObject>();
-        for (int col = 0; col < textMap.Length; col++)
+        for (int col = 0; col < textMap[0].Length; col++)
         {
             map.Add(new List<GameObject>(textMap.Length));
             roadMap.Add(new List<bool>(textMap.Length));
-            for (int row = 0; row < textMap[0].Length; row++)
+            for (int row = 0; row < textMap.Length; row++)
             {
                 bool isRoad = false;
                 if (nameToPrefabMap.ContainsKey(textMap[row][col])) {
                     GameObject go = Instantiate(nameToPrefabMap[textMap[row][col]], new Vector3(col * tileWidth, -row * tileHeight, 0), Quaternion.identity);
-
+                    
                     go.GetComponent<NetworkObject>().Spawn();
                     map[col].Add(go);
 
@@ -118,9 +118,11 @@ public class MapGenerator : MonoBehaviour
                     }
 
                     if (textMap[row][col] == playerLetter) {
-                        GameObject go = Instantiate(playerPrefab, new Vector3(col * tileWidth, -row * tileHeight, -1), Quaternion.identity);
+                        GameObject go = Instantiate(playerPrefabs[playerObjects.Count], new Vector3(col * tileWidth, -row * tileHeight, -1), Quaternion.identity);
                         
                         go.GetComponent<NetworkObject>().Spawn();
+                        
+                        go.GetComponent<PlayerNetworkBehaviour>().m_playerNum = playerObjects.Count;
                         playerObjects.Add(go);
                     }
                     

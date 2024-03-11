@@ -1,4 +1,0 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <Style src="project://database/Assets/UI/ExperimenterView/OrderCreationScreen/OrderCreationScreen.uss?fileID=7433441132597879392&amp;guid=65d23810b8188dc478fa80c7dcc9cd5e&amp;type=3#OrderCreationScreen" />
-    <ui:VisualElement name="root" style="flex-grow: 1;" />
-</ui:UXML>

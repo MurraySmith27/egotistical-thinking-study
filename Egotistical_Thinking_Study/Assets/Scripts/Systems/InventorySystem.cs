@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using Unity.Netcode;
 using UnityEditor;
 using UnityEditor.PackageManager;
@@ -41,6 +42,8 @@ public class InventorySystem : NetworkBehaviour
     public int m_numInventorySlotsPerWarehouse = 20;
     
     public List<ItemDetails> m_items;
+
+    public NetworkVariable<NetworkSerializableIntArray> m_warehousePlayerOwners;
     
     private void Awake()
     {
@@ -52,36 +55,106 @@ public class InventorySystem : NetworkBehaviour
         {
             _instance = this;
         }
+        
+        m_warehousePlayerOwners = new NetworkVariable<NetworkSerializableIntArray>();
     }
-    
-    public override void OnNetworkSpawn() 
+
+    public override void OnNetworkSpawn()
     {
         if (this.IsServer)
         {
+            m_warehousePlayerOwners.Value = new NetworkSerializableIntArray();
+            m_warehousePlayerOwners.Value.arr = new int[0];
+        }
+    }
 
+    public void RegisterPlayerInventoryChangedCallback(int playerNum, InventoryUpdatedEvent callback)
+    {
+
+        ulong playerNetworkObjectId = MapDataNetworkBehaviour.Instance.GetNetworkIdOfPlayer(playerNum);
+        
+        foreach (NetworkObject networkObject in FindObjectsOfType<NetworkObject>())
+        {
+            if (networkObject.NetworkObjectId == playerNetworkObjectId)
+            {
+                GameObject playerObj = networkObject.gameObject;
+                playerObj.GetComponent<InventoryNetworkBehaviour>().m_inventoryUpdated += callback;
+            }
+        }
+    }
+
+    public void RegisterWarehouseInventoryChangedCallback(int warehouseNum, InventoryUpdatedEvent callback)
+    {
+        ulong warehouseNetworkObjectId = MapDataNetworkBehaviour.Instance.GetNetworkIdOfWarehouse(warehouseNum);
+        
+        foreach (NetworkObject networkObject in FindObjectsOfType<NetworkObject>())
+        {
+            if (networkObject.NetworkObjectId == warehouseNetworkObjectId)
+            {
+                GameObject warehouseObj = networkObject.gameObject;
+                warehouseObj.GetComponent<InventoryNetworkBehaviour>().m_inventoryUpdated -= callback;
+                warehouseObj.GetComponent<InventoryNetworkBehaviour>().m_inventoryUpdated += callback;
+            }
+        }
+    }
+    
+    public void DeregisterWarehouseInventoryChangedCallback(int warehouseNum, InventoryUpdatedEvent callback)
+    {
+        Debug.Log($"deregsitering warehouse inventory changed callback for warehouse nubmer: {warehouseNum}");
+        ulong warehouseNetworkObjectId = MapDataNetworkBehaviour.Instance.GetNetworkIdOfWarehouse(warehouseNum);
+        
+        foreach (NetworkObject networkObject in FindObjectsOfType<NetworkObject>())
+        {
+            if (networkObject.NetworkObjectId == warehouseNetworkObjectId)
+            {
+                GameObject warehouseObj = networkObject.gameObject;
+                warehouseObj.GetComponent<InventoryNetworkBehaviour>().m_inventoryUpdated -= callback;
+            }
+        }
+    }
+    
+    public void OnGameStart() 
+    {
+        if (this.IsServer)
+        {
             NetworkManager.Singleton.OnClientConnectedCallback += OnNewClientConnected;
+
+            m_warehousePlayerOwners.Value.arr = new int[MapGenerator.Instance.warehouses.Count];
 
             //initialize warehouse inventories
             for (int i = 0; i < MapGenerator.Instance.warehouses.Count; i++)
             {
                 GameObject warehouse = MapGenerator.Instance.warehouses[i];
                 InventoryNetworkBehaviour inventory = warehouse.GetComponent<InventoryNetworkBehaviour>();
-                
+                inventory.SetMaxInventorySlots(m_numInventorySlotsPerWarehouse);
                 inventory.InitializeEmpty(m_numInventorySlotsPerWarehouse);
 
-                foreach (int item in GameRoot.Instance.configData.WarehouseContents[i])
+                m_warehousePlayerOwners.Value.arr[i] = GameRoot.Instance.configData.Warehouses[i].PlayerOwner;
+                
+                int numItems = 0;
+                foreach (string key in GameRoot.Instance.configData.Warehouses[i].Contents.Keys)
                 {
-                    inventory.AddItem(item);
+                    int itemIndex = Int32.Parse(key);
+                    inventory.SetItemPlacement(itemIndex, numItems++);
+                    for (int j = 0; j < GameRoot.Instance.configData.Warehouses[i].Contents[key]; j++)
+                    {
+                        inventory.AddItem(itemIndex);
+                    }
                 }
             }
         }
+    }
+
+    public int GetOwnerOfWarehouse(int warehouseNum)
+    {
+        return m_warehousePlayerOwners.Value.arr[warehouseNum];
     }
 
     private void OnNewClientConnected(ulong clientId)
     {
         if (this.IsServer)
         {
-            int playerNum = GetSessionInfo(clientId).playerNum;
+            int playerNum = GetSessionInfoFromClientId(clientId).playerNum;
             GameObject playerObj =
                 MapGenerator.Instance.playerObjects[playerNum];
             InventoryNetworkBehaviour inventory = playerObj.GetComponent<InventoryNetworkBehaviour>();
@@ -91,7 +164,7 @@ public class InventorySystem : NetworkBehaviour
         }
     }
     
-    private ClientConnectionHandler.PlayerSessionInfo GetSessionInfo(ulong clientId)
+    private ClientConnectionHandler.PlayerSessionInfo GetSessionInfoFromClientId(ulong clientId)
     {
         ClientConnectionHandler.PlayerSessionInfo _sessionInfo = new ClientConnectionHandler.PlayerSessionInfo();
         foreach (ClientConnectionHandler.PlayerSessionInfo sessionInfo in ClientConnectionHandler.Instance
@@ -124,7 +197,7 @@ public class InventorySystem : NetworkBehaviour
     }
     
 
-    public List<int> GetInventory(int inventoryNum, bool isPlayer)
+    public List<(int, int)> GetInventory(int inventoryNum, bool isPlayer)
     {
         if (this.IsServer)
         {
@@ -140,7 +213,7 @@ public class InventorySystem : NetworkBehaviour
                     .GetInventory();
             }
         }
-        else if (this.IsClient)
+        else
         {
             if (isPlayer)
             {
@@ -149,7 +222,6 @@ public class InventorySystem : NetworkBehaviour
                 {
                     if (networkObject.NetworkObjectId == playerNetworkObjectId)
                     {
-                        Debug.Log($"player object id: {playerNetworkObjectId}");
                         return networkObject.GetComponent<InventoryNetworkBehaviour>().GetInventory();
                     }
                 }
@@ -168,10 +240,25 @@ public class InventorySystem : NetworkBehaviour
         }
         return new();
     }
-    
 
-    public void AddItemToInventory(int inventoryNum, string itemGuid, bool isPlayer)
+    [ClientRpc]
+    public void BroadCastInventoryChangedEvent_ClientRpc(int inventoryNum, bool isPlayer, InventoryChangeType changeType) 
     {
+        if (onInventoryChanged != null && onInventoryChanged.GetInvocationList().Length > 0)
+        {
+            onInventoryChanged(inventoryNum, isPlayer, InventoryChangeType.Add);
+        }
+    }
+
+    public void AddItemToInventory(int inventoryNum, bool isPlayer, string itemGuid, int quantity, int inventorySlot)
+    {
+        AddItemToInventory_ServerRpc(inventoryNum, isPlayer, itemGuid, quantity, inventorySlot);
+    }
+    
+    [ServerRpc (RequireOwnership = false)]
+    private void AddItemToInventory_ServerRpc(int inventoryNum, bool isPlayer, string itemGuid, int quantity, int inventorySlot, ServerRpcParams serverRpcParams = default)
+    {
+
         int itemIdx = -1;
         for (int i = 0; i < m_items.Count; i++)
         {
@@ -190,24 +277,41 @@ public class InventorySystem : NetworkBehaviour
         {
             if (isPlayer)
             {
-                ulong clientId = GetSessionInfo(inventoryNum).clientId;
-                NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject
-                            .GetComponent<InventoryNetworkBehaviour>().AddItem(itemIdx);
-                 
+                InventoryNetworkBehaviour playerInventory = MapGenerator.Instance.playerObjects[inventoryNum]
+                    .GetComponent<InventoryNetworkBehaviour>();
+                playerInventory.SetItemPlacement(itemIdx, inventorySlot);
+                for (int i = 0; i < quantity; i++)
+                {
+                    playerInventory.AddItem(itemIdx);
+                }
             }
             else
             {
                 //warehouse
-                MapGenerator.Instance.warehouses[inventoryNum].GetComponent<InventoryNetworkBehaviour>()
-                    .AddItem(itemIdx);
+                InventoryNetworkBehaviour warehouseInventory = MapGenerator.Instance.warehouses[inventoryNum].GetComponent<InventoryNetworkBehaviour>();
+                
+                warehouseInventory.SetItemPlacement(itemIdx, inventorySlot);
+                for (int i = 0; i < quantity; i++)
+                {
+                    warehouseInventory.AddItem(itemIdx);
+                }
             }
-            
-            
-            onInventoryChanged(inventoryNum, isPlayer,  InventoryChangeType.Add);
+
+            if (onInventoryChanged != null && onInventoryChanged.GetInvocationList().Length > 0)
+            {
+                onInventoryChanged(inventoryNum, isPlayer, InventoryChangeType.Add);
+            }
+            BroadCastInventoryChangedEvent_ClientRpc(inventoryNum, isPlayer, InventoryChangeType.Add);
         }
     }
-    
+
     public void RemoveItemFromInventory(int inventoryNum, string itemGuid, bool isPlayer)
+    {
+        RemoveItemFromInventory_ServerRpc(inventoryNum, itemGuid, isPlayer);
+    }
+    
+    [ServerRpc (RequireOwnership = false)]
+    private void RemoveItemFromInventory_ServerRpc(int inventoryNum, string itemGuid, bool isPlayer, ServerRpcParams serverRpcParams = default)
     {
         int itemIdx = -1;
         for (int i = 0; i < m_items.Count; i++)
@@ -227,15 +331,8 @@ public class InventorySystem : NetworkBehaviour
         {
             if (isPlayer)
             {
-                foreach (ClientConnectionHandler.PlayerSessionInfo sessionInfo in ClientConnectionHandler.Instance
-                             .serverSideClientList.Values)
-                {
-                    if (sessionInfo.playerNum == inventoryNum)
-                    {
-                        NetworkManager.Singleton.ConnectedClients[sessionInfo.clientId].PlayerObject
-                            .GetComponent<InventoryNetworkBehaviour>().RemoveItem(itemIdx);
-                    }
-                }
+                MapGenerator.Instance.playerObjects[inventoryNum]
+                    .GetComponent<InventoryNetworkBehaviour>().RemoveItem(itemIdx);
             }
             else
             {
@@ -243,7 +340,11 @@ public class InventorySystem : NetworkBehaviour
                 MapGenerator.Instance.warehouses[inventoryNum].GetComponent<InventoryNetworkBehaviour>().RemoveItem(itemIdx);
             }
             
-            onInventoryChanged(inventoryNum, isPlayer, InventoryChangeType.Remove);
+            if (onInventoryChanged != null && onInventoryChanged.GetInvocationList().Length > 0)
+            {
+                onInventoryChanged(inventoryNum, isPlayer, InventoryChangeType.Remove);
+            }
+            BroadCastInventoryChangedEvent_ClientRpc(inventoryNum, isPlayer, InventoryChangeType.Remove);
         }
     }
 }
