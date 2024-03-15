@@ -52,7 +52,6 @@ public class ClientConnectionHandler : NetworkBehaviour
 
     private void OnClientConnected(ulong clientId)
     {
-        Debug.Log($"client connected! Client id: {clientId}");
         foreach (Guid guid in serverSideClientList.Keys)
         {
             if (serverSideClientList[guid].clientId == clientId)
@@ -94,7 +93,6 @@ public class ClientConnectionHandler : NetworkBehaviour
         else
         {
             sessionInfo.playerNum = serverSideClientList.Keys.Count;
-            Debug.Log($"adding new player to client list wtih player number: {sessionInfo.playerNum}");
             sessionInfo.clientId = clientId;
             serverSideClientList.Add(playerSessionGuid, sessionInfo);
             m_numConnectedClients++;

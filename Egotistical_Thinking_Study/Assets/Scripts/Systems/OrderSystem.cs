@@ -48,7 +48,6 @@ public class OrderSystem : NetworkBehaviour
         
         if (this.IsServer)
         {
-            Debug.Log($"setting up order system: Num orders: {GameRoot.Instance.configData.Orders.Length}");
 
             activeOrders.Value = new NetworkSerializableIntArray();
             orders.Value = new NetworkSerializableOrderArray();
@@ -66,6 +65,7 @@ public class OrderSystem : NetworkBehaviour
 
             orders.Value.arr = newOrders.ToArray();
 
+            Debug.Log($"num orders on setup: {GameRoot.Instance.configData.Orders.Length}");
             activeOrders.Value.arr = new int[GameRoot.Instance.configData.Orders.Length];
 
             for (int i = 0; i < GameRoot.Instance.configData.Orders.Length; i++)

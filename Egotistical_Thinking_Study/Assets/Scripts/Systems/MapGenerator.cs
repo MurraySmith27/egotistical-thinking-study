@@ -122,7 +122,7 @@ public class MapGenerator : MonoBehaviour
                         
                         go.GetComponent<NetworkObject>().Spawn();
                         
-                        go.GetComponent<PlayerNetworkBehaviour>().m_playerNum = playerObjects.Count;
+                        go.GetComponent<PlayerNetworkBehaviour>().m_playerNum.Value = playerObjects.Count;
                         playerObjects.Add(go);
                     }
                     

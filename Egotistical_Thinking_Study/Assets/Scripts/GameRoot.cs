@@ -72,7 +72,7 @@ public class GameRoot : MonoBehaviour
 
         InventorySystem.Instance.OnGameStart();
 
-        // OrderSystem.Instance.OnGameStart();
+        OrderSystem.Instance.OnGameStart();
 
     }
 }

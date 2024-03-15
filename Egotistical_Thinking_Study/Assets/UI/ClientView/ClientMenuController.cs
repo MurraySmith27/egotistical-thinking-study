@@ -40,6 +40,8 @@ public class ClientMenuController : MonoBehaviour
     private List<InventorySlot> m_warehouseInventoryItems = new List<InventorySlot>();
 
     private VisualElement m_warehouseInventoryRoot;
+    
+    private VisualElement m_destinationWarehouseInventoryRoot;
 
     private GameObject m_thisPlayerGameObject;
 
@@ -89,6 +91,8 @@ public class ClientMenuController : MonoBehaviour
 
         m_warehouseInventoryRoot = m_root.Q<VisualElement>("warehouse-inventory-root");
 
+        m_destinationWarehouseInventoryRoot = m_root.Q<VisualElement>("destination-inventory-root");
+
         m_ghostIcon = m_root.Q<VisualElement>("ghost-icon");
 
         m_ghostIcon.RegisterCallback<PointerMoveEvent>(OnPointerMove);
@@ -127,7 +131,9 @@ public class ClientMenuController : MonoBehaviour
         
         m_warehouseInventoryElement = m_inventoryElementAsset.Instantiate();
         
-        m_warehouseInventoryRoot.Add(m_warehouseInventoryElement);
+        m_destinationWarehouseInventoryRoot.Add(m_warehouseInventoryElement);
+        
+        m_warehouseInventoryElement.style.visibility = Visibility.Hidden;
         
         InventorySystem.Instance.RegisterPlayerInventoryChangedCallback(playerNum, UpdatePlayerInventory);
 
@@ -143,7 +149,6 @@ public class ClientMenuController : MonoBehaviour
         }
 
         OrderSystem.Instance.activeOrders.OnValueChanged += OnOrderSent;
-
     }
 
     public void StartDrag(Vector2 position, InventorySlot originalInventorySlot)
@@ -291,7 +296,6 @@ public class ClientMenuController : MonoBehaviour
             int destinationInventoryNum = m_currentLoadingWarehouseNum;
             if (m_inRangeOfOwnedInventory)
             {
-                Debug.Log($"destination is: {m_ownedWarehouseNum}");
                 destinationInventoryNum = m_ownedWarehouseNum;
             }
             
@@ -353,8 +357,6 @@ public class ClientMenuController : MonoBehaviour
                     m_currentLoadingWarehouseNum = m_ownedWarehouseNum;
                     m_ownedWarehouseInventoryElement.style.opacity = 1f;
                     m_inRangeOfOwnedInventory = true;
-                    
-                    Debug.Log("entering owned wareouse radius");
                 }
                 else
                 {
@@ -377,7 +379,6 @@ public class ClientMenuController : MonoBehaviour
                 {
                     m_ownedWarehouseInventoryElement.style.opacity = 0.5f;
                     m_inRangeOfOwnedInventory = false;
-                    Debug.Log("leaving owned wareouse radius");
                     m_currentLoadingWarehouseNum = -1;
                     m_currentLoadingWarehouse = null;
                 }
@@ -397,7 +398,6 @@ public class ClientMenuController : MonoBehaviour
 
     void OnOrderSent(NetworkSerializableIntArray old, NetworkSerializableIntArray current)
     {
-        Debug.Log("On order sent called!");
         m_orderRoot.Clear();
 
         for (int i = 0; i < current.arr.Length; i++)

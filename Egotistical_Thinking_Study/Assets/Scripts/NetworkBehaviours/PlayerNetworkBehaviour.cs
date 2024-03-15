@@ -21,33 +21,50 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
 
     private Coroutine moveCoroutine;
 
-    public int m_playerNum;
+    private GameObject playerCamera;
+
+    private GameObject gameViewQuad; 
+
+    public NetworkVariable<int> m_playerNum;
     
     void Awake() {
         clickAction = clientInput["mouseClick"];
 
         mousePosition = clientInput["mousePosition"];
+
+        m_playerNum = new NetworkVariable<int>();
     }
 
     public override void OnNetworkSpawn() {
         if (this.IsServer) {
             position.Value = gameObject.transform.position;
+            m_playerNum.Value = 0;
         }
         else if (this.IsClient) {
-            clickAction.performed += OnClick; 
+            clickAction.performed += OnClick;
+
+            playerCamera = GameObject.FindGameObjectWithTag("PlayerCamera");
         }
 
+        gameViewQuad = GameObject.FindGameObjectWithTag("GameViewQuad");
+        gameViewQuad.GetComponent<MeshRenderer>().enabled = true;
         position.OnValueChanged += UpdatePosition;
     }
     
     public void OnClick(InputAction.CallbackContext context) {
         Vector2 mousePos = mousePosition.ReadValue<Vector2>();
 
-        mousePos = new Vector2(mousePos.x / Screen.width, mousePos.y / Screen.height);
+        // mousePos = new Vector2(mousePos.x / Screen.width, mousePos.y / Screen.height);
+        
+        Vector2 topLeftCorner = Camera.main.WorldToScreenPoint(gameViewQuad.transform.GetChild(0).position);
+        Vector2 bottomRightCorner = Camera.main.WorldToScreenPoint(gameViewQuad.transform.GetChild(1).position);
 
+        float width = bottomRightCorner.x - topLeftCorner.x;
+        float height = bottomRightCorner.y - topLeftCorner.y;
+        
         //raycast from camera center, see if it intersects with the map.
         RaycastHit hit;
-        Ray ray = Camera.main.ViewportPointToRay(new Vector3(mousePos.x, mousePos.y, 0));
+        Ray ray = playerCamera.GetComponent<Camera>().ViewportPointToRay(new Vector3((mousePos.x - topLeftCorner.x) / width, 1 - ((mousePos.y - topLeftCorner.y) / height), 0));
         
         Debug.DrawRay(ray.origin, ray.origin + ray.direction * 100, color:Color.red, duration: 5f, false);
         if (Physics.Raycast(ray.origin, ray.direction, out hit, 100, ~LayerMask.NameToLayer("MapTile")))
@@ -66,7 +83,7 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
     [ServerRpc(RequireOwnership=false)]
     void MovePlayerTo_ServerRpc(Vector3 worldPos,  int playerNum, ServerRpcParams serverRpcParams = default)
     {
-        if (m_playerNum != playerNum)
+        if (m_playerNum.Value != playerNum)
         {
             return;
         }

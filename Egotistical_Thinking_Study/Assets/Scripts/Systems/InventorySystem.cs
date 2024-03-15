@@ -135,7 +135,11 @@ public class InventorySystem : NetworkBehaviour
                 foreach (string key in GameRoot.Instance.configData.Warehouses[i].Contents.Keys)
                 {
                     int itemIndex = Int32.Parse(key);
-                    inventory.SetItemPlacement(itemIndex, numItems++);
+                    if (GameRoot.Instance.configData.Warehouses[i].Contents[key] > 0)
+                    {
+                        inventory.SetItemPlacement(itemIndex, numItems++);
+                    }
+
                     for (int j = 0; j < GameRoot.Instance.configData.Warehouses[i].Contents[key]; j++)
                     {
                         inventory.AddItem(itemIndex);

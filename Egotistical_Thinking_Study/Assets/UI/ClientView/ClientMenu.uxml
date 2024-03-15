@@ -6,6 +6,10 @@
                 <ui:VisualElement name="player-inventory-root" style="flex-grow: 1;" />
                 <ui:VisualElement name="warehouse-inventory-root" style="flex-grow: 1;" />
             </ui:VisualElement>
+            <ui:VisualElement name="inventory-root-2" style="flex-grow: 1; flex-direction: row;">
+                <ui:VisualElement name="destination-inventory-root" style="flex-grow: 1;" />
+                <ui:VisualElement name="spacer" style="flex-grow: 1;" />
+            </ui:VisualElement>
             <ui:VisualElement name="spacer" style="flex-grow: 2;" />
         </ui:VisualElement>
         <ui:VisualElement name="ghost-icon" style="flex-grow: 1; width: 128px; height: 128px; visibility: hidden; position: absolute;" />
