@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -35,7 +36,23 @@ public class ExperimenterViewController : MonoBehaviour
                 itemsContainer.Add(slot);
             }
 
-            string mapDestinationText = $"Destination Coords: ({orders[i].MapDestination[0]}, {orders[i].MapDestination[1]})";
+            string mapDestinationText = $"Destination Warehouse:";
+            
+            //get map sprite
+            ulong warehouseNetworkObjectId = MapDataNetworkBehaviour.Instance.GetNetworkIdOfWarehouse(orders[i].DestinationWarehouse);
+
+            Sprite destinationSprite = null;
+            foreach (NetworkBehaviour networkBehaviour in FindObjectsOfType<NetworkBehaviour>())
+            {
+                if (networkBehaviour.NetworkObjectId == warehouseNetworkObjectId)
+                {
+                    destinationSprite = networkBehaviour.GetComponentInChildren<SpriteRenderer>().sprite;
+                    break;
+                }
+            }
+
+            orderElement.Q<VisualElement>("map-destination-image").style.backgroundImage = destinationSprite.texture;
+            
             orderElement.Q<Label>("map-destination-label").text = mapDestinationText;
 
             int x = i;
@@ -44,7 +61,9 @@ public class ExperimenterViewController : MonoBehaviour
                 OnOrderSent(x);
             };
 
-            m_orderContainer.Add(orderElement);            
+            orderElement.MarkDirtyRepaint();
+            m_orderContainer.Add(orderElement);
+            m_orderContainer.MarkDirtyRepaint();
         }
     }
 

@@ -95,6 +95,38 @@ public class InventoryNetworkBehaviour : NetworkBehaviour
         }
         m_inventoryChangeAlert.Value++;
     }
+    
+    public int FindSlotForItem(int itemIdx)
+    {
+        if (m_itemPlacements.Value.arr[itemIdx] == -1)
+        {
+            for (int i = 0; i < m_maxInventorySlots.Value; i++)
+            {
+                bool works = true;
+                for (int j = 0; j < m_maxInventorySlots.Value; j++)
+                {
+                    if (m_itemPlacements.Value.arr[j] == i)
+                    {
+                        works = false;
+                        break;
+                    }
+                }
+
+                if (works)
+                {
+                    return i;
+                    break;
+                }
+            }
+
+        }
+        else
+        {
+            return m_itemPlacements.Value.arr[itemIdx];
+        }
+
+        return -1;
+    }
 
     public bool SetItemPlacement(int itemIndex, int inventoryIndex)
     {

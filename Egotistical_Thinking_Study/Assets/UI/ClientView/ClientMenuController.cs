@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
 using Unity.VisualScripting;
+using UnityEditor.PackageManager;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -101,9 +102,22 @@ public class ClientMenuController : MonoBehaviour
         m_ownedWarehouseInventoryElement = m_inventoryElementAsset.Instantiate();
         m_warehouseInventoryRoot.Add(m_ownedWarehouseInventoryElement);
         
+        VisualElement inventoryElement = m_ownedWarehouseInventoryElement.Q<VisualElement>("inventory");
+        
+        inventoryElement.style.borderBottomColor = Color.red;
+        inventoryElement.style.borderTopColor = Color.red;
+        inventoryElement.style.borderLeftColor = Color.red;
+        inventoryElement.style.borderRightColor = Color.red;
+
+        inventoryElement.style.borderBottomWidth = 3f;
+        inventoryElement.style.borderTopWidth = 3f;
+        inventoryElement.style.borderLeftWidth = 3f;
+        inventoryElement.style.borderRightWidth = 3f;
+        
         m_ownedWarehouseInventoryElement.Q<Label>("header").text = $"Warehouse";
 
         m_ownedWarehouseInventoryElement.style.opacity = 0.5f;
+        
 
         m_inRangeOfOwnedInventory = false;
         
@@ -131,6 +145,7 @@ public class ClientMenuController : MonoBehaviour
         
         m_warehouseInventoryElement = m_inventoryElementAsset.Instantiate();
         
+        
         m_destinationWarehouseInventoryRoot.Add(m_warehouseInventoryElement);
         
         m_warehouseInventoryElement.style.visibility = Visibility.Hidden;
@@ -148,13 +163,13 @@ public class ClientMenuController : MonoBehaviour
             }
         }
 
-        OrderSystem.Instance.activeOrders.OnValueChanged += OnOrderSent;
+        OrderSystem.Instance.activeOrders.OnValueChanged += OnActiveOrdersChanged;
+
+        OrderSystem.Instance.completeOrders.OnValueChanged += OnCompleteOrdersChanged;
     }
 
     public void StartDrag(Vector2 position, InventorySlot originalInventorySlot)
     {
-        m_isDragging = true;
-
         m_draggingOriginalInventorySlot = originalInventorySlot;
         if (originalInventorySlot.worldBound.Overlaps(m_playerInventoryElement.worldBound))
         {
@@ -178,6 +193,9 @@ public class ClientMenuController : MonoBehaviour
                 m_draggingFromPlayerInventory = false;
                 m_draggingFromInventoryNum = m_ownedWarehouseNum;
             }
+            else {
+                return;
+            }
         }
         else
         {
@@ -185,6 +203,7 @@ public class ClientMenuController : MonoBehaviour
         }
         
 
+        m_isDragging = true;
         m_ghostIcon.style.top = position.y - m_ghostIcon.layout.height / 2f;
         m_ghostIcon.style.left = position.x - m_ghostIcon.layout.width / 2f;
 
@@ -274,37 +293,31 @@ public class ClientMenuController : MonoBehaviour
             }
         }
         
+        int destinationInventoryNum = m_currentLoadingWarehouseNum;
+        if (m_inRangeOfOwnedInventory)
+        {
+            destinationInventoryNum = m_ownedWarehouseNum;
+        }
+        
         if (playerInventorySlots.Count() != 0)
         {
             (int, InventorySlot) closestSlot = playerInventorySlots.OrderBy(x =>
                 Vector2.Distance(x.Item2.worldBound.position, m_ghostIcon.worldBound.position)).First();
 
             //need to update inventory
-            int destinationInventoryNum = ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum;
+            destinationInventoryNum = ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum;
             InventorySystem.Instance.AddItemToInventory(destinationInventoryNum, true, details.GUID, itemCount, closestSlot.Item1);
-            for (int i = 0; i < itemCount; i++)
-            {
-                InventorySystem.Instance.RemoveItemFromInventory(m_draggingFromInventoryNum, details.GUID,
-                    m_draggingFromPlayerInventory);
-            }
+
+            InventorySystem.Instance.RemoveItemFromInventory(m_draggingFromInventoryNum, m_draggingFromPlayerInventory, details.GUID, itemCount);
         }
-        else if (warehouseInventorySlots.Count() != 0)
+        else if (warehouseInventorySlots.Count() != 0 && destinationInventoryNum != -1)
         {
             (int, InventorySlot) closestSlot = warehouseInventorySlots.OrderBy(x =>
                 Vector2.Distance(x.Item2.worldBound.position, m_ghostIcon.worldBound.position)).First();
-
-            int destinationInventoryNum = m_currentLoadingWarehouseNum;
-            if (m_inRangeOfOwnedInventory)
-            {
-                destinationInventoryNum = m_ownedWarehouseNum;
-            }
             
             InventorySystem.Instance.AddItemToInventory(destinationInventoryNum, false, details.GUID, itemCount, closestSlot.Item1);
-            for (int i = 0; i < itemCount; i++)
-            {
-                InventorySystem.Instance.RemoveItemFromInventory(m_draggingFromInventoryNum, details.GUID,
-                    m_draggingFromPlayerInventory);
-            }
+            
+            InventorySystem.Instance.RemoveItemFromInventory(m_draggingFromInventoryNum, m_draggingFromPlayerInventory, details.GUID, itemCount);
         }
 
         m_isDragging = false;
@@ -356,6 +369,15 @@ public class ClientMenuController : MonoBehaviour
                 {
                     m_currentLoadingWarehouseNum = m_ownedWarehouseNum;
                     m_ownedWarehouseInventoryElement.style.opacity = 1f;
+                    
+                    VisualElement inventoryElement =
+                        m_ownedWarehouseInventoryElement.Q<VisualElement>("inventory");
+
+                    inventoryElement.style.borderBottomColor = Color.green;
+                    inventoryElement.style.borderTopColor = Color.green;
+                    inventoryElement.style.borderLeftColor = Color.green;
+                    inventoryElement.style.borderRightColor = Color.green;
+                    
                     m_inRangeOfOwnedInventory = true;
                 }
                 else
@@ -378,6 +400,15 @@ public class ClientMenuController : MonoBehaviour
                 if (InventorySystem.Instance.GetOwnerOfWarehouse(m_currentLoadingWarehouseNum) == playerNum)
                 {
                     m_ownedWarehouseInventoryElement.style.opacity = 0.5f;
+
+                    VisualElement inventoryElement =
+                        m_ownedWarehouseInventoryElement.Q<VisualElement>("inventory");
+                    
+                    inventoryElement.style.borderBottomColor = Color.red;
+                    inventoryElement.style.borderTopColor = Color.red;
+                    inventoryElement.style.borderLeftColor = Color.red;
+                    inventoryElement.style.borderRightColor = Color.red;
+                    
                     m_inRangeOfOwnedInventory = false;
                     m_currentLoadingWarehouseNum = -1;
                     m_currentLoadingWarehouse = null;
@@ -396,36 +427,128 @@ public class ClientMenuController : MonoBehaviour
         }
     }
 
-    void OnOrderSent(NetworkSerializableIntArray old, NetworkSerializableIntArray current)
+    
+    void OnActiveOrdersChanged(NetworkSerializableIntArray old, NetworkSerializableIntArray current) {
+        UpdateOrdersList(current, OrderSystem.Instance.completeOrders.Value);
+    }
+    
+    void OnCompleteOrdersChanged(NetworkSerializableIntArray old, NetworkSerializableIntArray current) {
+        Debug.Log("on complete orders changed!");
+        UpdateOrdersList(OrderSystem.Instance.activeOrders.Value, current);
+    }
+
+    void UpdateOrdersList(NetworkSerializableIntArray activeOrders, NetworkSerializableIntArray completeOrders)
     {
         m_orderRoot.Clear();
 
-        for (int i = 0; i < current.arr.Length; i++)
+        for (int i = 0; i < activeOrders.arr.Length; i++)
         {
-            if (current.arr[i] != 0)
+            if (activeOrders.arr[i] != 0)
             {
                 m_orderRoot.style.display = DisplayStyle.Flex;
                 
                 NetworkSerializableOrder order = OrderSystem.Instance.GetOrder(i);
-                
-                VisualElement orderElement = m_orderElementAsset.Instantiate();
-                orderElement.AddToClassList("order");
-                orderElement.Q<Label>("order-number-label").text = $"Order {i + 1}:";
-                orderElement.Q<Label>("order-description").text = order.textDescription;
-                orderElement.Q<Label>("send-to-player-label").text = $"Receiving Player: {order.receivingPlayer}";
-                VisualElement itemsContainer = orderElement.Q<VisualElement>("order-items-container");
-                foreach (string key in order.requiredItems.Keys)
+
+                if (order.receivingPlayer == ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum)
                 {
-                    int itemNum = Int32.Parse(key);
-                    InventorySlot slot = new InventorySlot(false);
-                    slot.HoldItem(InventorySystem.Instance.m_items[itemNum], order.requiredItems[key]);
-                    itemsContainer.Add(slot);
+                    VisualElement orderElement = m_orderElementAsset.Instantiate();
+                    orderElement.AddToClassList("order");
+                    orderElement.Q<Label>("order-number-label").text = $"Order {i + 1}:";
+                    orderElement.Q<Label>("order-description").text = order.textDescription.ToString();
+                    orderElement.Q<Label>("send-to-player-label").text = $"Receiving Player: {order.receivingPlayer}";
+                    VisualElement itemsContainer = orderElement.Q<VisualElement>("order-items-container");
+                    foreach (string key in order.requiredItems.Keys)
+                    {
+                        int itemNum = Int32.Parse(key);
+                        InventorySlot slot = new InventorySlot(false);
+                        slot.HoldItem(InventorySystem.Instance.m_items[itemNum], order.requiredItems[key]);
+                        itemsContainer.Add(slot);
+                    }
+
+                    string mapDestinationText = $"Destination Warehouse: ";
+                    orderElement.Q<Label>("map-destination-label").text = mapDestinationText;
+                    
+                    ulong warehouseNetworkObjectId = MapDataNetworkBehaviour.Instance.GetNetworkIdOfWarehouse(order.destinationWarehouse);
+                    
+                    Sprite destinationSprite = null;
+                    foreach (NetworkBehaviour networkBehaviour in FindObjectsOfType<NetworkBehaviour>())
+                    {
+                        if (networkBehaviour.NetworkObjectId == warehouseNetworkObjectId)
+                        {
+                            destinationSprite = networkBehaviour.GetComponentInChildren<SpriteRenderer>().sprite;
+                            break;
+                        }
+                    }
+
+                    orderElement.Q<VisualElement>("map-destination-image").style.backgroundImage = destinationSprite.texture;
+
+                    if (completeOrders.arr[i] != 0)
+                    {
+                        orderElement.Q<VisualElement>("checkmark-overlay").style.visibility = Visibility.Visible;
+                    }
+
+                    Button loadAllButton = orderElement.Q<Button>("send-order-button");
+                    loadAllButton.clicked += () =>
+                    {
+                        LoadAllFromOrderCallback(i);
+                    };
+
+                    loadAllButton.text = "Load All";
+
+                    m_orderRoot.Add(orderElement);
+                }
+            }
+        }
+    }
+
+    private void LoadAllFromOrderCallback(int orderIndex)
+    {
+        if (m_currentLoadingWarehouseNum == OrderSystem.Instance.orders.Value.orders[orderIndex].destinationWarehouse)
+        {
+            List<(int, int)> playerInventory = InventorySystem.Instance.GetInventory(ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum, true);
+            List<(int, int)> warehouseInventory = InventorySystem.Instance.GetInventory(m_currentLoadingWarehouseNum, false);
+            foreach (string key in OrderSystem.Instance.orders.Value.orders[orderIndex].requiredItems.Keys)
+            {
+                int itemNum = Int32.Parse(key);
+                
+                int numLeftRequired = OrderSystem.Instance.orders.Value.orders[orderIndex].requiredItems[key];
+
+                int warehouseItemSlot = -1;
+                int warehouseItemQuantity = 0;
+                for (int i = 0; i < warehouseInventory.Count; i++)
+                {
+                    if (warehouseInventory[i].Item1 == itemNum)
+                    {
+                        warehouseItemSlot = i;
+                        warehouseItemQuantity = warehouseInventory[i].Item2;
+                    }
                 }
 
-                string mapDestinationText = $"Destination Coords: ({order.mapDestination[0]}, {order.mapDestination[1]})";
-                orderElement.Q<Label>("map-destination-label").text = mapDestinationText;
+                numLeftRequired -= warehouseItemQuantity;
+                
 
-                m_orderRoot.Add(orderElement);
+                int itemSlot = -1;
+                int itemQuantity = 0;
+                for (int i = 0; i < playerInventory.Count; i++)
+                {
+                    if (playerInventory[i].Item1 == itemNum)
+                    {
+                        itemSlot = i;
+                        itemQuantity = playerInventory[i].Item2;
+                    }
+                }
+
+                string itemGuid = InventorySystem.Instance.m_items[itemNum].GUID;
+                
+                if (itemSlot != -1)
+                {
+                    int quantityToMove = Math.Min(itemQuantity, numLeftRequired);
+                    
+                    InventorySystem.Instance.AddItemToInventory(m_currentLoadingWarehouseNum, false, itemGuid, quantityToMove);
+                    
+                    InventorySystem.Instance.RemoveItemFromInventory(ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum, true, itemGuid, quantityToMove);
+
+                }
             }
         }
     }

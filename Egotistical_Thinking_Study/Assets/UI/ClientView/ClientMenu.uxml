@@ -1,10 +1,12 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/ExperimenterView/ExperimenterView.uss?fileID=7433441132597879392&amp;guid=4db16f4e505707543ad7a194ba4d15da&amp;type=3#ExperimenterView" />
+    <Style src="project://database/Assets/UI/Shared/InventoryStyleSheet.uss?fileID=7433441132597879392&amp;guid=12734419a02e5734c81a16aba3a1dd5c&amp;type=3#InventoryStyleSheet" />
     <ui:VisualElement name="root" style="flex-grow: 1; flex-direction: row;">
         <ui:VisualElement name="order-root" style="flex-grow: 1; max-width: 30%; background-color: rgb(255, 255, 255); visibility: visible; display: flex;" />
         <ui:VisualElement name="menu-root" style="flex-grow: 1;">
             <ui:VisualElement name="inventory-root" style="flex-grow: 1; flex-direction: row; display: flex;">
                 <ui:VisualElement name="player-inventory-root" style="flex-grow: 1;" />
-                <ui:VisualElement name="warehouse-inventory-root" style="flex-grow: 1;" />
+                <ui:VisualElement name="warehouse-inventory-root" style="flex-grow: 1; border-left-color: rgba(255, 255, 255, 0); border-right-color: rgba(255, 255, 255, 0); border-top-color: rgba(255, 255, 255, 0); border-bottom-color: rgba(255, 255, 255, 0); border-top-width: 3px; border-right-width: 3px; border-bottom-width: 3px; border-left-width: 3px;" />
             </ui:VisualElement>
             <ui:VisualElement name="inventory-root-2" style="flex-grow: 1; flex-direction: row;">
                 <ui:VisualElement name="destination-inventory-root" style="flex-grow: 1;" />

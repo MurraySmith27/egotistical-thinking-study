@@ -7,7 +7,7 @@ using UnityEngine.Windows.Speech;
 public struct Order
 {
     public int RecievingPlayer;
-    public int[] MapDestination;
+    public int DestinationWarehouse;
     public Dictionary<string, int> RequiredItems;
     public string TextDescription;
 }

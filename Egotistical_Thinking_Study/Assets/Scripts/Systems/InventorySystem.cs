@@ -100,7 +100,6 @@ public class InventorySystem : NetworkBehaviour
     
     public void DeregisterWarehouseInventoryChangedCallback(int warehouseNum, InventoryUpdatedEvent callback)
     {
-        Debug.Log($"deregsitering warehouse inventory changed callback for warehouse nubmer: {warehouseNum}");
         ulong warehouseNetworkObjectId = MapDataNetworkBehaviour.Instance.GetNetworkIdOfWarehouse(warehouseNum);
         
         foreach (NetworkObject networkObject in FindObjectsOfType<NetworkObject>())
@@ -254,13 +253,13 @@ public class InventorySystem : NetworkBehaviour
         }
     }
 
-    public void AddItemToInventory(int inventoryNum, bool isPlayer, string itemGuid, int quantity, int inventorySlot)
+    public void AddItemToInventory(int inventoryNum, bool isPlayer, string itemGuid, int quantity, int inventorySlot = -1)
     {
         AddItemToInventory_ServerRpc(inventoryNum, isPlayer, itemGuid, quantity, inventorySlot);
     }
     
     [ServerRpc (RequireOwnership = false)]
-    private void AddItemToInventory_ServerRpc(int inventoryNum, bool isPlayer, string itemGuid, int quantity, int inventorySlot, ServerRpcParams serverRpcParams = default)
+    private void AddItemToInventory_ServerRpc(int inventoryNum, bool isPlayer, string itemGuid, int quantity, int inventorySlot = -1, ServerRpcParams serverRpcParams = default)
     {
 
         int itemIdx = -1;
@@ -283,6 +282,12 @@ public class InventorySystem : NetworkBehaviour
             {
                 InventoryNetworkBehaviour playerInventory = MapGenerator.Instance.playerObjects[inventoryNum]
                     .GetComponent<InventoryNetworkBehaviour>();
+
+                if (inventorySlot == -1)
+                {
+                    inventorySlot = playerInventory.FindSlotForItem(itemIdx);
+                }
+                
                 playerInventory.SetItemPlacement(itemIdx, inventorySlot);
                 for (int i = 0; i < quantity; i++)
                 {
@@ -293,6 +298,11 @@ public class InventorySystem : NetworkBehaviour
             {
                 //warehouse
                 InventoryNetworkBehaviour warehouseInventory = MapGenerator.Instance.warehouses[inventoryNum].GetComponent<InventoryNetworkBehaviour>();
+                
+                if (inventorySlot == -1)
+                {
+                    inventorySlot = warehouseInventory.FindSlotForItem(itemIdx);
+                }
                 
                 warehouseInventory.SetItemPlacement(itemIdx, inventorySlot);
                 for (int i = 0; i < quantity; i++)
@@ -309,13 +319,13 @@ public class InventorySystem : NetworkBehaviour
         }
     }
 
-    public void RemoveItemFromInventory(int inventoryNum, string itemGuid, bool isPlayer)
+    public void RemoveItemFromInventory(int inventoryNum, bool isPlayer, string itemGuid, int quantity)
     {
-        RemoveItemFromInventory_ServerRpc(inventoryNum, itemGuid, isPlayer);
+        RemoveItemFromInventory_ServerRpc(inventoryNum, isPlayer, itemGuid, quantity);
     }
     
     [ServerRpc (RequireOwnership = false)]
-    private void RemoveItemFromInventory_ServerRpc(int inventoryNum, string itemGuid, bool isPlayer, ServerRpcParams serverRpcParams = default)
+    private void RemoveItemFromInventory_ServerRpc(int inventoryNum, bool isPlayer, string itemGuid, int quantity, ServerRpcParams serverRpcParams = default)
     {
         int itemIdx = -1;
         for (int i = 0; i < m_items.Count; i++)

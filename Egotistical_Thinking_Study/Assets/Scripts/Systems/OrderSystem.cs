@@ -1,11 +1,17 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
+
+
+public delegate void OrderCompleteEvent(int orderIndex);
 
 public class OrderSystem : NetworkBehaviour
 {
 
+    
     private static OrderSystem _instance;
 
     public static OrderSystem Instance
@@ -15,10 +21,14 @@ public class OrderSystem : NetworkBehaviour
             return _instance;
         }
     }
-    
-    public NetworkVariable<NetworkSerializableOrderArray> orders;
 
-    public NetworkVariable<NetworkSerializableIntArray> activeOrders;
+    public OrderCompleteEvent onOrderComplete;
+    
+    public NetworkVariable<NetworkSerializableOrderArray> orders = new NetworkVariable<NetworkSerializableOrderArray>();
+
+    public NetworkVariable<NetworkSerializableIntArray> activeOrders = new NetworkVariable<NetworkSerializableIntArray>();
+    
+    public NetworkVariable<NetworkSerializableIntArray> completeOrders = new NetworkVariable<NetworkSerializableIntArray>();
 
     void Awake()
     {
@@ -30,43 +40,93 @@ public class OrderSystem : NetworkBehaviour
         {
             _instance = this;
         }
+        
     }
 
     public override void OnNetworkSpawn()
     {
-        if (this.IsServer)
+        if (!this.IsServer)
         {
-            // orders = new NetworkVariable<NetworkSerializableOrderArray>();
-            // activeOrders = new NetworkVariable<NetworkSerializableIntArray>();
-        }
+            //print all the orders:
+            // foreach (NetworkSerializableOrder order in orders.Value.arr)
+            // {
+            //     Debug.Log($"order. to player: {order.receivingPlayer}");
+            // }
 
-        base.OnNetworkSpawn();
+        }
+        InventorySystem.Instance.onInventoryChanged += OnInventoryChanged;
     }
-    
+
+    private void OnInventoryChanged(int inventoryNum, bool isPlayer, InventoryChangeType changeType)
+    {
+        if (!isPlayer)
+        {
+            List<(int, int)> inventory = InventorySystem.Instance.GetInventory(inventoryNum, isPlayer);
+            for (int i = 0; i < activeOrders.Value.arr.Length; i++)
+            {
+                if (activeOrders.Value.arr[i] == 1)
+                {
+                    bool complete = true;
+                    foreach (string key in orders.Value.orders[i].requiredItems.Keys)
+                    {
+                        int numOfThisItem = 0;
+                        for (int j = 0; j < inventory.Count; j++)
+                        {
+                            if (inventory[j].Item1 == Int32.Parse(key))
+                            {
+                                numOfThisItem = inventory[j].Item2;
+                            }
+                        }
+                        if (orders.Value.orders[i].requiredItems[key] > numOfThisItem)
+                        {
+                            complete = false;
+                        }
+                    }
+                    Debug.Log($"inventory changed for player order! complete? {complete}");
+                    if (complete)
+                    {
+                        if (this.IsServer)
+                        {
+                            completeOrders.Value.arr[i] = 1;
+                            completeOrders.SetDirty(true);
+                        }
+
+                        if (onOrderComplete != null && onOrderComplete.GetInvocationList().Length > 0)
+                        {
+                            onOrderComplete(i);
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+
+
+
     public void OnGameStart()
     {
-        
         if (this.IsServer)
         {
-
             activeOrders.Value = new NetworkSerializableIntArray();
+            completeOrders.Value = new NetworkSerializableIntArray();
             orders.Value = new NetworkSerializableOrderArray();
             List<NetworkSerializableOrder> newOrders = new List<NetworkSerializableOrder>();
             foreach (Order order in GameRoot.Instance.configData.Orders)
             {
                 NetworkSerializableOrder newOrder = new NetworkSerializableOrder();
                 newOrder.receivingPlayer = order.RecievingPlayer;
-                newOrder.mapDestination = order.MapDestination;
+                newOrder.destinationWarehouse = order.DestinationWarehouse;
                 newOrder.requiredItems = order.RequiredItems;
-                newOrder.textDescription = order.TextDescription;
+                newOrder.textDescription = (FixedString64Bytes)order.TextDescription;
                 
                 newOrders.Add(newOrder);
             }
+            
+            orders.Value.orders = newOrders.ToArray();
 
-            orders.Value.arr = newOrders.ToArray();
-
-            Debug.Log($"num orders on setup: {GameRoot.Instance.configData.Orders.Length}");
             activeOrders.Value.arr = new int[GameRoot.Instance.configData.Orders.Length];
+            completeOrders.Value.arr = new int[GameRoot.Instance.configData.Orders.Length];
 
             for (int i = 0; i < GameRoot.Instance.configData.Orders.Length; i++)
             {
@@ -77,7 +137,7 @@ public class OrderSystem : NetworkBehaviour
 
     public NetworkSerializableOrder GetOrder(int orderIndex)
     {
-        return orders.Value.arr[orderIndex];
+        return orders.Value.orders[orderIndex];
     }
 
     public void SendOrder(int orderIndex)
