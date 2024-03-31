@@ -26,6 +26,8 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
     private GameObject gameViewQuad; 
 
     public NetworkVariable<int> m_playerNum;
+
+    public NetworkVariable<int> m_numGasRemaining;
     
     void Awake() {
         clickAction = clientInput["mouseClick"];
@@ -33,12 +35,16 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
         mousePosition = clientInput["mousePosition"];
 
         m_playerNum = new NetworkVariable<int>();
+
+        m_numGasRemaining = new NetworkVariable<int>();
     }
 
     public override void OnNetworkSpawn() {
         if (this.IsServer) {
             position.Value = gameObject.transform.position;
             m_playerNum.Value = 0;
+
+            m_numGasRemaining.Value = GameRoot.Instance.configData.MaxGasPerPlayer;
         }
         else if (this.IsClient) {
             clickAction.performed += OnClick;
@@ -111,6 +117,7 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
 
     private IEnumerator MovePlayerAlongPath(List<Vector2> path, int playerNum)
     {
+        
         float playerZ = transform.position.z;
 
         Vector3 lastPosition = Vector3.zero;
@@ -120,9 +127,15 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
         foreach (Vector2 destination in path.Skip(1))
         {
 
+            if (m_numGasRemaining.Value == 0)
+            {
+                yield break;
+            }
+            
             lastPosition = nextPosition;
             nextPosition = new Vector3(destination.x * MapGenerator.Instance.tileWidth,
                 destination.y * MapGenerator.Instance.tileHeight, playerZ);
+            m_numGasRemaining.Value--;
             
             for (float t = 0; t < secondsPerGridMove; t += Time.deltaTime)
             {

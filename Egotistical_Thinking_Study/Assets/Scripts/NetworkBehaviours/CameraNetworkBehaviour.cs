@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -5,41 +6,62 @@ using UnityEngine;
 
 public class CameraNetworkBehaviour : NetworkBehaviour
 {
+    private static CameraNetworkBehaviour _instance;
 
-    private GameObject m_trackingObject;
-    public override void OnNetworkSpawn()
+    public static CameraNetworkBehaviour Instance
     {
-        if (this.IsServer)
+        get
         {
-            
-            
+            return _instance;
+        }
+    }
+
+
+    public NetworkVariable<NetworkSerializableIntArray> cameraRotationPerPlayer = new NetworkVariable<NetworkSerializableIntArray>();
+
+    private void Awake()
+    {
+        if (_instance != null && _instance != this)
+        {
+            Destroy(this.gameObject);
         }
         else
         {
-            NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
+            _instance = this;
         }
     }
 
-    void OnClientConnected(ulong clientId)
+    public override void OnNetworkSpawn()
+    {
+        if (!this.IsServer)
+        {
+            SetCameraRotation();
+        }
+    }
+
+    private void SetCameraRotation()
     {
         int playerNum = ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum;
 
-        foreach (PlayerNetworkBehaviour playerNetworkBehaviour in FindObjectsOfType<PlayerNetworkBehaviour>())
+        Debug.Log($"rotating. value: {playerNum}");
+        int rotation = cameraRotationPerPlayer.Value.arr[playerNum];
+
+        float yawRotation = rotation * 90f;
+
+        foreach (GameObject go in UnityEngine.Object.FindObjectsOfType(typeof(GameObject)))
         {
-            if (playerNetworkBehaviour.m_playerNum.Value == playerNum)
+            if (go != this.gameObject && go.activeInHierarchy)
             {
-                m_trackingObject = playerNetworkBehaviour.gameObject;
-                break;
+                go.transform.rotation = Quaternion.Euler(0, 0, yawRotation);
             }
         }
+
     }
 
-    void Update()
+    public void OnGameStart()
     {
-        if (m_trackingObject != null)
-        {
-            transform.position = new Vector3(m_trackingObject.transform.position.x + MapGenerator.Instance.tileWidth / 2f,
-                m_trackingObject.transform.position.y - MapGenerator.Instance.tileHeight / 2f, transform.position.z);
-        }
+        cameraRotationPerPlayer.Value = new NetworkSerializableIntArray();
+        cameraRotationPerPlayer.Value.arr = GameRoot.Instance.configData.CameraRotationPerPlayer;
+        Debug.Log("settingaaaAAA");
     }
 }

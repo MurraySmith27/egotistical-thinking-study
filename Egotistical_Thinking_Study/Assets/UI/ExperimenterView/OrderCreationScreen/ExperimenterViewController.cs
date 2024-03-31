@@ -27,6 +27,7 @@ public class ExperimenterViewController : MonoBehaviour
             orderElement.Q<Label>("order-number-label").text = $"Order {i + 1}:";
             orderElement.Q<Label>("order-description").text = orders[i].TextDescription;
             orderElement.Q<Label>("send-to-player-label").text = $"Receiving Player: {orders[i].RecievingPlayer}";
+            orderElement.Q<Label>("score-reward-label").text = $"Reward: {orders[i].ScoreReward}G";
             VisualElement itemsContainer = orderElement.Q<VisualElement>("order-items-container");
             foreach (string key in orders[i].RequiredItems.Keys)
             {
@@ -65,6 +66,16 @@ public class ExperimenterViewController : MonoBehaviour
             m_orderContainer.Add(orderElement);
             m_orderContainer.MarkDirtyRepaint();
         }
+        
+        
+        m_root.Q<Label>("score-label").text = "0G";
+
+        OrderSystem.Instance.currentScore.OnValueChanged += OnScoreChanged;
+    }
+
+    private void OnScoreChanged(int prev, int current)
+    {
+        m_root.Q<Label>("score-label").text = $"{current}G";
     }
 
     private void OnOrderSent(int orderIndex)

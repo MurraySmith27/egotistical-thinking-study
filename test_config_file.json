@@ -20,13 +20,14 @@
     "Orders": [
         {
             "RecievingPlayer": 0,
-            "DestinationWarehouse": 0,
+            "DestinationWarehouse": 1,
             "RequiredItems": {
                 "0": 1,
                 "2": 2,
                 "4": 1
             },
-            "TextDescription": "Example Order"   
+            "TextDescription": "Example Order",
+            "ScoreReward": 1500  
         },
         {
             "RecievingPlayer": 1,
@@ -36,8 +37,11 @@
                 "3": 2,
                 "5": 1
             },
-            "TextDescription": "Example Order 2"   
+            "TextDescription": "Example Order 2",
+            "ScoreReward": 1000
         }
-    ]
+    ],
+    "MaxGasPerPlayer": 10,
+    "CameraRotationPerPlayer": [1, 0]
      
 }

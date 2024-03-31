@@ -10,6 +10,7 @@ public struct Order
     public int DestinationWarehouse;
     public Dictionary<string, int> RequiredItems;
     public string TextDescription;
+    public int ScoreReward;
 }
 
 public struct Warehouse
@@ -22,6 +23,8 @@ public class ConfigData
 {
     public Warehouse[] Warehouses { get; set; }
     public Order[] Orders;
+    public int MaxGasPerPlayer;
+    public int[] CameraRotationPerPlayer;
 }
 
 public class GameRoot : MonoBehaviour
@@ -74,5 +77,8 @@ public class GameRoot : MonoBehaviour
 
         OrderSystem.Instance.OnGameStart();
 
+        MapDataNetworkBehaviour.Instance.OnGameStart();
+
+        CameraNetworkBehaviour.Instance.OnGameStart();
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 
 public delegate void OrderCompleteEvent(int orderIndex);
@@ -30,6 +31,8 @@ public class OrderSystem : NetworkBehaviour
     
     public NetworkVariable<NetworkSerializableIntArray> completeOrders = new NetworkVariable<NetworkSerializableIntArray>();
 
+    [FormerlySerializedAs("m_currentScore")] public NetworkVariable<int> currentScore = new NetworkVariable<int>();
+
     void Awake()
     {
         if (_instance != null && _instance != this)
@@ -52,6 +55,8 @@ public class OrderSystem : NetworkBehaviour
             // {
             //     Debug.Log($"order. to player: {order.receivingPlayer}");
             // }
+
+            currentScore.Value = 0;
 
         }
         InventorySystem.Instance.onInventoryChanged += OnInventoryChanged;
@@ -82,7 +87,7 @@ public class OrderSystem : NetworkBehaviour
                             complete = false;
                         }
                     }
-                    Debug.Log($"inventory changed for player order! complete? {complete}");
+                    
                     if (complete)
                     {
                         if (this.IsServer)
@@ -95,6 +100,8 @@ public class OrderSystem : NetworkBehaviour
                         {
                             onOrderComplete(i);
                         }
+
+                        currentScore.Value += orders.Value.orders[i].scoreReward;
                     }
                 }
             }
@@ -119,6 +126,7 @@ public class OrderSystem : NetworkBehaviour
                 newOrder.destinationWarehouse = order.DestinationWarehouse;
                 newOrder.requiredItems = order.RequiredItems;
                 newOrder.textDescription = (FixedString64Bytes)order.TextDescription;
+                newOrder.scoreReward = order.ScoreReward;
                 
                 newOrders.Add(newOrder);
             }

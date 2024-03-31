@@ -44,6 +44,8 @@ public class ClientMenuController : MonoBehaviour
     
     private VisualElement m_destinationWarehouseInventoryRoot;
 
+    private List<VisualElement> m_loadAllButtons;
+
     private GameObject m_thisPlayerGameObject;
 
     private VisualElement m_ghostIcon;
@@ -92,6 +94,8 @@ public class ClientMenuController : MonoBehaviour
 
         m_warehouseInventoryRoot = m_root.Q<VisualElement>("warehouse-inventory-root");
 
+        m_loadAllButtons = new List<VisualElement>();
+
         m_destinationWarehouseInventoryRoot = m_root.Q<VisualElement>("destination-inventory-root");
 
         m_ghostIcon = m_root.Q<VisualElement>("ghost-icon");
@@ -118,6 +122,14 @@ public class ClientMenuController : MonoBehaviour
 
         m_ownedWarehouseInventoryElement.style.opacity = 0.5f;
         
+        m_root.Q<Label>("score-label").text = "0G";
+
+        ProgressBar gasBar = m_root.Q<ProgressBar>("gas-bar");
+
+        
+        int maxGas = MapDataNetworkBehaviour.Instance.maxGasPerPlayer.Value;
+        gasBar.title = $"{maxGas}/{maxGas}";
+        gasBar.value = 100;
 
         m_inRangeOfOwnedInventory = false;
         
@@ -145,7 +157,6 @@ public class ClientMenuController : MonoBehaviour
         
         m_warehouseInventoryElement = m_inventoryElementAsset.Instantiate();
         
-        
         m_destinationWarehouseInventoryRoot.Add(m_warehouseInventoryElement);
         
         m_warehouseInventoryElement.style.visibility = Visibility.Hidden;
@@ -166,6 +177,13 @@ public class ClientMenuController : MonoBehaviour
         OrderSystem.Instance.activeOrders.OnValueChanged += OnActiveOrdersChanged;
 
         OrderSystem.Instance.completeOrders.OnValueChanged += OnCompleteOrdersChanged;
+
+        OrderSystem.Instance.currentScore.OnValueChanged += OnScoreChanged;
+
+        m_thisPlayerGameObject.GetComponent<PlayerNetworkBehaviour>().m_numGasRemaining.OnValueChanged +=
+            OnGasValueChanged;
+        
+        
     }
 
     public void StartDrag(Vector2 position, InventorySlot originalInventorySlot)
@@ -392,6 +410,7 @@ public class ClientMenuController : MonoBehaviour
                     //also just update the warehouse to initial state. 
                     UpdateWarehouseInventory();
                 }
+                UpdateOrdersList(OrderSystem.Instance.activeOrders.Value, OrderSystem.Instance.completeOrders.Value);
                 
             }
             else if (!foundNearestWarehouse && m_currentLoadingWarehouseNum != -1)
@@ -423,6 +442,8 @@ public class ClientMenuController : MonoBehaviour
                     m_currentLoadingWarehouseNum = -1;
                 }
                 
+                UpdateOrdersList(OrderSystem.Instance.activeOrders.Value, OrderSystem.Instance.completeOrders.Value);
+                
             }
         }
     }
@@ -433,9 +454,9 @@ public class ClientMenuController : MonoBehaviour
     }
     
     void OnCompleteOrdersChanged(NetworkSerializableIntArray old, NetworkSerializableIntArray current) {
-        Debug.Log("on complete orders changed!");
         UpdateOrdersList(OrderSystem.Instance.activeOrders.Value, current);
     }
+
 
     void UpdateOrdersList(NetworkSerializableIntArray activeOrders, NetworkSerializableIntArray completeOrders)
     {
@@ -443,6 +464,8 @@ public class ClientMenuController : MonoBehaviour
 
         for (int i = 0; i < activeOrders.arr.Length; i++)
         {
+            m_loadAllButtons.Add(null);
+            
             if (activeOrders.arr[i] != 0)
             {
                 m_orderRoot.style.display = DisplayStyle.Flex;
@@ -456,6 +479,7 @@ public class ClientMenuController : MonoBehaviour
                     orderElement.Q<Label>("order-number-label").text = $"Order {i + 1}:";
                     orderElement.Q<Label>("order-description").text = order.textDescription.ToString();
                     orderElement.Q<Label>("send-to-player-label").text = $"Receiving Player: {order.receivingPlayer}";
+                    orderElement.Q<Label>("score-reward-label").text = $"Reward: {order.scoreReward}G";
                     VisualElement itemsContainer = orderElement.Q<VisualElement>("order-items-container");
                     foreach (string key in order.requiredItems.Keys)
                     {
@@ -488,9 +512,19 @@ public class ClientMenuController : MonoBehaviour
                     }
 
                     Button loadAllButton = orderElement.Q<Button>("send-order-button");
+
+                    m_loadAllButtons[i] = loadAllButton;
+
+                    loadAllButton.style.visibility = Visibility.Hidden;
+                    if (m_currentLoadingWarehouseNum == order.destinationWarehouse)
+                    {
+                        loadAllButton.style.visibility = Visibility.Visible;
+                    }
+                    
+                    int temp = i;
                     loadAllButton.clicked += () =>
                     {
-                        LoadAllFromOrderCallback(i);
+                        LoadAllFromOrderCallback(temp);
                     };
 
                     loadAllButton.text = "Load All";
@@ -499,6 +533,19 @@ public class ClientMenuController : MonoBehaviour
                 }
             }
         }
+    }
+
+    private void OnScoreChanged(int previous, int current)
+    {
+        m_root.Q<Label>("score-label").text = $"{current}G";
+    }
+    
+    void OnGasValueChanged(int previous, int current)
+    {
+        ProgressBar gasBar = m_root.Q<ProgressBar>("gas-bar");
+        int maxGas = MapDataNetworkBehaviour.Instance.maxGasPerPlayer.Value;
+        gasBar.value = (100f * current) / maxGas;
+        gasBar.title = $"{current}/{maxGas}";
     }
 
     private void LoadAllFromOrderCallback(int orderIndex)

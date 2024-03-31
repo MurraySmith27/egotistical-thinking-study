@@ -343,17 +343,22 @@ public class InventorySystem : NetworkBehaviour
         }
         else
         {
-            if (isPlayer)
+
+            for (int i = 0; i < quantity; i++)
             {
-                MapGenerator.Instance.playerObjects[inventoryNum]
-                    .GetComponent<InventoryNetworkBehaviour>().RemoveItem(itemIdx);
+                if (isPlayer)
+                {
+                    MapGenerator.Instance.playerObjects[inventoryNum]
+                        .GetComponent<InventoryNetworkBehaviour>().RemoveItem(itemIdx);
+                }
+                else
+                {
+                    //warehouse
+                    MapGenerator.Instance.warehouses[inventoryNum].GetComponent<InventoryNetworkBehaviour>()
+                        .RemoveItem(itemIdx);
+                }
             }
-            else
-            {
-                //warehouse
-                MapGenerator.Instance.warehouses[inventoryNum].GetComponent<InventoryNetworkBehaviour>().RemoveItem(itemIdx);
-            }
-            
+
             if (onInventoryChanged != null && onInventoryChanged.GetInvocationList().Length > 0)
             {
                 onInventoryChanged(inventoryNum, isPlayer, InventoryChangeType.Remove);

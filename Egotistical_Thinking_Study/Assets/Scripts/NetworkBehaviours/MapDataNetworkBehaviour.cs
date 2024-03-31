@@ -21,6 +21,8 @@ public class MapDataNetworkBehaviour : NetworkBehaviour
     
     public NetworkVariable<NetworkSerializableUlongArray> playerNetworkObjectIds { get; private set; }
 
+    public NetworkVariable<int> maxGasPerPlayer = new NetworkVariable<int>();
+
     void Awake()
     {
         if (_instance != null && _instance != this)
@@ -34,6 +36,11 @@ public class MapDataNetworkBehaviour : NetworkBehaviour
 
         warehouseNetworkObjectIds = new NetworkVariable<NetworkSerializableUlongArray>();
         playerNetworkObjectIds = new NetworkVariable<NetworkSerializableUlongArray>();
+    }
+
+    public void OnGameStart()
+    {
+        maxGasPerPlayer.Value = GameRoot.Instance.configData.MaxGasPerPlayer;
     }
 
     public ulong GetNetworkIdOfWarehouse(int warehouseNum)
