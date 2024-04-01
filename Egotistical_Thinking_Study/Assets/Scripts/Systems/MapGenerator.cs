@@ -28,6 +28,8 @@ public class MapGenerator : MonoBehaviour
 
     [SerializeField] private List<char> warehouseLetters;
 
+    [SerializeField] private List<char> gasStationLetters;
+
     private Dictionary<char, GameObject> nameToPrefabMap;
 
     public List<List<GameObject>> map;
@@ -45,6 +47,8 @@ public class MapGenerator : MonoBehaviour
     }
 
     public List<GameObject> warehouses;
+
+    public List<GameObject> gasStations;
     
     void Awake()
     {
@@ -88,6 +92,10 @@ public class MapGenerator : MonoBehaviour
                     if (warehouseLetters.Contains(textMap[row][col]))
                     {
                         warehouses.Add(go);
+                    }
+                    else if (gasStationLetters.Contains(textMap[row][col]))
+                    {
+                        gasStations.Add(go);
                     }
                 }
                 else if (textMap[row][col] == roadLetter || textMap[row][col] == playerLetter) {

@@ -229,7 +229,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 296421
+  GlobalObjectIdHash: 1164237201
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
   ActiveSceneSynchronization: 0
@@ -251,6 +251,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   clientInput: {fileID: -944628639613478452, guid: 33e8d8f2ecf2f174a8412294faf437f3, type: 3}
   secondsPerGridMove: 0.5
+  m_gasRefillRadius: 8
   m_playerNum:
     m_InternalValue: 0
   m_numGasRemaining:

@@ -42,6 +42,6 @@
         }
     ],
     "MaxGasPerPlayer": 10,
-    "CameraRotationPerPlayer": [1, 0]
+    "CameraRotationPerPlayer": [0, 0]
      
 }

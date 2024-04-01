@@ -14,6 +14,7 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
     
     [SerializeField] private InputActionAsset clientInput;
     [SerializeField] private float secondsPerGridMove;
+    [SerializeField] private float m_gasRefillRadius = 8f;
     
     private InputAction clickAction;
     private InputAction mousePosition;
@@ -39,6 +40,21 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
         m_numGasRemaining = new NetworkVariable<int>();
     }
 
+    void OnPositionChange(Vector3 newPosition)
+    {
+        if (this.IsServer)
+        {
+            foreach (GameObject gasStation in MapGenerator.Instance.gasStations)
+            {
+                if (Vector3.Distance(gasStation.transform.position,newPosition) < m_gasRefillRadius)
+                {
+                    m_numGasRemaining.Value = GameRoot.Instance.configData.MaxGasPerPlayer;
+                    break;
+                }
+            }
+        }
+    }
+    
     public override void OnNetworkSpawn() {
         if (this.IsServer) {
             position.Value = gameObject.transform.position;
@@ -140,8 +156,11 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
             for (float t = 0; t < secondsPerGridMove; t += Time.deltaTime)
             {
                 position.Value = Vector3.Lerp(lastPosition, nextPosition, t / secondsPerGridMove);
+                
                 yield return null;
             }
+
+            OnPositionChange(nextPosition);
         }
     }
 

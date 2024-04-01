@@ -738,17 +738,21 @@ MonoBehaviour:
   playerPrefabs:
   - {fileID: 3455635103054594336, guid: 67f917de9a9f847ef81257adfec24f8a, type: 3}
   - {fileID: 3455635103054594336, guid: 696f5ef2e0ab3ee41bad3752df6c7ce5, type: 3}
-  tileNames: 5700
+  tileNames: 570044004700
   tilePrefabs:
   - {fileID: 1354401770332528486, guid: 6b0707f80e7d5490d9d309d5ebac1a48, type: 3}
+  - {fileID: 1354401770332528486, guid: eb24a97c341a79c4aa1bd935bb3412ea, type: 3}
+  - {fileID: 1354401770332528486, guid: 8de7cf0b92e7f144f96e8a014250a7de, type: 3}
   roadConnectionLettersNorth: 520050005700
   roadConnectionLettersEast: 52005000
   roadConnectionLettersSouth: 52005000
   roadConnectionLettersWest: 52005000
-  warehouseLetters: 5700
+  warehouseLetters: 57004400
+  gasStationLetters: 4700
   gridOrigin: {x: 0, y: 0}
   playerObjects: []
   warehouses: []
+  gasStations: []
 --- !u!4 &981120885
 Transform:
   m_ObjectHideFlags: 0

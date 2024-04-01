@@ -48,13 +48,13 @@ public class CameraNetworkBehaviour : NetworkBehaviour
 
         float yawRotation = rotation * 90f;
 
-        foreach (GameObject go in UnityEngine.Object.FindObjectsOfType(typeof(GameObject)))
-        {
-            if (go != this.gameObject && go.activeInHierarchy)
-            {
-                go.transform.rotation = Quaternion.Euler(0, 0, yawRotation);
-            }
-        }
+        // foreach (GameObject go in UnityEngine.Object.FindObjectsOfType(typeof(GameObject)))
+        // {
+        //     if (go != this.gameObject && go.activeInHierarchy)
+        //     {
+        //         go.transform.rotation = Quaternion.Euler(0, 0, yawRotation);
+        //     }
+        // }
 
     }
 
