@@ -700,6 +700,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b15e94ef525d49e7995a6031728785a7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maxGasPerPlayer:
+    m_InternalValue: 0
 --- !u!1 &981120883
 GameObject:
   m_ObjectHideFlags: 0
@@ -827,6 +829,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a736bf865b44744bd07875aac26f1de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  currentScore:
+    m_InternalValue: 0
 --- !u!1 &1198937714
 GameObject:
   m_ObjectHideFlags: 0
