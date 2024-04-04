@@ -40,6 +40,8 @@ public class NetworkSerializableIntArray : INetworkSerializable
 
 public class NetworkSerializableOrder : INetworkSerializable
 {
+    public int orderTimeLimit;
+    public int orderTimeRemaining;
     public int receivingPlayer;
     public int destinationWarehouse;
     private FixedString64Bytes[] requiredItemsKeys;
@@ -74,6 +76,8 @@ public class NetworkSerializableOrder : INetworkSerializable
 
     public NetworkSerializableOrder()
     {
+        orderTimeLimit = -1;
+        orderTimeRemaining = -1;
         receivingPlayer = -1;
         destinationWarehouse = -1;
         requiredItemsKeys = new FixedString64Bytes[0];
@@ -87,6 +91,8 @@ public class NetworkSerializableOrder : INetworkSerializable
         if (serializer.IsWriter)
         {
             var writer = serializer.GetFastBufferWriter();
+            writer.WriteValueSafe(orderTimeLimit);
+            writer.WriteValueSafe(orderTimeRemaining);
             writer.WriteValueSafe(receivingPlayer);
             writer.WriteValueSafe(destinationWarehouse); 
             writer.WriteValueSafe(requiredItemsKeys);
@@ -97,6 +103,8 @@ public class NetworkSerializableOrder : INetworkSerializable
         else
         {
             var reader = serializer.GetFastBufferReader();
+            reader.ReadValueSafe(out orderTimeLimit);
+            reader.ReadValueSafe(out orderTimeRemaining);
             reader.ReadValueSafe(out receivingPlayer);
             reader.ReadValueSafe(out destinationWarehouse);
             reader.ReadValueSafe(out requiredItemsKeys);

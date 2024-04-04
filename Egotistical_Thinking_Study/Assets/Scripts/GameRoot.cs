@@ -11,7 +11,9 @@ public struct Order
     public Dictionary<string, int> RequiredItems;
     public string TextDescription;
     public int ScoreReward;
+    public int TimeLimitSeconds;
 }
+
 
 public struct Warehouse
 {
@@ -25,6 +27,8 @@ public class ConfigData
     public Order[] Orders;
     public int MaxGasPerPlayer;
     public int[] CameraRotationPerPlayer;
+    public int NumPlayers;
+    public bool IsScoreShared;
 }
 
 public class GameRoot : MonoBehaviour

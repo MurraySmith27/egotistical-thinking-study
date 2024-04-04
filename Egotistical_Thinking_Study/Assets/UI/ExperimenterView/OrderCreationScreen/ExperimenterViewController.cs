@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -13,9 +14,13 @@ public class ExperimenterViewController : MonoBehaviour
     private VisualElement m_root;
     private VisualElement m_orderContainer;
 
+    private List<VisualElement> m_orderElements;
+
     private void Start()
     {
         m_root = GetComponent<UIDocument>().rootVisualElement;
+
+        m_orderElements = new List<VisualElement>();
 
         m_orderContainer = m_root.Q<VisualElement>("order-container");
 
@@ -24,6 +29,14 @@ public class ExperimenterViewController : MonoBehaviour
         {
             VisualElement orderElement = m_orderElement.Instantiate();
             orderElement.AddToClassList("order");
+            ProgressBar orderTimer = orderElement.Q<ProgressBar>("order-timer");
+            if (orders[i].TimeLimitSeconds != -1)
+            {
+                orderTimer.style.visibility = Visibility.Visible;
+                orderTimer.lowValue = 100;
+                orderTimer.title = $"{orders[i].TimeLimitSeconds}s";
+            }
+
             orderElement.Q<Label>("order-number-label").text = $"Order {i + 1}:";
             orderElement.Q<Label>("order-description").text = orders[i].TextDescription;
             orderElement.Q<Label>("send-to-player-label").text = $"Receiving Player: {orders[i].RecievingPlayer}";
@@ -64,18 +77,37 @@ public class ExperimenterViewController : MonoBehaviour
 
             orderElement.MarkDirtyRepaint();
             m_orderContainer.Add(orderElement);
+            m_orderElements.Add(orderElement);
             m_orderContainer.MarkDirtyRepaint();
         }
         
         
         m_root.Q<Label>("score-label").text = "0G";
 
-        OrderSystem.Instance.currentScore.OnValueChanged += OnScoreChanged;
+        OrderSystem.Instance.currentScorePerPlayer.OnValueChanged += OnScoreChanged;
+
+        OrderSystem.Instance.onOrderChanged += OnOrderValueChanged;
     }
 
-    private void OnScoreChanged(int prev, int current)
+    private void OnScoreChanged(NetworkSerializableIntArray prev, NetworkSerializableIntArray current)
     {
-        m_root.Q<Label>("score-label").text = $"{current}G";
+        m_root.Q<Label>("score-label").text = $"Total Score: {current.arr.Sum()}G";
+    }
+
+    private void OnOrderValueChanged(int orderIndex)
+    {
+        Debug.Log("order value changed");
+        VisualElement orderElement = m_orderElements[orderIndex];
+        ProgressBar orderTimer = orderElement.Q<ProgressBar>("order-timer");
+        NetworkSerializableOrder order = OrderSystem.Instance.orders.Value.orders[orderIndex];
+        if (order.orderTimeLimit != -1)
+        {
+            orderTimer.lowValue = 100f * order.orderTimeRemaining /
+                                  (float)order.orderTimeLimit;
+            orderTimer.title = $"{order.orderTimeRemaining}s";
+            Debug.Log($"marking dirty: {orderTimer.title}");
+            orderTimer.MarkDirtyRepaint();
+        }
     }
 
     private void OnOrderSent(int orderIndex)

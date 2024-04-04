@@ -23,6 +23,8 @@ public class MapDataNetworkBehaviour : NetworkBehaviour
 
     public NetworkVariable<int> maxGasPerPlayer = new NetworkVariable<int>();
 
+    public NetworkVariable<bool> isScoreShared = new NetworkVariable<bool>();
+
     void Awake()
     {
         if (_instance != null && _instance != this)
@@ -41,6 +43,7 @@ public class MapDataNetworkBehaviour : NetworkBehaviour
     public void OnGameStart()
     {
         maxGasPerPlayer.Value = GameRoot.Instance.configData.MaxGasPerPlayer;
+        isScoreShared.Value = GameRoot.Instance.configData.IsScoreShared;
     }
 
     public ulong GetNetworkIdOfWarehouse(int warehouseNum)

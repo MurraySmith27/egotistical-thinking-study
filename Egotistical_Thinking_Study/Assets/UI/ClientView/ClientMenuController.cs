@@ -66,6 +66,8 @@ public class ClientMenuController : MonoBehaviour
 
     private VisualElement m_orderRoot;
 
+    private List<VisualElement> m_activeOrderElements;
+
     void Awake()
     {
         if (_instance != null && _instance != this)
@@ -83,6 +85,8 @@ public class ClientMenuController : MonoBehaviour
         m_root = GetComponent<UIDocument>().rootVisualElement.Q<VisualElement>("root");
 
         m_orderRoot = m_root.Q<VisualElement>("order-root");
+
+        m_activeOrderElements = new List<VisualElement>();
         
         VisualElement playerInventoryRoot = m_root.Q<VisualElement>("player-inventory-root");
         
@@ -178,7 +182,9 @@ public class ClientMenuController : MonoBehaviour
 
         OrderSystem.Instance.completeOrders.OnValueChanged += OnCompleteOrdersChanged;
 
-        OrderSystem.Instance.currentScore.OnValueChanged += OnScoreChanged;
+        OrderSystem.Instance.incompleteOrders.OnValueChanged += OnIncompleteOrdersChanged;
+
+        OrderSystem.Instance.currentScorePerPlayer.OnValueChanged += OnScoreChanged;
 
         m_thisPlayerGameObject.GetComponent<PlayerNetworkBehaviour>().m_numGasRemaining.OnValueChanged +=
             OnGasValueChanged;
@@ -410,7 +416,7 @@ public class ClientMenuController : MonoBehaviour
                     //also just update the warehouse to initial state. 
                     UpdateWarehouseInventory();
                 }
-                UpdateOrdersList(OrderSystem.Instance.activeOrders.Value, OrderSystem.Instance.completeOrders.Value);
+                UpdateOrdersList(OrderSystem.Instance.activeOrders.Value, OrderSystem.Instance.completeOrders.Value, OrderSystem.Instance.incompleteOrders.Value);
                 
             }
             else if (!foundNearestWarehouse && m_currentLoadingWarehouseNum != -1)
@@ -442,7 +448,7 @@ public class ClientMenuController : MonoBehaviour
                     m_currentLoadingWarehouseNum = -1;
                 }
                 
-                UpdateOrdersList(OrderSystem.Instance.activeOrders.Value, OrderSystem.Instance.completeOrders.Value);
+                UpdateOrdersList(OrderSystem.Instance.activeOrders.Value, OrderSystem.Instance.completeOrders.Value , OrderSystem.Instance.incompleteOrders.Value);
                 
             }
         }
@@ -450,17 +456,23 @@ public class ClientMenuController : MonoBehaviour
 
     
     void OnActiveOrdersChanged(NetworkSerializableIntArray old, NetworkSerializableIntArray current) {
-        UpdateOrdersList(current, OrderSystem.Instance.completeOrders.Value);
+        UpdateOrdersList(current, OrderSystem.Instance.completeOrders.Value, OrderSystem.Instance.incompleteOrders.Value);
     }
     
     void OnCompleteOrdersChanged(NetworkSerializableIntArray old, NetworkSerializableIntArray current) {
-        UpdateOrdersList(OrderSystem.Instance.activeOrders.Value, current);
+        UpdateOrdersList(OrderSystem.Instance.activeOrders.Value, current, OrderSystem.Instance.incompleteOrders.Value);
+    }
+
+    void OnIncompleteOrdersChanged(NetworkSerializableIntArray old, NetworkSerializableIntArray current)
+    {
+        UpdateOrdersList(OrderSystem.Instance.activeOrders.Value, OrderSystem.Instance.completeOrders.Value, current);
     }
 
 
-    void UpdateOrdersList(NetworkSerializableIntArray activeOrders, NetworkSerializableIntArray completeOrders)
+    void UpdateOrdersList(NetworkSerializableIntArray activeOrders, NetworkSerializableIntArray completeOrders, NetworkSerializableIntArray incompleteOrders)
     {
         m_orderRoot.Clear();
+        m_activeOrderElements.Clear();
 
         for (int i = 0; i < activeOrders.arr.Length; i++)
         {
@@ -476,6 +488,14 @@ public class ClientMenuController : MonoBehaviour
                 {
                     VisualElement orderElement = m_orderElementAsset.Instantiate();
                     orderElement.AddToClassList("order");
+                    ProgressBar orderTimer = orderElement.Q<ProgressBar>("order-timer");
+                    if (order.orderTimeLimit != -1)
+                    {
+                        orderTimer.style.visibility = Visibility.Visible;
+                        orderTimer.lowValue =  order.orderTimeRemaining / (float)order.orderTimeLimit;
+                        orderTimer.title = $"{order.orderTimeRemaining}s";
+                    }
+
                     orderElement.Q<Label>("order-number-label").text = $"Order {i + 1}:";
                     orderElement.Q<Label>("order-description").text = order.textDescription.ToString();
                     orderElement.Q<Label>("send-to-player-label").text = $"Receiving Player: {order.receivingPlayer}";
@@ -510,34 +530,50 @@ public class ClientMenuController : MonoBehaviour
                     {
                         orderElement.Q<VisualElement>("checkmark-overlay").style.visibility = Visibility.Visible;
                     }
+                    else if (incompleteOrders.arr[i] != 0)
+                    {
+                        orderElement.Q <VisualElement>("x-overlay").style.visibility = Visibility.Visible;
+                    }
 
                     Button loadAllButton = orderElement.Q<Button>("send-order-button");
 
                     m_loadAllButtons[i] = loadAllButton;
 
                     loadAllButton.style.visibility = Visibility.Hidden;
-                    if (m_currentLoadingWarehouseNum == order.destinationWarehouse)
+                    if (m_currentLoadingWarehouseNum == order.destinationWarehouse && completeOrders.arr[i] != 0 && incompleteOrders.arr[i] != 0)
                     {
                         loadAllButton.style.visibility = Visibility.Visible;
+                        int temp = i;
+                        loadAllButton.clicked += () =>
+                        {
+                            LoadAllFromOrderCallback(temp);
+                        };
+
+                        loadAllButton.text = "Deposit Items";
                     }
                     
-                    int temp = i;
-                    loadAllButton.clicked += () =>
-                    {
-                        LoadAllFromOrderCallback(temp);
-                    };
-
-                    loadAllButton.text = "Load All";
 
                     m_orderRoot.Add(orderElement);
+                    m_activeOrderElements.Add(orderElement);
                 }
             }
         }
     }
 
-    private void OnScoreChanged(int previous, int current)
+    private void OnScoreChanged(NetworkSerializableIntArray previous, NetworkSerializableIntArray current)
     {
-        m_root.Q<Label>("score-label").text = $"{current}G";
+        int score = 0;
+        if (MapDataNetworkBehaviour.Instance.isScoreShared.Value)
+        {
+            score = current.arr.Sum();
+        }
+        else
+        {
+            int playerNum = ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum;
+            score = current.arr[playerNum];
+        }
+        
+        m_root.Q<Label>("score-label").text = $"{score}G";
     }
     
     void OnGasValueChanged(int previous, int current)

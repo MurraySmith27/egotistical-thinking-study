@@ -1,5 +1,6 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <ui:VisualElement name="root" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0.66);">
+        <ui:ProgressBar value="100" title="0s" name="order-timer" style="visibility: hidden; font-size: 25px; -unity-font-style: bold; color: rgb(0, 0, 0);" />
         <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="order-number-label" style="font-size: 24px; flex-shrink: 1; flex-grow: 1;" />
         <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="order-description" style="flex-shrink: 1; flex-grow: 1;" />
         <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="map-destination-label" style="flex-shrink: 1; flex-grow: 1;" />
@@ -11,12 +12,24 @@
         <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="send-to-player-label" style="flex-shrink: 1; flex-grow: 1;" />
         <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="score-reward-label" style="flex-shrink: 1; flex-grow: 1;" />
         <ui:VisualElement name="order-items-container" style="flex-grow: 6; flex-wrap: wrap; flex-direction: row; justify-content: center;" />
-        <ui:Button text="Send&#10;" parse-escape-sequences="true" display-tooltip-when-elided="true" name="send-order-button" style="flex-shrink: 1; flex-grow: 6;" />
+        <ui:Button text="Send&#10;" parse-escape-sequences="true" display-tooltip-when-elided="true" name="send-order-button" style="flex-shrink: 1; flex-grow: 6; visibility: visible; flex-direction: row;">
+            <ui:Button text="Accept" parse-escape-sequences="true" display-tooltip-when-elided="true" name="accept-button" style="flex-shrink: 1; flex-grow: 1; background-color: rgb(85, 147, 2); visibility: hidden;" />
+            <ui:Button text="Reject" parse-escape-sequences="true" display-tooltip-when-elided="true" name="reject-button" style="flex-shrink: 1; flex-grow: 1; background-color: rgb(207, 71, 71); visibility: hidden;" />
+        </ui:Button>
         <ui:VisualElement name="checkmark-overlay" style="flex-grow: 1; position: absolute; width: 100%; height: 100%; background-color: rgba(12, 94, 0, 0.38); visibility: hidden;">
             <ui:VisualElement style="flex-grow: 1;" />
             <ui:VisualElement style="flex-grow: 1; flex-direction: row;">
                 <ui:VisualElement style="flex-grow: 1;" />
                 <ui:VisualElement name="checkmark" style="flex-grow: 1; background-image: url(&apos;project://database/Assets/Art/Icons/checkmark.png?fileID=2800000&amp;guid=d2e100f827f36c444945e6aa75e22006&amp;type=3#checkmark&apos;); -unity-background-image-tint-color: rgb(51, 113, 13); background-color: rgba(62, 229, 0, 0);" />
+                <ui:VisualElement style="flex-grow: 1;" />
+            </ui:VisualElement>
+            <ui:VisualElement style="flex-grow: 1;" />
+        </ui:VisualElement>
+        <ui:VisualElement name="x-overlay" style="flex-grow: 1; position: absolute; width: 100%; height: 100%; background-color: rgba(94, 11, 0, 0.38); visibility: hidden;">
+            <ui:VisualElement style="flex-grow: 1;" />
+            <ui:VisualElement style="flex-grow: 1; flex-direction: row;">
+                <ui:VisualElement style="flex-grow: 1;" />
+                <ui:VisualElement name="x" style="flex-grow: 1; background-image: url(&apos;project://database/Assets/Art/Icons/x.png?fileID=2800000&amp;guid=a41f78d55edb0b349923866d59b4d60d&amp;type=3#x&apos;); -unity-background-image-tint-color: rgb(103, 5, 5);" />
                 <ui:VisualElement style="flex-grow: 1;" />
             </ui:VisualElement>
             <ui:VisualElement style="flex-grow: 1;" />

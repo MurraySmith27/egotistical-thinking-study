@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Collections;
@@ -8,6 +9,10 @@ using UnityEngine.Serialization;
 
 
 public delegate void OrderCompleteEvent(int orderIndex);
+
+public delegate void OrderIncompleteEvent(int orderIndex);
+
+public delegate void OrderChangedEvent(int orderIndex);
 
 public class OrderSystem : NetworkBehaviour
 {
@@ -24,14 +29,20 @@ public class OrderSystem : NetworkBehaviour
     }
 
     public OrderCompleteEvent onOrderComplete;
+
+    public OrderIncompleteEvent onOrderIncomplete;
+
+    public OrderChangedEvent onOrderChanged;
     
     public NetworkVariable<NetworkSerializableOrderArray> orders = new NetworkVariable<NetworkSerializableOrderArray>();
 
     public NetworkVariable<NetworkSerializableIntArray> activeOrders = new NetworkVariable<NetworkSerializableIntArray>();
     
     public NetworkVariable<NetworkSerializableIntArray> completeOrders = new NetworkVariable<NetworkSerializableIntArray>();
+    
+    public NetworkVariable<NetworkSerializableIntArray> incompleteOrders = new NetworkVariable<NetworkSerializableIntArray>();
 
-    [FormerlySerializedAs("m_currentScore")] public NetworkVariable<int> currentScore = new NetworkVariable<int>();
+    public NetworkVariable<NetworkSerializableIntArray> currentScorePerPlayer = new NetworkVariable<NetworkSerializableIntArray>();
 
     void Awake()
     {
@@ -55,8 +66,6 @@ public class OrderSystem : NetworkBehaviour
             // {
             //     Debug.Log($"order. to player: {order.receivingPlayer}");
             // }
-
-            currentScore.Value = 0;
 
         }
         InventorySystem.Instance.onInventoryChanged += OnInventoryChanged;
@@ -94,14 +103,15 @@ public class OrderSystem : NetworkBehaviour
                         {
                             completeOrders.Value.arr[i] = 1;
                             completeOrders.SetDirty(true);
+                            
+                            currentScorePerPlayer.Value.arr[inventoryNum] += orders.Value.orders[i].scoreReward;
                         }
 
                         if (onOrderComplete != null && onOrderComplete.GetInvocationList().Length > 0)
                         {
                             onOrderComplete(i);
                         }
-
-                        currentScore.Value += orders.Value.orders[i].scoreReward;
+                        
                     }
                 }
             }
@@ -117,11 +127,17 @@ public class OrderSystem : NetworkBehaviour
         {
             activeOrders.Value = new NetworkSerializableIntArray();
             completeOrders.Value = new NetworkSerializableIntArray();
+            incompleteOrders.Value = new NetworkSerializableIntArray();
+
             orders.Value = new NetworkSerializableOrderArray();
+            currentScorePerPlayer.Value = new NetworkSerializableIntArray();
+            
             List<NetworkSerializableOrder> newOrders = new List<NetworkSerializableOrder>();
             foreach (Order order in GameRoot.Instance.configData.Orders)
             {
                 NetworkSerializableOrder newOrder = new NetworkSerializableOrder();
+                newOrder.orderTimeLimit = order.TimeLimitSeconds;
+                newOrder.orderTimeRemaining = order.TimeLimitSeconds;
                 newOrder.receivingPlayer = order.RecievingPlayer;
                 newOrder.destinationWarehouse = order.DestinationWarehouse;
                 newOrder.requiredItems = order.RequiredItems;
@@ -135,11 +151,51 @@ public class OrderSystem : NetworkBehaviour
 
             activeOrders.Value.arr = new int[GameRoot.Instance.configData.Orders.Length];
             completeOrders.Value.arr = new int[GameRoot.Instance.configData.Orders.Length];
+            incompleteOrders.Value.arr = new int[GameRoot.Instance.configData.Orders.Length];
+
+            
+            currentScorePerPlayer.Value.arr = new int[GameRoot.Instance.configData.NumPlayers];
 
             for (int i = 0; i < GameRoot.Instance.configData.Orders.Length; i++)
             {
                 activeOrders.Value.arr[i] = 0;
             }
+
+            StartCoroutine(UpdateOrderTimeRemaining());
+        }
+    }
+
+    private IEnumerator UpdateOrderTimeRemaining()
+    {
+        while (true)
+        {
+            for (int i = 0; i < orders.Value.orders.Length; i++)
+            {
+                NetworkSerializableOrder order = orders.Value.orders[i];
+                if (order.orderTimeLimit != -1 && activeOrders.Value.arr[i] != 0)
+                {
+                    if (order.orderTimeRemaining > 0)
+                    {
+                        orders.Value.orders[i].orderTimeRemaining--;
+                        orders.SetDirty(true);
+                        if (onOrderChanged != null && onOrderChanged.GetInvocationList().Length > 0)
+                        {
+                            onOrderChanged(i);
+                        }
+                    }
+                    else
+                    {
+                        incompleteOrders.Value.arr[i] = 1;
+                        incompleteOrders.SetDirty(true);
+                        if (onOrderIncomplete != null && onOrderIncomplete.GetInvocationList().Length > 0)
+                        {
+                            onOrderIncomplete(i);
+                        }
+                    }
+                }
+            }
+
+            yield return new WaitForSeconds(1f);
         }
     }
 

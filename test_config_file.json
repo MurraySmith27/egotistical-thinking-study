@@ -19,6 +19,7 @@
     ],
     "Orders": [
         {
+            "TimeLimitSeconds": 10,
             "RecievingPlayer": 0,
             "DestinationWarehouse": 1,
             "RequiredItems": {
@@ -30,7 +31,8 @@
             "ScoreReward": 1500  
         },
         {
-            "RecievingPlayer": 1,
+            "TimeLimitSeconds": -1,
+            "RecievingPlayer": 0,
             "DestinationWarehouse": 1,
             "RequiredItems": {
                 "1": 1,
@@ -42,6 +44,8 @@
         }
     ],
     "MaxGasPerPlayer": 10,
+    "NumPlayers": 2,
+    "IsScoreShared": true,
     "CameraRotationPerPlayer": [0, 0]
      
 }
