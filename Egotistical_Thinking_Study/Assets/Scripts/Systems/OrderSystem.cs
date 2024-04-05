@@ -146,6 +146,7 @@ public class OrderSystem : NetworkBehaviour
                 newOrder.requiredItems = order.RequiredItems;
                 newOrder.textDescription = (FixedString64Bytes)order.TextDescription;
                 newOrder.scoreReward = order.ScoreReward;
+                newOrder.incompletePenalty = order.IncompleteOrderPenalty;
                 
                 newOrders.Add(newOrder);
             }
@@ -196,6 +197,9 @@ public class OrderSystem : NetworkBehaviour
                     {
                         incompleteOrders.Value.arr[i] = 1;
                         incompleteOrders.SetDirty(true);
+                        
+                        currentScorePerPlayer.Value.arr[orders.Value.orders[i].receivingPlayer] -= orders.Value.orders[i].incompletePenalty;
+                        
                         if (onOrderIncomplete != null && onOrderIncomplete.GetInvocationList().Length > 0)
                         {
                             onOrderIncomplete(i);

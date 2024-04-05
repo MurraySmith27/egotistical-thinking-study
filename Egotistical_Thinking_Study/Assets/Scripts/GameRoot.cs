@@ -11,6 +11,7 @@ public struct Order
     public Dictionary<string, int> RequiredItems;
     public string TextDescription;
     public int ScoreReward;
+    public int IncompleteOrderPenalty;
     public int TimeLimitSeconds;
 }
 

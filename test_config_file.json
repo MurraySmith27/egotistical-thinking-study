@@ -28,7 +28,8 @@
                 "4": 1
             },
             "TextDescription": "Example Order",
-            "ScoreReward": 1500  
+            "ScoreReward": 1500,
+            "IncompleteOrderPenalty": 100
         },
         {
             "TimeLimitSeconds": -1,
@@ -40,7 +41,8 @@
                 "5": 1
             },
             "TextDescription": "Example Order 2",
-            "ScoreReward": 1000
+            "ScoreReward": 1000,
+            "IncompleteOrderPenalty": 100
         }
     ],
     "MaxGasPerPlayer": 10,

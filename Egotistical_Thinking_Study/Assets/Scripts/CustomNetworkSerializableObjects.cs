@@ -72,6 +72,7 @@ public class NetworkSerializableOrder : INetworkSerializable
         }
     }
     public int scoreReward;
+    public int incompletePenalty;
     public FixedString64Bytes textDescription;
 
     public NetworkSerializableOrder()
@@ -84,6 +85,7 @@ public class NetworkSerializableOrder : INetworkSerializable
         requiredItemsValues = new int[0];
         textDescription = "";
         scoreReward = 1000;
+        incompletePenalty = 0;
     }
 
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
@@ -99,6 +101,7 @@ public class NetworkSerializableOrder : INetworkSerializable
             writer.WriteValueSafe(requiredItemsValues);
             writer.WriteValueSafe(textDescription);
             writer.WriteValueSafe(scoreReward);
+            writer.WriteValueSafe(incompletePenalty);
         }
         else
         {
@@ -111,6 +114,7 @@ public class NetworkSerializableOrder : INetworkSerializable
             reader.ReadValueSafe(out requiredItemsValues);
             reader.ReadValueSafe(out textDescription);
             reader.ReadValueSafe(out scoreReward);
+            reader.ReadValueSafe(out incompletePenalty);
         }
     }
 }
