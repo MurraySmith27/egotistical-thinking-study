@@ -41,6 +41,8 @@ public class OrderSystem : NetworkBehaviour
     public NetworkVariable<NetworkSerializableIntArray> completeOrders = new NetworkVariable<NetworkSerializableIntArray>();
     
     public NetworkVariable<NetworkSerializableIntArray> incompleteOrders = new NetworkVariable<NetworkSerializableIntArray>();
+    
+    public NetworkVariable<NetworkSerializableIntArray> acceptedOrders = new NetworkVariable<NetworkSerializableIntArray>();
 
     public NetworkVariable<NetworkSerializableIntArray> currentScorePerPlayer = new NetworkVariable<NetworkSerializableIntArray>();
 
@@ -128,6 +130,7 @@ public class OrderSystem : NetworkBehaviour
             activeOrders.Value = new NetworkSerializableIntArray();
             completeOrders.Value = new NetworkSerializableIntArray();
             incompleteOrders.Value = new NetworkSerializableIntArray();
+            acceptedOrders.Value = new NetworkSerializableIntArray();
 
             orders.Value = new NetworkSerializableOrderArray();
             currentScorePerPlayer.Value = new NetworkSerializableIntArray();
@@ -152,7 +155,7 @@ public class OrderSystem : NetworkBehaviour
             activeOrders.Value.arr = new int[GameRoot.Instance.configData.Orders.Length];
             completeOrders.Value.arr = new int[GameRoot.Instance.configData.Orders.Length];
             incompleteOrders.Value.arr = new int[GameRoot.Instance.configData.Orders.Length];
-
+            acceptedOrders.Value.arr = new int[GameRoot.Instance.configData.Orders.Length];
             
             currentScorePerPlayer.Value.arr = new int[GameRoot.Instance.configData.NumPlayers];
 
@@ -174,6 +177,12 @@ public class OrderSystem : NetworkBehaviour
                 NetworkSerializableOrder order = orders.Value.orders[i];
                 if (order.orderTimeLimit != -1 && activeOrders.Value.arr[i] != 0)
                 {
+                    if ((order.orderTimeRemaining / (float)order.orderTimeLimit) < 0.8f)
+                    {
+                        //accept the order automatically
+                        acceptedOrders.Value.arr[i] = 2;
+                    }
+                    
                     if (order.orderTimeRemaining > 0)
                     {
                         orders.Value.orders[i].orderTimeRemaining--;
@@ -209,5 +218,26 @@ public class OrderSystem : NetworkBehaviour
         activeOrders.Value.arr[orderIndex] = 1;
         activeOrders.SetDirty(true);
     }
+
+    public void AcceptOrder(int orderIndex)
+    {
+        AcceptOrder_ServerRPC(orderIndex);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void AcceptOrder_ServerRPC(int orderIndex)
+    {
+        acceptedOrders.Value.arr[orderIndex] = 2;
+    }
+
+    public void RejectOrder(int orderIndex)
+    {
+        RejectOrder_ServerRPC(orderIndex);
+    }
     
+    [ServerRpc(RequireOwnership = false)]
+    private void RejectOrder_ServerRPC(int orderIndex)
+    {
+        acceptedOrders.Value.arr[orderIndex] = 1;
+    }
 }

@@ -184,6 +184,8 @@ public class ClientMenuController : MonoBehaviour
 
         OrderSystem.Instance.incompleteOrders.OnValueChanged += OnIncompleteOrdersChanged;
 
+        OrderSystem.Instance.acceptedOrders.OnValueChanged += OnAcceptedOrdersChanged;
+
         OrderSystem.Instance.currentScorePerPlayer.OnValueChanged += OnScoreChanged;
 
         m_thisPlayerGameObject.GetComponent<PlayerNetworkBehaviour>().m_numGasRemaining.OnValueChanged +=
@@ -416,7 +418,7 @@ public class ClientMenuController : MonoBehaviour
                     //also just update the warehouse to initial state. 
                     UpdateWarehouseInventory();
                 }
-                UpdateOrdersList(OrderSystem.Instance.activeOrders.Value, OrderSystem.Instance.completeOrders.Value, OrderSystem.Instance.incompleteOrders.Value);
+                UpdateOrdersList(OrderSystem.Instance.activeOrders.Value, OrderSystem.Instance.completeOrders.Value, OrderSystem.Instance.incompleteOrders.Value, OrderSystem.Instance.acceptedOrders.Value);
                 
             }
             else if (!foundNearestWarehouse && m_currentLoadingWarehouseNum != -1)
@@ -448,7 +450,7 @@ public class ClientMenuController : MonoBehaviour
                     m_currentLoadingWarehouseNum = -1;
                 }
                 
-                UpdateOrdersList(OrderSystem.Instance.activeOrders.Value, OrderSystem.Instance.completeOrders.Value , OrderSystem.Instance.incompleteOrders.Value);
+                UpdateOrdersList(OrderSystem.Instance.activeOrders.Value, OrderSystem.Instance.completeOrders.Value , OrderSystem.Instance.incompleteOrders.Value, OrderSystem.Instance.acceptedOrders.Value);
                 
             }
         }
@@ -456,20 +458,25 @@ public class ClientMenuController : MonoBehaviour
 
     
     void OnActiveOrdersChanged(NetworkSerializableIntArray old, NetworkSerializableIntArray current) {
-        UpdateOrdersList(current, OrderSystem.Instance.completeOrders.Value, OrderSystem.Instance.incompleteOrders.Value);
+        UpdateOrdersList(current, OrderSystem.Instance.completeOrders.Value, OrderSystem.Instance.incompleteOrders.Value, OrderSystem.Instance.acceptedOrders.Value);
     }
     
     void OnCompleteOrdersChanged(NetworkSerializableIntArray old, NetworkSerializableIntArray current) {
-        UpdateOrdersList(OrderSystem.Instance.activeOrders.Value, current, OrderSystem.Instance.incompleteOrders.Value);
+        UpdateOrdersList(OrderSystem.Instance.activeOrders.Value, current, OrderSystem.Instance.incompleteOrders.Value, OrderSystem.Instance.acceptedOrders.Value);
     }
 
     void OnIncompleteOrdersChanged(NetworkSerializableIntArray old, NetworkSerializableIntArray current)
     {
-        UpdateOrdersList(OrderSystem.Instance.activeOrders.Value, OrderSystem.Instance.completeOrders.Value, current);
+        UpdateOrdersList(OrderSystem.Instance.activeOrders.Value, OrderSystem.Instance.completeOrders.Value, current, OrderSystem.Instance.acceptedOrders.Value);
+    }
+    
+    void OnAcceptedOrdersChanged(NetworkSerializableIntArray old, NetworkSerializableIntArray current)
+    {
+        UpdateOrdersList(OrderSystem.Instance.activeOrders.Value, OrderSystem.Instance.completeOrders.Value, OrderSystem.Instance.incompleteOrders.Value, current);
     }
 
 
-    void UpdateOrdersList(NetworkSerializableIntArray activeOrders, NetworkSerializableIntArray completeOrders, NetworkSerializableIntArray incompleteOrders)
+    void UpdateOrdersList(NetworkSerializableIntArray activeOrders, NetworkSerializableIntArray completeOrders, NetworkSerializableIntArray incompleteOrders, NetworkSerializableIntArray acceptedOrders)
     {
         m_orderRoot.Clear();
         m_activeOrderElements.Clear();
@@ -478,7 +485,7 @@ public class ClientMenuController : MonoBehaviour
         {
             m_loadAllButtons.Add(null);
             
-            if (activeOrders.arr[i] != 0)
+            if (activeOrders.arr[i] != 0 && acceptedOrders.arr[i] != 1)
             {
                 m_orderRoot.style.display = DisplayStyle.Flex;
                 
@@ -540,18 +547,37 @@ public class ClientMenuController : MonoBehaviour
                     m_loadAllButtons[i] = loadAllButton;
 
                     loadAllButton.style.visibility = Visibility.Hidden;
-                    if (m_currentLoadingWarehouseNum == order.destinationWarehouse && completeOrders.arr[i] != 0 && incompleteOrders.arr[i] != 0)
-                    {
-                        loadAllButton.style.visibility = Visibility.Visible;
-                        int temp = i;
-                        loadAllButton.clicked += () =>
-                        {
-                            LoadAllFromOrderCallback(temp);
-                        };
 
-                        loadAllButton.text = "Deposit Items";
-                    }
+                    Button acceptOrderButton = orderElement.Q<Button>("accept-button");
+                    acceptOrderButton.style.visibility = Visibility.Hidden;
                     
+                    Button rejectOrderButton = orderElement.Q<Button>("reject-button");
+                    rejectOrderButton.style.visibility = Visibility.Hidden;
+                    
+                    if (acceptedOrders.arr[i] == 2)
+                    {
+                        if (m_currentLoadingWarehouseNum == order.destinationWarehouse && completeOrders.arr[i] != 0 &&
+                            incompleteOrders.arr[i] != 0)
+                        {
+                            loadAllButton.style.visibility = Visibility.Visible;
+                            int temp = i;
+                            loadAllButton.clicked += () => { LoadAllFromOrderCallback(temp); };
+
+                            loadAllButton.text = "Deposit Items";
+                        }
+                    }
+                    else if (acceptedOrders.arr[i] == 0)
+                    {
+                        acceptOrderButton.style.visibility = Visibility.Visible;
+                        rejectOrderButton.style.visibility = Visibility.Visible;
+
+                        int temp = i;
+                        acceptOrderButton.clicked += () => { OrderSystem.Instance.AcceptOrder(temp); };
+                        
+                        rejectOrderButton.clicked += () => { OrderSystem.Instance.RejectOrder(temp); };
+
+                    }
+
 
                     m_orderRoot.Add(orderElement);
                     m_activeOrderElements.Add(orderElement);
