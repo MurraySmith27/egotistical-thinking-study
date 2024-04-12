@@ -53,6 +53,16 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
                 }
             }
         }
+        else
+        {
+            LineRenderer lineRenderer = GetComponent<LineRenderer>();
+            Vector3[] lineRendererPoints = new Vector3[lineRenderer.positionCount];
+            lineRenderer.GetPositions(lineRendererPoints);
+
+            var newLineRendererPoints = lineRendererPoints.Skip(1);
+            
+            lineRenderer.SetPositions(newLineRendererPoints.ToArray());
+        }
     }
     
     public override void OnNetworkSpawn() {
@@ -68,8 +78,8 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
             playerCamera = GameObject.FindGameObjectWithTag("PlayerCamera");
         }
 
-        gameViewQuad = GameObject.FindGameObjectWithTag("GameViewQuad");
-        gameViewQuad.GetComponent<MeshRenderer>().enabled = true;
+        // gameViewQuad = GameObject.FindGameObjectWithTag("GameViewQuad");
+        // gameViewQuad.GetComponent<MeshRenderer>().enabled = true;
         position.OnValueChanged += UpdatePosition;
     }
     
@@ -78,15 +88,19 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
 
         // mousePos = new Vector2(mousePos.x / Screen.width, mousePos.y / Screen.height);
         
-        Vector2 topLeftCorner = Camera.main.WorldToScreenPoint(gameViewQuad.transform.GetChild(0).position);
-        Vector2 bottomRightCorner = Camera.main.WorldToScreenPoint(gameViewQuad.transform.GetChild(1).position);
+        // Vector2 topLeftCorner = Camera.main.WorldToScreenPoint(gameViewQuad.transform.GetChild(0).position);
+        // Vector2 bottomRightCorner = Camera.main.WorldToScreenPoint(gameViewQuad.transform.GetChild(1).position);
 
+        Vector2 topLeftCorner = new Vector2(0f, 0f);
+        Vector2 bottomRightCorner = new Vector2(Screen.width / 2f,Screen.height);
+        
         float width = bottomRightCorner.x - topLeftCorner.x;
         float height = bottomRightCorner.y - topLeftCorner.y;
         
+        
         //raycast from camera center, see if it intersects with the map.
         RaycastHit hit;
-        Ray ray = playerCamera.GetComponent<Camera>().ViewportPointToRay(new Vector3((mousePos.x - topLeftCorner.x) / width, 1 - ((mousePos.y - topLeftCorner.y) / height), 0));
+        Ray ray = playerCamera.GetComponent<Camera>().ViewportPointToRay(new Vector3((mousePos.x - topLeftCorner.x) / width, ((mousePos.y - topLeftCorner.y) / height), 0));
         
         Debug.DrawRay(ray.origin, ray.origin + ray.direction * 100, color:Color.red, duration: 5f, false);
         if (Physics.Raycast(ray.origin, ray.direction, out hit, 100, ~LayerMask.NameToLayer("MapTile")))
@@ -96,14 +110,15 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
             if (hit.transform.gameObject.name.Contains("Road"))
             {
                 int playerNum = ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum;
-                MovePlayerTo_ServerRpc(hitPos, playerNum);
+                Vector2Int destinationPos = new((int)(hitPos.x / MapGenerator.Instance.tileWidth), (int)(hitPos.y / MapGenerator.Instance.tileHeight));
+                MovePlayerTo_ServerRpc(destinationPos, playerNum);
             }
         }
     }
     
 
     [ServerRpc(RequireOwnership=false)]
-    void MovePlayerTo_ServerRpc(Vector3 worldPos,  int playerNum, ServerRpcParams serverRpcParams = default)
+    void MovePlayerTo_ServerRpc(Vector2Int destinationPos,  int playerNum, ServerRpcParams serverRpcParams = default)
     {
         if (m_playerNum.Value != playerNum)
         {
@@ -114,8 +129,6 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
         {
             StopCoroutine(moveCoroutine);
         }
-        
-        Vector2Int destinationPos = new((int)(worldPos.x / MapGenerator.Instance.tileWidth), (int)(worldPos.y / MapGenerator.Instance.tileHeight));
         Vector3 playerPos = transform.position;
         Vector2 playerPosVec2 = new((playerPos.x / MapGenerator.Instance.tileWidth),
             (playerPos.y / MapGenerator.Instance.tileHeight));

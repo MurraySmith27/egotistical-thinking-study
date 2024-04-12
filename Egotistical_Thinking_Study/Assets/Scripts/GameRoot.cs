@@ -64,6 +64,14 @@ public class GameRoot : MonoBehaviour
             _instance = this;
         }
     }
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Application.Quit();
+        }
+    }
     
     
     public void SetMap(string[] map_) {

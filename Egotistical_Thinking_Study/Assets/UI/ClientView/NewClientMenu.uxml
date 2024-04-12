@@ -1,0 +1,26 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:Template name="InventoryElement" src="project://database/Assets/UI/Shared/InventoryElement.uxml?fileID=9197481963319205126&amp;guid=4fd3fec64779a8c4c9d6a7feb711d6f2&amp;type=3#InventoryElement" />
+    <ui:VisualElement name="root" style="flex-grow: 1; flex-direction: row;">
+        <ui:VisualElement name="game" style="flex-grow: 1; background-image: none; min-width: 50%; max-width: 50%;">
+            <ui:VisualElement name="game-view" style="flex-grow: 1; background-image: url(&apos;project://database/Assets/UI/Shared/GameViewRenderTexture.asset?fileID=8600000&amp;guid=24b9b189363a5ef45adf6d482555cb46&amp;type=2#GameViewRenderTexture&apos;);" />
+        </ui:VisualElement>
+        <ui:VisualElement name="menu" style="flex-grow: 1; background-color: rgb(255, 255, 255);">
+            <ui:VisualElement name="order-root" style="flex-grow: 2; flex-shrink: 2;" />
+            <ui:VisualElement name="warehouse-root" style="flex-grow: 2; flex-shrink: 2;">
+                <ui:Instance template="InventoryElement" name="InventoryElement" style="flex-grow: 1;" />
+            </ui:VisualElement>
+            <ui:VisualElement name="truck-root" style="flex-grow: 1;">
+                <ui:VisualElement name="truck-gas-bar-root" style="flex-grow: 1; flex-direction: row;">
+                    <ui:VisualElement name="truck-gas-icon" style="flex-grow: 1; background-image: url(&apos;project://database/Assets/Art/Icons/gas.png?fileID=2800000&amp;guid=9b12844e557c478498bd9dc167b715a9&amp;type=3#gas&apos;); align-self: stretch;" />
+                    <ui:ProgressBar value="100" name="truck-gas-bar" style="flex-shrink: 2; flex-grow: 2; align-self: center;" />
+                </ui:VisualElement>
+                <ui:VisualElement name="truck-inventory-root" style="flex-grow: 1;">
+                    <ui:VisualElement name="owned-truck-inventory-root" style="flex-grow: 1; flex-direction: row;">
+                        <ui:VisualElement name="owned-truck-inventory-icon" style="flex-grow: 1; background-image: url(&apos;project://database/Assets/Exported%20Tilemaps/Player_Left.png.png?fileID=2800000&amp;guid=856cb30699e552f4dac4b723d358e995&amp;type=3#Player_Left.png&apos;); align-self: stretch;" />
+                        <ui:Instance template="InventoryElement" name="owned-truck-inventory-element" style="flex-grow: 2; flex-shrink: 2; align-self: stretch;" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

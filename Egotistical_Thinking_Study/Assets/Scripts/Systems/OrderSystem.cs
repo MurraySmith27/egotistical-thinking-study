@@ -99,7 +99,7 @@ public class OrderSystem : NetworkBehaviour
                         }
                     }
                     
-                    if (complete)
+                    if (complete && incompleteOrders.Value.arr[i] != 1)
                     {
                         if (this.IsServer)
                         {
@@ -193,13 +193,13 @@ public class OrderSystem : NetworkBehaviour
                             onOrderChanged(i);
                         }
                     }
-                    else
+                    else if (incompleteOrders.Value.arr[i] == 0 && completeOrders.Value.arr[i] != 1)
                     {
                         incompleteOrders.Value.arr[i] = 1;
                         incompleteOrders.SetDirty(true);
-                        
-                        currentScorePerPlayer.Value.arr[orders.Value.orders[i].receivingPlayer] -= orders.Value.orders[i].incompletePenalty;
-                        
+
+                        currentScorePerPlayer.Value.arr[orders.Value.orders[i].receivingPlayer] -=
+                            orders.Value.orders[i].incompletePenalty;
                         if (onOrderIncomplete != null && onOrderIncomplete.GetInvocationList().Length > 0)
                         {
                             onOrderIncomplete(i);
