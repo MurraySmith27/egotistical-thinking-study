@@ -75,6 +75,7 @@ public class MainMenuController : MonoBehaviour
     void OnStartAsClientButtonClicked() {
         string address = addressText.text;
         int portNum = Int32.Parse(portText.text);
+        
         IPAddress ip;
         if (portNum < 1024) {
             invalidConnectionDataLabel.text = "Invalid Port!";

@@ -3,7 +3,7 @@
     <Style src="project://database/Assets/UI/Shared/InventoryStyleSheet.uss?fileID=7433441132597879392&amp;guid=12734419a02e5734c81a16aba3a1dd5c&amp;type=3#InventoryStyleSheet" />
     <ui:VisualElement name="root" style="flex-grow: 1; flex-direction: row;">
         <ui:VisualElement name="order-container" class="order-container" style="flex-grow: 1; background-color: rgb(255, 255, 255); border-top-left-radius: 2px; border-top-right-radius: 2px; border-bottom-right-radius: 2px; border-bottom-left-radius: 2px;" />
-        <ui:VisualElement name="main-screen" style="flex-grow: 2; flex-shrink: 2; flex-direction: row;">
+        <ui:VisualElement name="main-screen" style="flex-grow: 2; flex-shrink: 2; flex-direction: row; background-image: url(&apos;project://database/Assets/UI/Shared/GameViewRenderTexture.asset?fileID=8600000&amp;guid=24b9b189363a5ef45adf6d482555cb46&amp;type=2#GameViewRenderTexture&apos;);">
             <ui:VisualElement name="spacer" style="flex-grow: 1;" />
             <ui:VisualElement name="score-label-root" style="flex-grow: 1;">
                 <ui:VisualElement name="spacer" style="flex-grow: 0.1; flex-shrink: 0.1;" />
