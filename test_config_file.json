@@ -19,7 +19,7 @@
     ],
     "Orders": [
         {
-            "TimeLimitSeconds": 10,
+            "TimeLimitSeconds": 30,
             "RecievingPlayer": 0,
             "DestinationWarehouse": 1,
             "RequiredItems": {

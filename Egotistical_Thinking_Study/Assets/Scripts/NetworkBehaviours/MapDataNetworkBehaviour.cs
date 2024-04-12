@@ -53,6 +53,10 @@ public class MapDataNetworkBehaviour : NetworkBehaviour
 
     public ulong GetNetworkIdOfPlayer(int playerNum)
     {
+        if (playerNum < 0 || playerNum > playerNetworkObjectIds.Value.arr.Length)
+        {
+            return 0;
+        }
         return playerNetworkObjectIds.Value.arr[playerNum];
     }
 

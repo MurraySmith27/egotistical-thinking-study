@@ -819,6 +819,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1448438007}
   - component: {fileID: 1448438009}
+  - component: {fileID: 1448438010}
   m_Layer: 0
   m_Name: ClientMenu (1)
   m_TagString: Untagged
@@ -857,6 +858,20 @@ MonoBehaviour:
   m_ParentUI: {fileID: 0}
   sourceAsset: {fileID: 9197481963319205126, guid: 16c496842dad9f84386b37288735dedd, type: 3}
   m_SortingOrder: 0
+--- !u!114 &1448438010
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1448438006}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70b195228e671774b98a0fae3ce73e2c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_loadingDistanceFromWarehouse: 8
+  m_orderElementAsset: {fileID: 9197481963319205126, guid: 71e99ac59c69e5342abfb1b48206c635, type: 3}
 --- !u!1 &1635170510
 GameObject:
   m_ObjectHideFlags: 0
@@ -1073,8 +1088,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 70b195228e671774b98a0fae3ce73e2c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_inventoryMenuGameObject: {fileID: 163455003}
-  m_inventoryElementAsset: {fileID: 9197481963319205126, guid: 4fd3fec64779a8c4c9d6a7feb711d6f2, type: 3}
   m_loadingDistanceFromWarehouse: 8
   m_orderElementAsset: {fileID: 9197481963319205126, guid: 71e99ac59c69e5342abfb1b48206c635, type: 3}
 --- !u!1 &1735363258

@@ -17,18 +17,18 @@ public class ClientMenuController : MonoBehaviour
         get { return _instance; }
     }
 
-    [SerializeField] private GameObject m_inventoryMenuGameObject;
-    
-    [SerializeField] private VisualTreeAsset m_inventoryElementAsset;
-
     [SerializeField] private float m_loadingDistanceFromWarehouse = 1f;
 
     [SerializeField] private VisualTreeAsset m_orderElementAsset;
+
+    [SerializeField] private VisualTreeAsset m_playerInventoryElementAsset;
+    
+    private VisualElement m_playerInventoryRoot;
     
     private VisualElement m_playerInventoryElement;
 
-    private VisualElement m_warehouseInventoryElement;
-
+    private VisualElement m_otherPlayersInventoryRoot;
+    
     private VisualElement m_ownedWarehouseInventoryElement;
 
     private int m_ownedWarehouseNum;
@@ -38,10 +38,6 @@ public class ClientMenuController : MonoBehaviour
     private List<InventorySlot> m_playerInventoryItems = new List<InventorySlot>();
     
     private List<InventorySlot> m_warehouseInventoryItems = new List<InventorySlot>();
-
-    private VisualElement m_warehouseInventoryRoot;
-    
-    private VisualElement m_destinationWarehouseInventoryRoot;
 
     private List<VisualElement> m_loadAllButtons;
 
@@ -67,6 +63,10 @@ public class ClientMenuController : MonoBehaviour
 
     private List<VisualElement> m_activeOrderElements;
 
+    private Dictionary<int, VisualElement> m_otherPlayersTrucksInventoryElements;
+
+    private Dictionary<int, List<InventorySlot>> m_otherPlayersTrucksInventorySlots;
+
     void Awake()
     {
         if (_instance != null && _instance != this)
@@ -86,28 +86,23 @@ public class ClientMenuController : MonoBehaviour
         m_orderRoot = m_root.Q<VisualElement>("order-root");
 
         m_activeOrderElements = new List<VisualElement>();
+
+        m_playerInventoryRoot = m_root.Q<VisualElement>("owned-truck-inventory-root");
         
-        VisualElement playerInventoryRoot = m_root.Q<VisualElement>("player-inventory-root");
-        
-        m_playerInventoryElement = m_inventoryElementAsset.Instantiate();
-        playerInventoryRoot.Add(m_playerInventoryElement);
-        
+        m_playerInventoryElement = m_root.Q<VisualElement>("player-inventory-element");
+
+        m_otherPlayersInventoryRoot = m_root.Q<VisualElement>("other-players-inventory-root");
         
         m_playerInventoryElement.Q<Label>("header").text = $"Inventory";
 
-        m_warehouseInventoryRoot = m_root.Q<VisualElement>("warehouse-inventory-root");
-
         m_loadAllButtons = new List<VisualElement>();
-
-        m_destinationWarehouseInventoryRoot = m_root.Q<VisualElement>("destination-inventory-root");
 
         m_ghostIcon = m_root.Q<VisualElement>("ghost-icon");
 
         m_ghostIcon.RegisterCallback<PointerMoveEvent>(OnPointerMove);
         m_ghostIcon.RegisterCallback<PointerUpEvent>(OnPointerUp);
 
-        m_ownedWarehouseInventoryElement = m_inventoryElementAsset.Instantiate();
-        m_warehouseInventoryRoot.Add(m_ownedWarehouseInventoryElement);
+        m_ownedWarehouseInventoryElement = m_root.Q<VisualElement>("warehouse-inventory");
         
         VisualElement inventoryElement = m_ownedWarehouseInventoryElement.Q<VisualElement>("inventory");
         
@@ -127,7 +122,7 @@ public class ClientMenuController : MonoBehaviour
         
         m_root.Q<Label>("score-label").text = "0G";
 
-        ProgressBar gasBar = m_root.Q<ProgressBar>("gas-bar");
+        ProgressBar gasBar = m_root.Q<ProgressBar>("truck-gas-bar");
 
         
         int maxGas = MapDataNetworkBehaviour.Instance.maxGasPerPlayer.Value;
@@ -158,12 +153,6 @@ public class ClientMenuController : MonoBehaviour
         //one initial call
         UpdateOwnedWarehouseInventory();
         
-        m_warehouseInventoryElement = m_inventoryElementAsset.Instantiate();
-        
-        m_destinationWarehouseInventoryRoot.Add(m_warehouseInventoryElement);
-        
-        m_warehouseInventoryElement.style.visibility = Visibility.Hidden;
-        
         InventorySystem.Instance.RegisterPlayerInventoryChangedCallback(playerNum, UpdatePlayerInventory);
 
         ulong playerNetworkObjectId = MapDataNetworkBehaviour.Instance.GetNetworkIdOfPlayer(playerNum);
@@ -189,27 +178,46 @@ public class ClientMenuController : MonoBehaviour
 
         m_thisPlayerGameObject.GetComponent<PlayerNetworkBehaviour>().m_numGasRemaining.OnValueChanged +=
             OnGasValueChanged;
-        
-        
+
+
+        m_otherPlayersTrucksInventorySlots = new();
+        m_otherPlayersTrucksInventoryElements = new();
+
     }
 
     public void StartDrag(Vector2 position, InventorySlot originalInventorySlot)
     {
+        
         m_draggingOriginalInventorySlot = originalInventorySlot;
         if (originalInventorySlot.worldBound.Overlaps(m_playerInventoryElement.worldBound))
         {
-            m_draggingFromPlayerInventory = true;
-            m_draggingFromInventoryNum = ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum;
-        }
-        else if (originalInventorySlot.worldBound.Overlaps(m_warehouseInventoryElement.worldBound))
-        {
-            if (m_currentLoadingWarehouse == null)
+            if (m_currentLoadingWarehouseNum != -1 &&
+                InventorySystem.Instance.GetOwnerOfWarehouse(m_currentLoadingWarehouseNum) == -1)
             {
-                Debug.LogError("somehow a drag and drop event started over the warehouse inventory " +
-                               "while a warehouse inventory wasn't even there");
+                ItemDetails details = null;
+                for (int i = 0; i < InventorySystem.Instance.m_items.Count; i++)
+                {
+                    ItemDetails item = InventorySystem.Instance.m_items[i];
+                    if (item.GUID == m_draggingOriginalInventorySlot.ItemGuid)
+                    {
+                        details = item;
+                        break;
+                    }
+                }
+
+                InventorySystem.Instance.AddItemToInventory(m_currentLoadingWarehouseNum, false, details.GUID, 1);
+                InventorySystem.Instance.RemoveItemFromInventory(ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum, true, details.GUID, 1);
+                
+                UpdatePlayerInventory();
+
+                return;
             }
-            m_draggingFromPlayerInventory = false;
-            m_draggingFromInventoryNum = m_currentLoadingWarehouseNum;
+            else
+            {
+                m_draggingFromPlayerInventory = true;
+                m_draggingFromInventoryNum = ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum;
+            }
+            
         }
         else if (originalInventorySlot.worldBound.Overlaps(m_ownedWarehouseInventoryElement.worldBound))
         {
@@ -385,7 +393,9 @@ public class ClientMenuController : MonoBehaviour
             
             int playerNum = ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum;
 
-            bool belongsToThisPlayer = nearestWarehouseNum != -1 && InventorySystem.Instance.GetOwnerOfWarehouse(nearestWarehouseNum) == playerNum;
+            int warehouseOwner = InventorySystem.Instance.GetOwnerOfWarehouse(nearestWarehouseNum);
+            
+            bool belongsToThisPlayer = nearestWarehouseNum != -1 && warehouseOwner == playerNum;
 
             if (foundNearestWarehouse && m_currentLoadingWarehouseNum == -1)
             {
@@ -405,18 +415,15 @@ public class ClientMenuController : MonoBehaviour
                     
                     m_inRangeOfOwnedInventory = true;
                 }
-                else
+                else if (warehouseOwner == -1)
                 {
                     m_currentLoadingWarehouse = nearestWarehouseNetworkObject.gameObject;
                     m_currentLoadingWarehouseNum = nearestWarehouseNum;
-                    m_warehouseInventoryElement.style.visibility = Visibility.Visible;
-
-                    m_warehouseInventoryElement.Q<Label>("header").text = $"Destination: {nearestWarehouseNum}";
-                    InventorySystem.Instance.RegisterWarehouseInventoryChangedCallback(m_currentLoadingWarehouseNum,
-                        UpdateWarehouseInventory);
-                    //also just update the warehouse to initial state. 
-                    UpdateWarehouseInventory();
+                    
+                    UpdatePlayerInventory();
+                    
                 }
+                
                 UpdateOrdersList(OrderSystem.Instance.activeOrders.Value, OrderSystem.Instance.completeOrders.Value, OrderSystem.Instance.incompleteOrders.Value, OrderSystem.Instance.acceptedOrders.Value);
                 
             }
@@ -441,18 +448,71 @@ public class ClientMenuController : MonoBehaviour
                 }
                 else
                 {
-                    m_warehouseInventoryElement.style.visibility = Visibility.Hidden;
-                    InventorySystem.Instance.DeregisterWarehouseInventoryChangedCallback(m_currentLoadingWarehouseNum,
-                        UpdateWarehouseInventory);
-                    m_warehouseInventoryElement.Q<VisualElement>("slot-container").Clear();
                     m_currentLoadingWarehouse = null;
-                    m_currentLoadingWarehouseNum = -1;
+                    m_currentLoadingWarehouseNum = -1;   
+                    
+                    UpdatePlayerInventory();
                 }
                 
                 UpdateOrdersList(OrderSystem.Instance.activeOrders.Value, OrderSystem.Instance.completeOrders.Value , OrderSystem.Instance.incompleteOrders.Value, OrderSystem.Instance.acceptedOrders.Value);
                 
             }
         }
+        
+        
+        //also need to go through the trucks to see which are nearby this player's owned warehouse.
+
+        ulong ownedWarehouseNetworkObjectId =
+            MapDataNetworkBehaviour.Instance.GetNetworkIdOfWarehouse(m_ownedWarehouseNum);
+
+        GameObject ownedWarehouseGameObject = null;
+        foreach (NetworkObject networkObject in FindObjectsOfType<NetworkObject>())
+        {
+            if (networkObject.NetworkObjectId == ownedWarehouseNetworkObjectId)
+            {
+                ownedWarehouseGameObject = networkObject.gameObject;
+                break;
+            }
+        }
+        
+        List<GameObject> closeEnoughTrucks = new List<GameObject>();
+        List<int> closeEnoughTrucksPlayerNumbers = new List<int>();
+        
+        for (int truckNum = 0; truckNum < MapDataNetworkBehaviour.Instance.playerNetworkObjectIds.Value.arr.Length; truckNum++)
+        {
+            ulong playerNetworkId = MapDataNetworkBehaviour.Instance.GetNetworkIdOfPlayer(truckNum);
+            if (playerNetworkId == 0 || playerNetworkId == ClientConnectionHandler.Instance.clientSideSessionInfo.clientId)
+            {
+                continue;
+            }
+            
+            foreach (NetworkObject networkObject in FindObjectsOfType<NetworkObject>())
+            {
+                if (networkObject.NetworkObjectId == playerNetworkId)
+                {
+                    closeEnoughTrucksPlayerNumbers.Add(truckNum);
+                    
+                    float playerToWarehouseDistance =
+                        (ownedWarehouseGameObject.transform.position - networkObject.transform.position).magnitude;
+                    if (playerToWarehouseDistance < m_loadingDistanceFromWarehouse && playerToWarehouseDistance < m_loadingDistanceFromWarehouse)
+                    {
+                        closeEnoughTrucks.Add(networkObject.gameObject);
+                    }
+                }
+            }
+        }
+
+        m_otherPlayersTrucksInventoryElements.Clear();
+        m_otherPlayersTrucksInventorySlots.Clear();
+
+        for (int i = 0; i < closeEnoughTrucks.Count; i++)
+        {
+            VisualElement otherPlayersTruckInventoryRoot = m_playerInventoryElementAsset.Instantiate();
+            m_otherPlayersTrucksInventoryElements.Add(closeEnoughTrucksPlayerNumbers[i], otherPlayersTruckInventoryRoot);
+            m_otherPlayersTrucksInventorySlots.Add(closeEnoughTrucksPlayerNumbers[i], new List<InventorySlot>());
+        }
+
+        UpdatePlayerInventory();
     }
 
     
@@ -603,7 +663,7 @@ public class ClientMenuController : MonoBehaviour
     
     void OnGasValueChanged(int previous, int current)
     {
-        ProgressBar gasBar = m_root.Q<ProgressBar>("gas-bar");
+        ProgressBar gasBar = m_root.Q<ProgressBar>("truck-gas-bar");
         int maxGas = MapDataNetworkBehaviour.Instance.maxGasPerPlayer.Value;
         gasBar.value = (100f * current) / maxGas;
         gasBar.title = $"{current}/{maxGas}";
@@ -699,25 +759,52 @@ public class ClientMenuController : MonoBehaviour
             {
                 inventoryContainer = m_ownedWarehouseInventoryElement.Q<VisualElement>("slot-container");
             }
-            else
-            {
-                inventoryContainer = m_warehouseInventoryElement.Q<VisualElement>("slot-container");
-            }
         }
 
-        inventoryContainer.Clear();
         
         
-        List<(int, int)> inventory = InventorySystem.Instance.GetInventory(inventoryNum, isPlayer);
 
         List<InventorySlot> inventoryItems = m_playerInventoryItems;
         if (!isPlayer)
         {
             inventoryItems = m_warehouseInventoryItems;
         }
+
+        Color itemTintColor = Color.white;
+
+        if (m_currentLoadingWarehouseNum != -1 &&
+            InventorySystem.Instance.GetOwnerOfWarehouse(m_currentLoadingWarehouseNum) == -1)
+        {
+            itemTintColor = Color.green;
+        }
+
+        //populate inventory
+        PopulateInventory(isPlayer, inventoryNum, inventoryItems, inventoryContainer, itemTintColor);
+
+        if (isPlayer)
+        {
+            foreach (int playerNum in m_otherPlayersTrucksInventoryElements.Keys)
+            {
+                VisualElement otherPlayerInventoryElement = m_otherPlayersTrucksInventoryElements[playerNum];
+                
+                m_otherPlayersInventoryRoot.Add(otherPlayerInventoryElement);
+                
+                // PopulateInventory(true, playerNum, m_otherPlayersTrucksInventorySlots[playerNum], otherPlayerInventoryElement.Q<VisualElement>("slot-container"), Color.white);
+            }
+        }
+        
+    }
+
+
+    private void PopulateInventory(bool isPlayer, int inventoryNum, List<InventorySlot> inventoryItems, VisualElement inventoryContainer, Color itemTintColor)
+    {
+
+        inventoryContainer.Clear();
         inventoryItems.Clear();
         
-        //populate inventory
+        Debug.Log($"inventory num: {inventoryNum}. is player: {isPlayer}");
+        List<(int, int)> inventory = InventorySystem.Instance.GetInventory(inventoryNum, isPlayer);
+        
         int numInventorySlots = InventorySystem.Instance.m_numInventorySlotsPerPlayer;
         if (!isPlayer)
         {
@@ -726,13 +813,16 @@ public class ClientMenuController : MonoBehaviour
         for (int i = 0; i < numInventorySlots; i++)
         {
             InventorySlot itemSlot = new InventorySlot();
-            inventoryItems.Add(itemSlot);
             inventoryContainer.Add(itemSlot);
+            inventoryItems.Add(itemSlot);
+            
             
             if (inventory[i].Item1 != -1)
             {
                 //item exists in this slot.
                 itemSlot.HoldItem(InventorySystem.Instance.m_items[inventory[i].Item1], inventory[i].Item2);
+
+                itemSlot.SetItemTint(itemTintColor);
             }
         }
     }

@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 
 public class InventorySlot : VisualElement
 {
-    public Image Icon;
+    public VisualElement Icon;
     public string ItemGuid = "";
     public int count = 0;
 
@@ -13,7 +13,7 @@ public class InventorySlot : VisualElement
 
     public InventorySlot(bool interactable = true)
     {
-        Icon = new Image();
+        Icon = new VisualElement();
         Icon.AddToClassList("slot-icon");
         this.Add(Icon);
 
@@ -28,10 +28,15 @@ public class InventorySlot : VisualElement
             RegisterCallback<PointerDownEvent>(OnPointerDown);
         }
     }
+
+    public void SetItemTint(Color color)
+    {
+        Icon.style.unityBackgroundImageTintColor = color;
+    }
     
     public void HoldItem(ItemDetails itemDetails, int itemCount)
     {
-        Icon.image = itemDetails.Icon.texture;
+        Icon.style.backgroundImage = itemDetails.Icon.texture;
         ItemGuid = itemDetails.GUID;
         count = itemCount;
 
@@ -51,6 +56,6 @@ public class InventorySlot : VisualElement
     public void DropItem()
     {
         ItemGuid = "";
-        Icon.image = null;
+        Icon.style.backgroundImage = null;
     }
 }

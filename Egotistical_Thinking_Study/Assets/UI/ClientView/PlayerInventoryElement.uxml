@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:Template name="InventoryElement" src="project://database/Assets/UI/Shared/InventoryElement.uxml?fileID=9197481963319205126&amp;guid=4fd3fec64779a8c4c9d6a7feb711d6f2&amp;type=3#InventoryElement" />
+    <ui:VisualElement name="player-inventory-root" style="flex-grow: 1; flex-direction: row;">
+        <ui:VisualElement name="player-inventory-icon" style="flex-grow: 1; background-image: url(&apos;project://database/Assets/Exported%20Tilemaps/Player_Left.png.png?fileID=2800000&amp;guid=856cb30699e552f4dac4b723d358e995&amp;type=3#Player_Left.png&apos;); align-self: stretch;" />
+        <ui:Instance template="InventoryElement" name="player-inventory-element" style="flex-grow: 2; flex-shrink: 2; align-self: stretch;" />
+    </ui:VisualElement>
+</ui:UXML>

@@ -61,4 +61,12 @@ VisualElement {
     border-bottom-left-radius: 3px;
     border-top-right-radius: 3px;
     border-bottom-right-radius: 3px;
-}VisualElement {}
+}
+
+.slot-icon {
+    width: 128px;
+    height: 128px;
+    position: absolute;
+}
+
+VisualElement {}

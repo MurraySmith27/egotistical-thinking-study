@@ -130,6 +130,11 @@ public class InventoryNetworkBehaviour : NetworkBehaviour
 
     public bool SetItemPlacement(int itemIndex, int inventoryIndex)
     {
+        if (m_itemPlacements.Value.arr[itemIndex] == inventoryIndex)
+        {
+            return true;
+        }
+
         foreach (int placement in m_itemPlacements.Value.arr)
         {
             if (placement == inventoryIndex)

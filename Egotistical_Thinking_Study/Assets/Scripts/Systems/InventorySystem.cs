@@ -149,6 +149,10 @@ public class InventorySystem : NetworkBehaviour
 
     public int GetOwnerOfWarehouse(int warehouseNum)
     {
+        if (warehouseNum < 0 || warehouseNum > m_warehousePlayerOwners.Value.arr.Length)
+        {
+            return -1;
+        }
         return m_warehousePlayerOwners.Value.arr[warehouseNum];
     }
 
