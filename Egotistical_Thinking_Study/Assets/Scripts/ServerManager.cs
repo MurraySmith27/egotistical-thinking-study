@@ -30,6 +30,8 @@ public class ServerManager : MonoBehaviour
         mainMenu.SetActive(false);
         serverControlMenu.SetActive(true);
 
-        serverControlMenu.GetComponent<UIDocument>().rootVisualElement.Q<Label>("ip-text").text = $"IP: {address}";
+        VisualElement rootServerMenuElement = serverControlMenu.GetComponent<UIDocument>().rootVisualElement;
+        rootServerMenuElement.Q<Label>("ip-text").text = $"IP: {address}";
+        rootServerMenuElement.Q<Label>("port-text").text = $"Port: {port}";
     }
 }

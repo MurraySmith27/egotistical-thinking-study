@@ -45,17 +45,26 @@ public class MainMenuController : MonoBehaviour
         throw new System.Exception("No network adapters with an IPv4 address in the system!");
     }
 
+    private int GetFreePort()
+    {
+        TcpListener l = new TcpListener(IPAddress.Loopback, 0);
+        l.Start();
+        int port = ((IPEndPoint)l.LocalEndpoint).Port;
+        l.Stop();
+        return port;
+    }
+
     void OnStartAsServerButtonClicked()
     {
         string address = GetIpAddress();
 
-        int portNum = 5555;
+        int portNum = GetFreePort();
         IPAddress ip;
-        if (portNum < 1024) {
-            invalidConnectionDataLabel.text = "Invalid Port!";
-            return;
-        }
-        else if (!IPAddress.TryParse(address, out ip)) {
+        // if (portNum < 1024) {
+        //     invalidConnectionDataLabel.text = "Invalid Port!";
+        //     return;
+        // }
+        if (!IPAddress.TryParse(address, out ip)) {
             invalidConnectionDataLabel.text = "Invalid Address!";
         }
         else {
@@ -65,7 +74,7 @@ public class MainMenuController : MonoBehaviour
 
     void OnStartAsClientButtonClicked() {
         string address = addressText.text;
-        int portNum = 5555;
+        int portNum = Int32.Parse(portText.text);
         IPAddress ip;
         if (portNum < 1024) {
             invalidConnectionDataLabel.text = "Invalid Port!";
