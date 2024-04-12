@@ -2,6 +2,7 @@
     <ui:VisualElement name="root" style="flex-direction: row;">
         <ui:VisualElement name="spacer" />
         <ui:VisualElement name="menu-root">
+            <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ip-text" style="background-color: rgb(255, 255, 255); -unity-font-style: bold; -unity-text-align: upper-left;" />
             <ui:Label text="Map File: None" display-tooltip-when-elided="true" name="map-file-label" />
             <ui:Button text="Load Map File" display-tooltip-when-elided="true" name="load-map-file-button" />
             <ui:Button text="Load Config File" display-tooltip-when-elided="true" name="load-config-file-button" />

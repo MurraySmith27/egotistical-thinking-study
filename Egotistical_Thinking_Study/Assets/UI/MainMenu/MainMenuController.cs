@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.Sockets;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Unity.Netcode;
@@ -33,9 +34,22 @@ public class MainMenuController : MonoBehaviour
         startAsClientButton.clicked += OnStartAsClientButtonClicked;
     }
 
-    void OnStartAsServerButtonClicked() {
-        string address = addressText.text;
-        int portNum = Int32.Parse(portText.text);
+    private string GetIpAddress()
+    {
+        var host = Dns.GetHostEntry(Dns.GetHostName());
+        foreach (var ip in host.AddressList) {
+            if (ip.AddressFamily == AddressFamily.InterNetwork) {
+                return ip.ToString();
+            }
+        }
+        throw new System.Exception("No network adapters with an IPv4 address in the system!");
+    }
+
+    void OnStartAsServerButtonClicked()
+    {
+        string address = GetIpAddress();
+
+        int portNum = 5555;
         IPAddress ip;
         if (portNum < 1024) {
             invalidConnectionDataLabel.text = "Invalid Port!";
@@ -50,8 +64,8 @@ public class MainMenuController : MonoBehaviour
     }
 
     void OnStartAsClientButtonClicked() {
-          string address = addressText.text;
-        int portNum = Int32.Parse(portText.text);
+        string address = addressText.text;
+        int portNum = 5555;
         IPAddress ip;
         if (portNum < 1024) {
             invalidConnectionDataLabel.text = "Invalid Port!";

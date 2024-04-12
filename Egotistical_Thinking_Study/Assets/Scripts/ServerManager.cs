@@ -29,5 +29,7 @@ public class ServerManager : MonoBehaviour
 
         mainMenu.SetActive(false);
         serverControlMenu.SetActive(true);
+
+        serverControlMenu.GetComponent<UIDocument>().rootVisualElement.Q<Label>("ip-text").text = $"IP: {address}";
     }
 }
