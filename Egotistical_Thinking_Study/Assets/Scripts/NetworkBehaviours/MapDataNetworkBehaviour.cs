@@ -57,6 +57,8 @@ public class MapDataNetworkBehaviour : NetworkBehaviour
         {
             return 0;
         }
+        
+        Debug.Log($"playernetworkbojectids length: {playerNetworkObjectIds.Value.arr.Length}, value returned: {playerNetworkObjectIds.Value.arr[playerNum]}");
         return playerNetworkObjectIds.Value.arr[playerNum];
     }
 

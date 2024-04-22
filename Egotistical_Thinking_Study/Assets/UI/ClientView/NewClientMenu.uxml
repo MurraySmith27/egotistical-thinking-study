@@ -21,7 +21,7 @@
                     <ui:ProgressBar value="100" name="truck-gas-bar" style="flex-shrink: 2; flex-grow: 2; align-self: center;" />
                 </ui:VisualElement>
                 <ui:VisualElement name="truck-inventory-root" style="flex-grow: 1;">
-                    <ui:Instance template="PlayerInventoryElement" name="owned-truck-inventory-root" />
+                    <ui:Instance template="PlayerInventoryElement" name="owned-truck-inventory-root" style="flex-grow: 1;" />
                 </ui:VisualElement>
                 <ui:VisualElement name="other-players-inventory-root" style="flex-grow: 1;" />
             </ui:VisualElement>

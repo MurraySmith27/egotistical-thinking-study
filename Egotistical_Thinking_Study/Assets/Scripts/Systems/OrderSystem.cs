@@ -184,7 +184,7 @@ public class OrderSystem : NetworkBehaviour
                         acceptedOrders.Value.arr[i] = 2;
                     }
                     
-                    if (order.orderTimeRemaining > 0)
+                    if (order.orderTimeRemaining > 0 && incompleteOrders.Value.arr[i] == 0 && completeOrders.Value.arr[i] == 0 )
                     {
                         orders.Value.orders[i].orderTimeRemaining--;
                         orders.SetDirty(true);

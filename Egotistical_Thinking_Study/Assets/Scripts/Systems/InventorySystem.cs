@@ -224,6 +224,7 @@ public class InventorySystem : NetworkBehaviour
             if (isPlayer)
             {
                 ulong playerNetworkObjectId = MapDataNetworkBehaviour.Instance.GetNetworkIdOfPlayer(inventoryNum);
+                
                 foreach (NetworkObject networkObject in FindObjectsOfType<NetworkObject>())
                 {
                     if (networkObject.NetworkObjectId == playerNetworkObjectId)

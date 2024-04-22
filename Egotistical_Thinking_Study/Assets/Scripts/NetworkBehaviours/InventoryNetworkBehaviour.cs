@@ -145,6 +145,7 @@ public class InventoryNetworkBehaviour : NetworkBehaviour
                 return false;       
             }
         }
+        
         m_itemPlacements.Value.arr[itemIndex] = inventoryIndex;
         m_inventoryChangeAlert.Value++;
         return true;

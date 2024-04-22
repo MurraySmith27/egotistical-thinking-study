@@ -36,6 +36,8 @@ public class ClientConnectionHandler : NetworkBehaviour
 
     public PlayerSessionInfo clientSideSessionInfo;
     
+    public bool m_clienSideSessionInfoReceived = false;
+    
     public override void OnNetworkSpawn()
     {
         if (this.IsServer)
@@ -46,7 +48,7 @@ public class ClientConnectionHandler : NetworkBehaviour
         }   
         else if (this.IsClient)
         {
-            
+            clientSideSessionInfo.playerNum = -1;   
         }
     }
 
@@ -63,6 +65,7 @@ public class ClientConnectionHandler : NetworkBehaviour
                         TargetClientIds = new ulong[] { clientId }
                     }
                 };
+                Debug.Log($"target client is: {clientId}");
                 RecievePlayerSessionInfo_ClientRpc(serverSideClientList[guid].playerNum, clientRpcParams);
                 break;
             }
@@ -72,6 +75,9 @@ public class ClientConnectionHandler : NetworkBehaviour
     [ClientRpc]
     private void RecievePlayerSessionInfo_ClientRpc(int playerNum, ClientRpcParams clientRpcParams = default)
     {
+
+        m_clienSideSessionInfoReceived = true;
+        Debug.Log($"receiving session info! playernum: {playerNum}");
         clientSideSessionInfo = new PlayerSessionInfo();
         clientSideSessionInfo.playerNum = playerNum;
         clientSideSessionInfo.clientId = NetworkManager.Singleton.LocalClientId;

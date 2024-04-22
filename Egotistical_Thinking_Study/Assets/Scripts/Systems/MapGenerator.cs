@@ -91,6 +91,7 @@ public class MapGenerator : MonoBehaviour
 
                     if (warehouseLetters.Contains(textMap[row][col]))
                     {
+                        Debug.Log($"added warehouse with letter: {textMap[row][col]} at position {row}, {col}");
                         warehouses.Add(go);
                     }
                     else if (gasStationLetters.Contains(textMap[row][col]))

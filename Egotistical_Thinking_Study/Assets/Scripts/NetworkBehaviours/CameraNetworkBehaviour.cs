@@ -43,7 +43,6 @@ public class CameraNetworkBehaviour : NetworkBehaviour
     {
         int playerNum = ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum;
 
-        Debug.Log($"rotating. value: {playerNum}");
         int rotation = cameraRotationPerPlayer.Value.arr[playerNum];
 
         float yawRotation = rotation * 90f;
@@ -62,6 +61,5 @@ public class CameraNetworkBehaviour : NetworkBehaviour
     {
         cameraRotationPerPlayer.Value = new NetworkSerializableIntArray();
         cameraRotationPerPlayer.Value.arr = GameRoot.Instance.configData.CameraRotationPerPlayer;
-        Debug.Log("settingaaaAAA");
     }
 }

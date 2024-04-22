@@ -3,7 +3,7 @@
     <ui:VisualElement name="root" style="align-items: flex-start; flex-direction: row; flex-grow: 1;">
         <ui:VisualElement name="button-root" class="spacers" style="flex-grow: 0; width: 100%; height: 100%;">
             <ui:Label display-tooltip-when-elided="true" name="error-label" style="color: rgb(255, 0, 0); flex-shrink: 1;" />
-            <ui:TextField picking-mode="Ignore" label="Address:" value="127.0.0.1" text="127.0.0.1" name="address-field" style="flex-shrink: 1;" />
+            <ui:TextField picking-mode="Ignore" label="Address:" value="192.168.0.186" text="127.0.0.1" name="address-field" style="flex-shrink: 1;" />
             <ui:TextField picking-mode="Ignore" label="Port:" value="5555" text="5555" name="port-field" style="flex-shrink: 1;" />
             <ui:Button text="Start as Server" display-tooltip-when-elided="true" name="server-button" style="flex-shrink: 1;" />
             <ui:Button text="Start as Client" display-tooltip-when-elided="true" name="client-button" style="flex-shrink: 1;" />
