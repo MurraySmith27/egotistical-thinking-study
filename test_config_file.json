@@ -53,6 +53,6 @@
     "MaxGasPerPlayer": 10,
     "NumPlayers": 2,
     "IsScoreShared": true,
-    "CameraRotationPerPlayer": [0, 0]
+    "CameraRotationPerPlayer": [1, 0]
      
 }

@@ -31,6 +31,7 @@ public class CameraNetworkBehaviour : NetworkBehaviour
         }
     }
 
+
     public override void OnNetworkSpawn()
     {
         if (!this.IsServer)
@@ -46,15 +47,7 @@ public class CameraNetworkBehaviour : NetworkBehaviour
         int rotation = cameraRotationPerPlayer.Value.arr[playerNum];
 
         float yawRotation = rotation * 90f;
-
-        // foreach (GameObject go in UnityEngine.Object.FindObjectsOfType(typeof(GameObject)))
-        // {
-        //     if (go != this.gameObject && go.activeInHierarchy)
-        //     {
-        //         go.transform.rotation = Quaternion.Euler(0, 0, yawRotation);
-        //     }
-        // }
-
+        transform.rotation = Quaternion.Euler(0, 0, yawRotation);
     }
 
     public void OnGameStart()

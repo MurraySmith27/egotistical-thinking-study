@@ -86,6 +86,22 @@ public class ClientMenuController : MonoBehaviour
         StartCoroutine(InitializeCoroutine());
     }
 
+    private Color GetAverageColor(Sprite sprite)
+    {
+        Color[] colors = sprite.texture.GetPixels();
+        float rTotal = 0;
+        float gTotal = 0;
+        float bTotal = 0;
+        foreach (Color color in colors)
+        {
+            rTotal += color.r;
+            gTotal += color.g;
+            bTotal += color.b;
+        }
+
+        return new Color(rTotal / colors.Length, gTotal / colors.Length, bTotal / colors.Length);
+    }
+    
     private IEnumerator InitializeCoroutine()
     {
         yield return new WaitUntil(() => {return ClientConnectionHandler.Instance.m_clienSideSessionInfoReceived;});
@@ -169,13 +185,15 @@ public class ClientMenuController : MonoBehaviour
         {
             if (playerNetworkObjectId == networkObject.NetworkObjectId)
             {
-                //found it.
-                Debug.Log($"found player game object! name: {networkObject.gameObject.name}");
                 m_thisPlayerGameObject = networkObject.gameObject;
             }
         }
-        
-        m_playerInventoryRoot.Q<VisualElement>("player-inventory-icon").style.backgroundImage = Background.FromSprite(m_thisPlayerGameObject.transform.GetChild(0).GetComponent<SpriteRenderer>().sprite);
+
+        Sprite playerImage = m_thisPlayerGameObject.transform.GetChild(0).GetComponent<SpriteRenderer>().sprite;
+        m_playerInventoryRoot.Q<VisualElement>("player-inventory-icon").style.backgroundImage =
+            Background.FromSprite(playerImage);
+
+        m_playerInventoryRoot.Q<VisualElement>("inventory").style.backgroundColor = GetAverageColor(playerImage);
 
         OrderSystem.Instance.activeOrders.OnValueChanged += OnActiveOrdersChanged;
 
@@ -578,7 +596,9 @@ public class ClientMenuController : MonoBehaviour
                     GameObject child = closeEnoughTrucks[i].transform.GetChild(childNum).gameObject;
                     if (child.activeInHierarchy)
                     {
-                        otherPlayersTruckInventoryRoot.Q<VisualElement>("player-inventory-icon").style.backgroundImage = Background.FromSprite(child.GetComponent<SpriteRenderer>().sprite);
+                        Sprite playerImage = child.GetComponent<SpriteRenderer>().sprite;
+                        otherPlayersTruckInventoryRoot.Q<VisualElement>("player-inventory-icon").style.backgroundImage = Background.FromSprite(playerImage);
+                        otherPlayersTruckInventoryRoot.Q<VisualElement>("inventory").style.backgroundColor = GetAverageColor(playerImage);
                         break;
                     }
                 }
@@ -649,8 +669,10 @@ public class ClientMenuController : MonoBehaviour
                 if (order.receivingPlayer == ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum)
                 {
                     VisualElement orderElement = m_orderElementAsset.Instantiate();
+                    orderElement.AddToClassList("order-client-view");
                     orderElement.AddToClassList("order");
                     ProgressBar orderTimer = orderElement.Q<ProgressBar>("order-timer");
+                    
                     if (order.orderTimeLimit != -1)
                     {
                         orderTimer.style.visibility = Visibility.Visible;
@@ -662,14 +684,6 @@ public class ClientMenuController : MonoBehaviour
                     orderElement.Q<Label>("order-description").text = order.textDescription.ToString();
                     orderElement.Q<Label>("send-to-player-label").text = $"Receiving Player: {order.receivingPlayer}";
                     orderElement.Q<Label>("score-reward-label").text = $"Reward: {order.scoreReward}G";
-                    VisualElement itemsContainer = orderElement.Q<VisualElement>("order-items-container");
-                    foreach (string key in order.requiredItems.Keys)
-                    {
-                        int itemNum = Int32.Parse(key);
-                        InventorySlot slot = new InventorySlot(false);
-                        slot.HoldItem(InventorySystem.Instance.m_items[itemNum], order.requiredItems[key]);
-                        itemsContainer.Add(slot);
-                    }
 
                     string mapDestinationText = $"Destination Warehouse: ";
                     orderElement.Q<Label>("map-destination-label").text = mapDestinationText;
@@ -677,6 +691,7 @@ public class ClientMenuController : MonoBehaviour
                     ulong warehouseNetworkObjectId = MapDataNetworkBehaviour.Instance.GetNetworkIdOfWarehouse(order.destinationWarehouse);
                     
                     Sprite destinationSprite = null;
+                    
                     foreach (NetworkBehaviour networkBehaviour in FindObjectsOfType<NetworkBehaviour>())
                     {
                         if (networkBehaviour.NetworkObjectId == warehouseNetworkObjectId)
@@ -687,6 +702,34 @@ public class ClientMenuController : MonoBehaviour
                     }
 
                     orderElement.Q<VisualElement>("map-destination-image").style.backgroundImage = destinationSprite.texture;
+
+                    List<(int, int)> destinationInventory =
+                        InventorySystem.Instance.GetInventory(order.destinationWarehouse, false);
+                    
+                    VisualElement itemsContainer = orderElement.Q<VisualElement>("order-items-container");
+                    foreach (string key in order.requiredItems.Keys)
+                    {
+                        
+                        int itemNum = Int32.Parse(key);
+
+                        int quantityInDestinationInventory = 0; 
+                        for (int j = 0; j < destinationInventory.Count; j++)
+                        {
+                            if (destinationInventory[j].Item1 == itemNum)
+                            {
+                                quantityInDestinationInventory = destinationInventory[j].Item2;
+                                break;
+                            }
+                        }
+                        
+                        InventorySlot slot = new InventorySlot(false);
+                        int numRequiredLeft = order.requiredItems[key] - quantityInDestinationInventory;
+                        slot.HoldItem(InventorySystem.Instance.m_items[itemNum], numRequiredLeft);
+                        if (numRequiredLeft > 0)
+                        {
+                            itemsContainer.Add(slot);
+                        }
+                    }
 
                     if (completeOrders.arr[i] != 0)
                     {
@@ -732,7 +775,6 @@ public class ClientMenuController : MonoBehaviour
                         rejectOrderButton.clicked += () => { OrderSystem.Instance.RejectOrder(temp); };
 
                     }
-
 
                     m_orderRoot.Add(orderElement);
                     m_activeOrderElements.Add(orderElement);
@@ -867,13 +909,13 @@ public class ClientMenuController : MonoBehaviour
         }
 
         Color inventoryBorderColor = Color.white;
-        int inventoryBorderWidth = 2;
+        int inventoryBorderWidth = 0;
 
         if (m_currentLoadingWarehouseNum != -1 &&
             InventorySystem.Instance.GetOwnerOfWarehouse(m_currentLoadingWarehouseNum) == -1)
         {
             inventoryBorderColor = Color.green;
-            inventoryBorderWidth = 0;
+            inventoryBorderWidth = 5;
         }
 
         inventoryContainer.style.borderTopColor = inventoryBorderColor;

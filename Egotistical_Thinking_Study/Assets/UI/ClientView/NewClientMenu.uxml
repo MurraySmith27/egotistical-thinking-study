@@ -2,8 +2,9 @@
     <ui:Template name="InventoryElement" src="project://database/Assets/UI/Shared/InventoryElement.uxml?fileID=9197481963319205126&amp;guid=4fd3fec64779a8c4c9d6a7feb711d6f2&amp;type=3#InventoryElement" />
     <ui:Template name="PlayerInventoryElement" src="project://database/Assets/UI/ClientView/PlayerInventoryElement.uxml?fileID=9197481963319205126&amp;guid=ce8c8203dad104a4fb1d0f831fff2a49&amp;type=3#PlayerInventoryElement" />
     <Style src="project://database/Assets/UI/Shared/InventoryStyleSheet.uss?fileID=7433441132597879392&amp;guid=12734419a02e5734c81a16aba3a1dd5c&amp;type=3#InventoryStyleSheet" />
+    <Style src="project://database/Assets/UI/ClientView/ClientMenu.uss?fileID=7433441132597879392&amp;guid=73af3c5d9c6254f42ad0b14461d13d99&amp;type=3#ClientMenu" />
     <ui:VisualElement name="root" style="flex-grow: 1; flex-direction: row;">
-        <ui:VisualElement name="game" style="flex-grow: 1; background-image: none; min-width: 50%; max-width: 50%;">
+        <ui:VisualElement name="game" style="flex-grow: 1; background-image: none; min-width: 50%; max-width: 50%; background-color: rgb(43, 43, 43);">
             <ui:VisualElement name="game-view" style="flex-grow: 1; background-image: url(&apos;project://database/Assets/UI/Shared/GameViewRenderTexture.asset?fileID=8600000&amp;guid=24b9b189363a5ef45adf6d482555cb46&amp;type=2#GameViewRenderTexture&apos;);" />
         </ui:VisualElement>
         <ui:VisualElement name="menu" style="flex-grow: 1; background-color: rgb(255, 255, 255);">

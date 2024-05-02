@@ -45,10 +45,6 @@ public class ClientConnectionHandler : NetworkBehaviour
             serverSideClientList = new Dictionary<Guid, PlayerSessionInfo>();
 
             NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
-        }   
-        else if (this.IsClient)
-        {
-            clientSideSessionInfo.playerNum = -1;   
         }
     }
 
