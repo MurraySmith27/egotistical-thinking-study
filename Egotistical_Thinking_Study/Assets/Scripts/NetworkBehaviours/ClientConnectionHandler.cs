@@ -65,7 +65,6 @@ public class ClientConnectionHandler : NetworkBehaviour
                         TargetClientIds = new ulong[] { clientId }
                     }
                 };
-                Debug.Log($"target client is: {clientId}");
                 RecievePlayerSessionInfo_ClientRpc(serverSideClientList[guid].playerNum, clientRpcParams);
                 break;
             }
@@ -77,7 +76,6 @@ public class ClientConnectionHandler : NetworkBehaviour
     {
 
         m_clienSideSessionInfoReceived = true;
-        Debug.Log($"receiving session info! playernum: {playerNum}");
         clientSideSessionInfo = new PlayerSessionInfo();
         clientSideSessionInfo.playerNum = playerNum;
         clientSideSessionInfo.clientId = NetworkManager.Singleton.LocalClientId;

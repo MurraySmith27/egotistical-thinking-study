@@ -923,7 +923,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8561afa1a7f8c304bbd3dd0d0312ab82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_numInventorySlotsPerPlayer: 10
+  m_numInventorySlotsPerPlayer: 8
   m_numInventorySlotsPerWarehouse: 7
   m_items:
   - Name: Item1

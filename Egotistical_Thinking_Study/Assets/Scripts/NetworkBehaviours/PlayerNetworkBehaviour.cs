@@ -10,7 +10,7 @@ using UnityEditor;
 
 public class PlayerNetworkBehaviour : NetworkBehaviour
 {
-    
+    public Color m_playerColor;
     
     [SerializeField] private InputActionAsset clientInput;
     [SerializeField] private float secondsPerGridMove;
@@ -29,6 +29,8 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
     public NetworkVariable<int> m_playerNum;
 
     public NetworkVariable<int> m_numGasRemaining;
+
+    private List<GameObject> m_children;
     
     void Awake() {
         clickAction = clientInput["mouseClick"];
@@ -38,6 +40,16 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
         m_playerNum = new NetworkVariable<int>();
 
         m_numGasRemaining = new NetworkVariable<int>();
+
+        m_children = new();
+    }
+
+    void Start()
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            m_children.Add(transform.GetChild(i).gameObject);
+        }
     }
 
     void OnPositionChange(Vector3 newPosition)
@@ -100,7 +112,8 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
         
         //raycast from camera center, see if it intersects with the map.
         RaycastHit hit;
-        Ray ray = playerCamera.GetComponent<Camera>().ViewportPointToRay(new Vector3((mousePos.x - topLeftCorner.x) / width, ((mousePos.y - topLeftCorner.y) / height), 0));
+        Camera playerCameraComponent = playerCamera.GetComponent<Camera>();
+        Ray ray = playerCameraComponent.ViewportPointToRay(new Vector3((mousePos.x - topLeftCorner.x) / width, ((mousePos.y - topLeftCorner.y) / height), 0));
         
         Debug.DrawRay(ray.origin, ray.origin + ray.direction * 100, color:Color.red, duration: 5f, false);
         if (Physics.Raycast(ray.origin, ray.direction, out hit, 100, ~LayerMask.NameToLayer("MapTile")))
@@ -112,6 +125,42 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
                 int playerNum = ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum;
                 Vector2Int destinationPos = new((int)(hitPos.x / MapGenerator.Instance.tileWidth), (int)(hitPos.y / MapGenerator.Instance.tileHeight));
                 MovePlayerTo_ServerRpc(destinationPos, playerNum);
+            }
+            else
+            {
+                Vector3 closestHitPos = Vector3.zero;
+                float closestHitDistance = float.PositiveInfinity;
+                for (int i = -1; i <= 1; i++)
+                {
+                    for (int j = -1; j <= 1; j++)
+                    {
+                        Vector3 newHitPos = ray.origin + new Vector3(i * MapGenerator.Instance.tileWidth,
+                            j * MapGenerator.Instance.tileHeight, 0);
+                        
+                        Debug.DrawRay(newHitPos, ray.origin + ray.direction * 100, color:Color.red, duration: 5f, false);
+                        RaycastHit hit2 = new();
+                        if (Physics.Raycast(newHitPos, ray.direction, out hit2, 100,
+                                ~LayerMask.NameToLayer("MapTile")))
+                        {
+                            if (hit2.transform.gameObject.name.Contains("Road"))
+                            {
+                                float distance = Vector3.Distance(hitPos, hit2.transform.position);
+                                if (distance < closestHitDistance)
+                                {
+                                    closestHitPos = hit2.transform.position;
+                                    closestHitDistance = distance;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (closestHitDistance != float.PositiveInfinity)
+                {
+                    int playerNum = ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum;
+                    Vector2Int destinationPos = new((int)(closestHitPos.x / MapGenerator.Instance.tileWidth), (int)(closestHitPos.y / MapGenerator.Instance.tileHeight));
+                    MovePlayerTo_ServerRpc(destinationPos, playerNum);
+                }
             }
         }
     }
@@ -161,10 +210,34 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
                 yield break;
             }
             
+            
             lastPosition = nextPosition;
             nextPosition = new Vector3(destination.x * MapGenerator.Instance.tileWidth,
                 destination.y * MapGenerator.Instance.tileHeight, playerZ);
             m_numGasRemaining.Value--;
+
+            foreach (GameObject child in m_children)
+            {
+                child.SetActive(false);
+            }
+
+            if (nextPosition.x > lastPosition.x)
+            {
+                //moving right
+                m_children[0].SetActive(true);
+            }
+            else if (nextPosition.x < lastPosition.x)
+            {
+                m_children[1].SetActive(true);
+            }
+            else if (nextPosition.y < lastPosition.y)
+            {
+                m_children[2].SetActive(true);
+            }
+            else if (nextPosition.y > lastPosition.y)
+            {
+                m_children[3].SetActive(true);
+            }
             
             for (float t = 0; t < secondsPerGridMove; t += Time.deltaTime)
             {
