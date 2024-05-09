@@ -4,6 +4,8 @@ using JetBrains.Annotations;
 using UnityEngine;
 using Unity.Netcode;
 
+public delegate void RecieveClientSideSessionInfoEvent();
+
 public class ClientConnectionHandler : NetworkBehaviour
 {
     private static ClientConnectionHandler _instance;
@@ -11,6 +13,8 @@ public class ClientConnectionHandler : NetworkBehaviour
     {
         get { return _instance; }
     }
+
+    public RecieveClientSideSessionInfoEvent m_onRecieveClientSideSessionInfo;
 
     public int m_numConnectedClients = 0;
 
@@ -75,6 +79,10 @@ public class ClientConnectionHandler : NetworkBehaviour
         clientSideSessionInfo = new PlayerSessionInfo();
         clientSideSessionInfo.playerNum = playerNum;
         clientSideSessionInfo.clientId = NetworkManager.Singleton.LocalClientId;
+
+        if (m_onRecieveClientSideSessionInfo != null && m_onRecieveClientSideSessionInfo.GetInvocationList().Length > 0) {
+            m_onRecieveClientSideSessionInfo();
+        }
     }
     
     public void Server_ApproveConnection(NetworkManager.ConnectionApprovalRequest request,

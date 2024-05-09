@@ -36,7 +36,7 @@ public class CameraNetworkBehaviour : NetworkBehaviour
     {
         if (!this.IsServer)
         {
-            SetCameraRotation();
+            ClientConnectionHandler.Instance.m_onRecieveClientSideSessionInfo += SetCameraRotation;
         }
     }
 

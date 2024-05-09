@@ -10,8 +10,8 @@
                 "0": 1,
                 "1": 2,
                 "2": 2,
-                "3": 0,
-                "4": 1
+                "3": 5,
+                "4": 2
             },
             "PlayerOwner": 0
         },
@@ -54,5 +54,4 @@
     "NumPlayers": 2,
     "IsScoreShared": true,
     "CameraRotationPerPlayer": [1, 0]
-     
 }

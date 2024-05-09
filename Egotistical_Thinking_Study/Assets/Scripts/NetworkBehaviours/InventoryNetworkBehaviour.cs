@@ -103,8 +103,9 @@ public class InventoryNetworkBehaviour : NetworkBehaviour
             for (int i = 0; i < m_maxInventorySlots.Value; i++)
             {
                 bool works = true;
-                for (int j = 0; j < m_maxInventorySlots.Value; j++)
+                for (int j = 0; j < m_numItems.Value; j++)
                 {
+                    Debug.Log($"j: {j}, m_itemPlacements length: {m_itemPlacements.Value.arr.Length}");
                     if (m_itemPlacements.Value.arr[j] == i)
                     {
                         works = false;
@@ -159,21 +160,9 @@ public class InventoryNetworkBehaviour : NetworkBehaviour
                 $"Cannot add item with index {itemIndex}! Set a placement for this item in the inventory first.");
             return false;
         }
-        
-        if (m_itemQuantities.Value.arr[itemIndex] > 0)
-        {
-            m_itemQuantities.Value.arr[itemIndex]++;
-            m_inventoryChangeAlert.Value++;
-            return true;
-        }
-        else if (m_numItemsInInventory < m_maxInventorySlots.Value)
-        {
-            m_itemQuantities.Value.arr[itemIndex]++;
-            m_inventoryChangeAlert.Value++;
-            return true;
-        }
-        
-        return false;
+        m_itemQuantities.Value.arr[itemIndex]++;
+        m_inventoryChangeAlert.Value++;
+        return true;
     }
 
     public void RemoveItem(int itemIndex)

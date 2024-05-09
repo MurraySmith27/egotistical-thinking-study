@@ -88,13 +88,26 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
             clickAction.performed += OnClick;
 
             playerCamera = GameObject.FindGameObjectWithTag("PlayerCamera");
+            
+            ClientConnectionHandler.Instance.m_onRecieveClientSideSessionInfo += SetRotation;
         }
 
         // gameViewQuad = GameObject.FindGameObjectWithTag("GameViewQuad");
         // gameViewQuad.GetComponent<MeshRenderer>().enabled = true;
         position.OnValueChanged += UpdatePosition;
     }
+
+    private void SetRotation()
+    {
+        int playerNum = ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum;
     
+        Debug.Log($"setting player rotation! player num: {playerNum}");
+        int rotation = CameraNetworkBehaviour.Instance.cameraRotationPerPlayer.Value.arr[playerNum];
+
+        float yawRotation = rotation * 90f;
+        transform.rotation = Quaternion.Euler(0, 0, yawRotation);
+    }
+
     public void OnClick(InputAction.CallbackContext context) {
         Vector2 mousePos = mousePosition.ReadValue<Vector2>();
 

@@ -13,7 +13,7 @@ public class MapNetworkBehaviour : NetworkBehaviour
         }
         else
         {
-            SetRotation();
+            ClientConnectionHandler.Instance.m_onRecieveClientSideSessionInfo += SetRotation;
         }
     }
 

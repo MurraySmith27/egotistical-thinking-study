@@ -39,6 +39,8 @@ public class InventorySystem : NetworkBehaviour
     public int m_numInventorySlotsPerPlayer = 10;
     
     public int m_numInventorySlotsPerWarehouse = 20;
+
+    public int m_inventoryCapacityPerPlayer = 5;
     
     public List<ItemDetails> m_items;
 
@@ -133,6 +135,7 @@ public class InventorySystem : NetworkBehaviour
                 foreach (string key in GameRoot.Instance.configData.Warehouses[i].Contents.Keys)
                 {
                     int itemIndex = Int32.Parse(key);
+                    Debug.Log($"key: {key}, num items: {GameRoot.Instance.configData.Warehouses[i].Contents[key]}");
                     if (GameRoot.Instance.configData.Warehouses[i].Contents[key] > 0)
                     {
                         inventory.SetItemPlacement(itemIndex, numItems++);
@@ -248,6 +251,22 @@ public class InventorySystem : NetworkBehaviour
         return new();
     }
 
+    public int GetNumItemsInInventory(int inventoryNum, bool isPlayer)
+    {
+        List<(int, int)> inventory = GetInventory(inventoryNum, isPlayer);
+
+        int inventoryCount = 0;
+        for (int i = 0; i < inventory.Count; i++)
+        {
+            if (inventory[i].Item1 != -1)
+            {
+                inventoryCount += inventory[i].Item2;
+            }
+        }
+
+        return inventoryCount;
+    }
+    
     [ClientRpc]
     public void BroadCastInventoryChangedEvent_ClientRpc(int inventoryNum, bool isPlayer, InventoryChangeType changeType) 
     {
@@ -261,11 +280,33 @@ public class InventorySystem : NetworkBehaviour
     {
         AddItemToInventory_ServerRpc(inventoryNum, isPlayer, itemGuid, quantity, inventorySlot);
     }
+
+    public void TransferItem(int sourceInventoryNum, bool sourceInventoryIsPlayer, int destinationInventoryNum,
+        bool destinationInventoryIsPlayer, string itemGuid, int quantity, int destinationInventoryItemSlot = -1)
+    {
+        TransferItem_ServerRpc(sourceInventoryNum, sourceInventoryIsPlayer, destinationInventoryNum, destinationInventoryIsPlayer, itemGuid, quantity, destinationInventoryItemSlot);   
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void TransferItem_ServerRpc(int sourceInventoryNum, bool sourceInventoryIsPlayer, int destinationInventoryNum,
+        bool destinationInventoryIsPlayer, string itemGuid, int quantity, int destinationInventoryItemSlot = -1)
+    {
+        if (DoAddItemToInventory(destinationInventoryNum, destinationInventoryIsPlayer, itemGuid, quantity,
+                destinationInventoryItemSlot))
+        {
+            DoRemoveItemFromInventory(sourceInventoryNum, sourceInventoryIsPlayer, itemGuid, quantity);
+        }
+    }
     
     [ServerRpc (RequireOwnership = false)]
     private void AddItemToInventory_ServerRpc(int inventoryNum, bool isPlayer, string itemGuid, int quantity, int inventorySlot = -1, ServerRpcParams serverRpcParams = default)
     {
+        DoAddItemToInventory(inventoryNum, isPlayer, itemGuid, quantity, inventorySlot, serverRpcParams);
+    }
 
+    private bool DoAddItemToInventory(int inventoryNum, bool isPlayer, string itemGuid, int quantity, int inventorySlot = -1, ServerRpcParams serverRpcParams = default)
+    {
+        Debug.Log($"doing add item to inventory {itemGuid}");
         int itemIdx = -1;
         for (int i = 0; i < m_items.Count; i++)
         {
@@ -275,6 +316,8 @@ public class InventorySystem : NetworkBehaviour
                 break;
             }
         }
+
+        bool success = false;
 
         if (itemIdx == -1)
         {
@@ -295,7 +338,7 @@ public class InventorySystem : NetworkBehaviour
                 playerInventory.SetItemPlacement(itemIdx, inventorySlot);
                 for (int i = 0; i < quantity; i++)
                 {
-                    playerInventory.AddItem(itemIdx);
+                    success = playerInventory.AddItem(itemIdx);
                 }
             }
             else
@@ -311,16 +354,22 @@ public class InventorySystem : NetworkBehaviour
                 warehouseInventory.SetItemPlacement(itemIdx, inventorySlot);
                 for (int i = 0; i < quantity; i++)
                 {
-                    warehouseInventory.AddItem(itemIdx);
+                    success = warehouseInventory.AddItem(itemIdx);
                 }
             }
 
-            if (onInventoryChanged != null && onInventoryChanged.GetInvocationList().Length > 0)
+            if (success)
             {
-                onInventoryChanged(inventoryNum, isPlayer, InventoryChangeType.Add);
+                if (onInventoryChanged != null && onInventoryChanged.GetInvocationList().Length > 0)
+                {
+                    onInventoryChanged(inventoryNum, isPlayer, InventoryChangeType.Add);
+                }
+                BroadCastInventoryChangedEvent_ClientRpc(inventoryNum, isPlayer, InventoryChangeType.Add);
             }
-            BroadCastInventoryChangedEvent_ClientRpc(inventoryNum, isPlayer, InventoryChangeType.Add);
+
         }
+
+        return success;
     }
 
     public void RemoveItemFromInventory(int inventoryNum, bool isPlayer, string itemGuid, int quantity)
@@ -331,6 +380,11 @@ public class InventorySystem : NetworkBehaviour
     [ServerRpc (RequireOwnership = false)]
     private void RemoveItemFromInventory_ServerRpc(int inventoryNum, bool isPlayer, string itemGuid, int quantity, ServerRpcParams serverRpcParams = default)
     {
+        DoRemoveItemFromInventory(inventoryNum, isPlayer, itemGuid, quantity);
+    }
+
+    private void DoRemoveItemFromInventory(int inventoryNum, bool isPlayer, string itemGuid, int quantity)
+    {
         int itemIdx = -1;
         for (int i = 0; i < m_items.Count; i++)
         {
@@ -340,7 +394,6 @@ public class InventorySystem : NetworkBehaviour
                 break;
             }
         }
-
         if (itemIdx == -1)
         {
             Debug.LogError($"Could not find item with GUID: {itemGuid} in items list!");
