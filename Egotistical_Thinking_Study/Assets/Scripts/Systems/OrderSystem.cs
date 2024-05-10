@@ -46,6 +46,8 @@ public class OrderSystem : NetworkBehaviour
 
     public NetworkVariable<NetworkSerializableIntArray> currentScorePerPlayer = new NetworkVariable<NetworkSerializableIntArray>();
 
+    public NetworkVariable<int> incorrectDepositScorePenalty = new NetworkVariable<int>();
+
     void Awake()
     {
         if (_instance != null && _instance != this)
@@ -105,8 +107,7 @@ public class OrderSystem : NetworkBehaviour
                         {
                             completeOrders.Value.arr[i] = 1;
                             completeOrders.SetDirty(true);
-                            
-                            currentScorePerPlayer.Value.arr[inventoryNum] += orders.Value.orders[i].scoreReward;
+                            AddScoreToPlayer(inventoryNum, orders.Value.orders[i].scoreReward);
                         }
 
                         if (onOrderComplete != null && onOrderComplete.GetInvocationList().Length > 0)
@@ -121,7 +122,30 @@ public class OrderSystem : NetworkBehaviour
         }
     }
 
+    public void AddScoreToPlayer(int playerNum, int scoreToAdd)
+    {
+        if (this.IsClient)
+        {
+            AddScoreToPlayer_ServerRpc(playerNum, scoreToAdd);
+        }
+        else
+        {
+            DoAddScoreToPlayer(playerNum, scoreToAdd);
+        }
+}
 
+    [ServerRpc(RequireOwnership = false)]
+    private void AddScoreToPlayer_ServerRpc(int playerNum, int scoreToAdd)
+    {
+        DoAddScoreToPlayer(playerNum, scoreToAdd);
+    }
+
+    private void DoAddScoreToPlayer(int playerNum, int scoreToAdd)
+    {
+        Debug.Log($"adding {scoreToAdd} score to player {playerNum}");
+        currentScorePerPlayer.Value.arr[playerNum] += scoreToAdd;
+        currentScorePerPlayer.SetDirty(true);
+    }
 
     public void OnGameStart()
     {
@@ -134,6 +158,8 @@ public class OrderSystem : NetworkBehaviour
 
             orders.Value = new NetworkSerializableOrderArray();
             currentScorePerPlayer.Value = new NetworkSerializableIntArray();
+
+            incorrectDepositScorePenalty.Value = GameRoot.Instance.configData.IncorrectItemPenalty;
             
             List<NetworkSerializableOrder> newOrders = new List<NetworkSerializableOrder>();
             foreach (Order order in GameRoot.Instance.configData.Orders)
@@ -197,9 +223,9 @@ public class OrderSystem : NetworkBehaviour
                     {
                         incompleteOrders.Value.arr[i] = 1;
                         incompleteOrders.SetDirty(true);
-
-                        currentScorePerPlayer.Value.arr[orders.Value.orders[i].receivingPlayer] -=
-                            orders.Value.orders[i].incompletePenalty;
+                        
+                        AddScoreToPlayer(orders.Value.orders[i].receivingPlayer, -orders.Value.orders[i].incompletePenalty);
+                        
                         if (onOrderIncomplete != null && onOrderIncomplete.GetInvocationList().Length > 0)
                         {
                             onOrderIncomplete(i);

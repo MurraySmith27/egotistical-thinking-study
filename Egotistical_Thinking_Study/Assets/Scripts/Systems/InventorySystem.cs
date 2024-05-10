@@ -135,7 +135,6 @@ public class InventorySystem : NetworkBehaviour
                 foreach (string key in GameRoot.Instance.configData.Warehouses[i].Contents.Keys)
                 {
                     int itemIndex = Int32.Parse(key);
-                    Debug.Log($"key: {key}, num items: {GameRoot.Instance.configData.Warehouses[i].Contents[key]}");
                     if (GameRoot.Instance.configData.Warehouses[i].Contents[key] > 0)
                     {
                         inventory.SetItemPlacement(itemIndex, numItems++);
@@ -306,7 +305,6 @@ public class InventorySystem : NetworkBehaviour
 
     private bool DoAddItemToInventory(int inventoryNum, bool isPlayer, string itemGuid, int quantity, int inventorySlot = -1, ServerRpcParams serverRpcParams = default)
     {
-        Debug.Log($"doing add item to inventory {itemGuid}");
         int itemIdx = -1;
         for (int i = 0; i < m_items.Count; i++)
         {

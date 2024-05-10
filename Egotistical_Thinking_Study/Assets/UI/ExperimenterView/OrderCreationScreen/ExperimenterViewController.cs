@@ -96,7 +96,6 @@ public class ExperimenterViewController : MonoBehaviour
 
     private void OnOrderValueChanged(int orderIndex)
     {
-        Debug.Log("order value changed");
         VisualElement orderElement = m_orderElements[orderIndex];
         ProgressBar orderTimer = orderElement.Q<ProgressBar>("order-timer");
         NetworkSerializableOrder order = OrderSystem.Instance.orders.Value.orders[orderIndex];
@@ -105,7 +104,6 @@ public class ExperimenterViewController : MonoBehaviour
             orderTimer.lowValue = 100f * order.orderTimeRemaining /
                                   (float)order.orderTimeLimit;
             orderTimer.title = $"{order.orderTimeRemaining}s";
-            Debug.Log($"marking dirty: {orderTimer.title}");
             orderTimer.MarkDirtyRepaint();
         }
     }

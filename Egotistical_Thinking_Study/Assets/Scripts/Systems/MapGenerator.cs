@@ -28,7 +28,13 @@ public class MapGenerator : MonoBehaviour
 
     [SerializeField] private List<char> warehouseLetters;
 
+    [SerializeField] private List<char> destinationLetters;
+
     [SerializeField] private List<char> gasStationLetters;
+
+    [SerializeField] private List<GameObject> warehousePrefabs;
+
+    [SerializeField] private List<GameObject> destinationPrefabs;
 
     private Dictionary<char, GameObject> nameToPrefabMap;
 
@@ -45,6 +51,8 @@ public class MapGenerator : MonoBehaviour
             return warehouses.Count;
         }
     }
+
+    private int numNonDestinationWarehouses = 0;
 
     public List<GameObject> warehouses;
 
@@ -83,13 +91,29 @@ public class MapGenerator : MonoBehaviour
             for (int row = 0; row < textMap.Length; row++)
             {
                 bool isRoad = false;
-                if (nameToPrefabMap.ContainsKey(textMap[row][col])) {
-                    GameObject go = Instantiate(nameToPrefabMap[textMap[row][col]], new Vector3(col * tileWidth, -row * tileHeight, 0), Quaternion.identity);
+                if (nameToPrefabMap.ContainsKey(textMap[row][col]))
+                {
+
+                    GameObject prefab = nameToPrefabMap[textMap[row][col]];
+                    if (warehouseLetters.Contains(textMap[row][col]))
+                    {
+                        prefab = warehousePrefabs[numNonDestinationWarehouses++];
+                    }
+                    else if (destinationLetters.Contains(textMap[row][col]))
+                    {
+                        prefab = destinationPrefabs[numWarehouses - numNonDestinationWarehouses];
+                    }
+                    
+                    GameObject go = Instantiate(prefab, new Vector3(col * tileWidth, -row * tileHeight, 0), Quaternion.identity);
                     
                     go.GetComponent<NetworkObject>().Spawn();
                     map[col].Add(go);
 
                     if (warehouseLetters.Contains(textMap[row][col]))
+                    {
+                        warehouses.Add(go);
+                    }
+                    else if (destinationLetters.Contains(textMap[row][col]))
                     {
                         warehouses.Add(go);
                     }

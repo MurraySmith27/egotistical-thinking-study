@@ -22,6 +22,12 @@ public class ClientMenuController : MonoBehaviour
     [SerializeField] private VisualTreeAsset m_orderElementAsset;
 
     [SerializeField] private VisualTreeAsset m_playerInventoryElementAsset;
+
+    [SerializeField] private AudioSource m_correctSFX;
+    
+    [SerializeField] private AudioSource m_incorrectSFX;
+
+    [SerializeField] private Gradient m_gasFillColorGradient;
     
     private VisualElement m_playerInventoryRoot;
     
@@ -60,6 +66,8 @@ public class ClientMenuController : MonoBehaviour
     private int m_currentLoadingWarehouseNum = -1;
 
     private VisualElement m_orderRoot;
+    
+    private Button m_gasRefillButton;
 
     private List<VisualElement> m_activeOrderElements;
 
@@ -68,6 +76,8 @@ public class ClientMenuController : MonoBehaviour
     private Dictionary<int, List<InventorySlot>> m_otherPlayersTrucksInventorySlots;
 
     private bool m_initialized = false;
+
+    private bool m_nearGasStation = false;
 
     void Awake()
     {
@@ -116,6 +126,9 @@ public class ClientMenuController : MonoBehaviour
         
         m_playerInventoryElement = m_root.Q<VisualElement>("player-inventory-element");
 
+        m_gasRefillButton = m_root.Q<Button>("gas-refill-button");
+        
+        m_gasRefillButton.clicked += OnGasRefillButtonClicked;
 
         m_otherPlayersInventoryRoot = m_root.Q<VisualElement>("other-players-inventory-root");
 
@@ -152,6 +165,11 @@ public class ClientMenuController : MonoBehaviour
         int maxGas = MapDataNetworkBehaviour.Instance.maxGasPerPlayer.Value;
         gasBar.title = $"{maxGas}/{maxGas}";
         gasBar.value = 100;
+        
+        foreach (VisualElement child in gasBar.Q<VisualElement>("unity-progress-bar").Children())
+        {
+            child.style.backgroundColor = m_gasFillColorGradient.Evaluate(1f);
+        }
 
         m_inRangeOfOwnedInventory = false;
         
@@ -204,15 +222,41 @@ public class ClientMenuController : MonoBehaviour
         OrderSystem.Instance.acceptedOrders.OnValueChanged += OnAcceptedOrdersChanged;
 
         OrderSystem.Instance.currentScorePerPlayer.OnValueChanged += OnScoreChanged;
+        
+        PlayerNetworkBehaviour playerNetworkBehaviour = m_thisPlayerGameObject.GetComponent<PlayerNetworkBehaviour>();
 
-        m_thisPlayerGameObject.GetComponent<PlayerNetworkBehaviour>().m_numGasRemaining.OnValueChanged +=
+        playerNetworkBehaviour.m_numGasRemaining.OnValueChanged +=
             OnGasValueChanged;
-
-
+        
+        playerNetworkBehaviour.m_onPlayerEnterGasStationRadius += OnPlayerEnterGasStationRadius;
+        playerNetworkBehaviour.m_onPlayerExitGasStationRadius += OnPlayerExitGasStationRadius;
+        
         m_otherPlayersTrucksInventorySlots = new();
         m_otherPlayersTrucksInventoryElements = new();
     }
 
+    private void OnGasRefillButtonClicked()
+    {
+        if (m_nearGasStation)
+        {
+            m_thisPlayerGameObject.GetComponent<PlayerNetworkBehaviour>().RefillGas();
+        }
+    }
+    
+    private void OnPlayerEnterGasStationRadius(int playerNum)
+    {
+        Debug.Log("etnering gas station radius");
+        m_nearGasStation = true;
+        m_gasRefillButton.style.visibility = Visibility.Visible;
+    }
+
+    private void OnPlayerExitGasStationRadius(int playerNum)
+    {
+        Debug.Log("exiting gas station radius");
+        m_nearGasStation = false;
+        m_gasRefillButton.style.visibility = Visibility.Hidden;
+    }
+    
     public void StartDrag(Vector2 position, InventorySlot originalInventorySlot)
     {
         
@@ -233,8 +277,74 @@ public class ClientMenuController : MonoBehaviour
                     }
                 }
 
-                InventorySystem.Instance.TransferItem(ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum, true, m_currentLoadingWarehouseNum, false, details.GUID, 1);
-                
+                if (details == null)
+                {
+                    Debug.LogError("couldn't find item in Start Drag from player inventory!");
+                    return;
+                }
+
+                int itemNum = -1;
+
+                for (int i = 0; i < InventorySystem.Instance.m_items.Count; i++)
+                {
+                    if (InventorySystem.Instance.m_items[i].GUID == details.GUID)
+                    {
+                        itemNum = i;
+                        break;
+                    }
+                }
+
+                if (itemNum == -1)
+                {
+                    Debug.LogError($"couldn't find item with guid: {details.GUID} in list of items!");
+                    return;
+                }
+
+                List<(int, int)> destinationInventory =
+                    InventorySystem.Instance.GetInventory(m_currentLoadingWarehouseNum, false);
+
+                bool foundItemInActiveOrder = false;
+                //need to check if item is in an active order for this destination, if not administer a penalty.
+                for (int i = 0; i < OrderSystem.Instance.activeOrders.Value.arr.Length; i++)
+                {
+                    if (OrderSystem.Instance.activeOrders.Value.arr[i] != 0)
+                    {
+                        Dictionary<string, int> requiredItems =
+                            OrderSystem.Instance.orders.Value.orders[i].requiredItems;
+
+                        int quantityInDestinationInventory = 0; 
+                        for (int j = 0; j < destinationInventory.Count; j++)
+                        {
+                            if (destinationInventory[j].Item1 == itemNum)
+                            {
+                                quantityInDestinationInventory = destinationInventory[j].Item2;
+                                break;
+                            }
+                        }
+                        
+                        if (requiredItems.Keys.Contains(itemNum.ToString()) && requiredItems[itemNum.ToString()] - quantityInDestinationInventory > 0)
+                        {
+                            foundItemInActiveOrder = true;
+                        }
+                        
+                    }
+                }
+
+                if (foundItemInActiveOrder)
+                {
+                    m_correctSFX.Play();
+                    InventorySystem.Instance.TransferItem(
+                        ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum, true,
+                        m_currentLoadingWarehouseNum, false, details.GUID, 1);
+                }
+                else
+                {
+                    m_incorrectSFX.Play();
+                    OrderSystem.Instance.AddScoreToPlayer(
+                        ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum,
+                        Mathf.Min(-OrderSystem.Instance.incorrectDepositScorePenalty.Value, OrderSystem.Instance.incorrectDepositScorePenalty.Value));
+                }
+
                 UpdatePlayerInventory();
 
                 return;
@@ -378,7 +488,6 @@ public class ClientMenuController : MonoBehaviour
             //need to this is valid by checking player inventory capacity
             int inventoryCount = InventorySystem.Instance.GetNumItemsInInventory(destinationInventoryNum, true);
 
-            Debug.Log($"inventory count: {inventoryCount}");
             if (inventoryCount < InventorySystem.Instance.m_inventoryCapacityPerPlayer)
             {
                 //need to update inventory
@@ -799,6 +908,7 @@ public class ClientMenuController : MonoBehaviour
             int playerNum = ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum;
             score = current.arr[playerNum];
         }
+        Debug.Log($"on score changed. new score for this player: {score}");
         
         m_root.Q<Label>("score-label").text = $"{score}G";
     }
@@ -809,6 +919,11 @@ public class ClientMenuController : MonoBehaviour
         int maxGas = MapDataNetworkBehaviour.Instance.maxGasPerPlayer.Value;
         gasBar.value = (100f * current) / maxGas;
         gasBar.title = $"{current}/{maxGas}";
+
+        foreach (VisualElement child in gasBar.Q<VisualElement>("unity-progress-bar").Children())
+        {
+            child.style.backgroundColor = m_gasFillColorGradient.Evaluate(current / (float)maxGas);
+        }
     }
 
     private void LoadAllFromOrderCallback(int orderIndex)

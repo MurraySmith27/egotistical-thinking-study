@@ -30,6 +30,8 @@ public class ConfigData
     public int[] CameraRotationPerPlayer;
     public int NumPlayers;
     public bool IsScoreShared;
+    public int IncorrectItemPenalty;
+    public int GasRefillCost;
 }
 
 public class GameRoot : MonoBehaviour

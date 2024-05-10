@@ -35,10 +35,11 @@ VisualElement {
 }
 
 .item-count {
-    font-size: 14;
+    font-size: 28;
     color: white;
+    -unity-font-style: bold;
     align-self: flex-end;
-    -unity-text-align: upper-right;
+    -unity-text-align: lower-right;
 }
 
 .slot {

@@ -8,6 +8,8 @@ using Unity.Netcode;
 using Unity.Networking.Transport;
 using UnityEditor;
 
+public delegate void PlayerEnterGasStationRadiusEvent(int playerNum);
+public delegate void PlayerExitGasStationRadiusEvent(int playerNum);
 public class PlayerNetworkBehaviour : NetworkBehaviour
 {
     public Color m_playerColor;
@@ -15,10 +17,17 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
     [SerializeField] private InputActionAsset clientInput;
     [SerializeField] private float secondsPerGridMove;
     [SerializeField] private float m_gasRefillRadius = 8f;
+    [SerializeField] private AudioSource m_lowGasSFX;
+    [SerializeField] private AudioSource m_outOfGasSFX;
+    [SerializeField] private AudioSource m_fillUpGasSFX;
     
     private InputAction clickAction;
     private InputAction mousePosition;
     private NetworkVariable<Vector3> position = new NetworkVariable<Vector3>();
+    
+    public PlayerEnterGasStationRadiusEvent m_onPlayerEnterGasStationRadius;
+    
+    public PlayerExitGasStationRadiusEvent m_onPlayerExitGasStationRadius;
 
     private Coroutine moveCoroutine;
 
@@ -31,6 +40,8 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
     public NetworkVariable<int> m_numGasRemaining;
 
     private List<GameObject> m_children;
+
+    private bool m_nearGasStation = false;
     
     void Awake() {
         clickAction = clientInput["mouseClick"];
@@ -56,24 +67,37 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
     {
         if (this.IsServer)
         {
-            foreach (GameObject gasStation in MapGenerator.Instance.gasStations)
+            OnPositionChange_ClientRpc(newPosition);
+        }
+    }
+
+    [ClientRpc]
+    private void OnPositionChange_ClientRpc(Vector3 newPosition)
+    {
+        Debug.Log($"new position: {newPosition}. gas refill radius: {m_gasRefillRadius}");
+        bool closeEnoughToGasStation = false;
+        foreach (GameObject gasStation in GameObject.FindGameObjectsWithTag("GasStation"))
+        {
+            Debug.Log($"gas station paosition: {gasStation.transform.position}. distance: {Vector3.Distance(gasStation.transform.position,newPosition)}");
+            if (Vector3.Distance(gasStation.transform.position,newPosition) < m_gasRefillRadius)
             {
-                if (Vector3.Distance(gasStation.transform.position,newPosition) < m_gasRefillRadius)
-                {
-                    m_numGasRemaining.Value = GameRoot.Instance.configData.MaxGasPerPlayer;
-                    break;
-                }
+                Debug.Log("close enough to gas station");
+                closeEnoughToGasStation = true;
             }
         }
-        else
-        {
-            LineRenderer lineRenderer = GetComponent<LineRenderer>();
-            Vector3[] lineRendererPoints = new Vector3[lineRenderer.positionCount];
-            lineRenderer.GetPositions(lineRendererPoints);
 
-            var newLineRendererPoints = lineRendererPoints.Skip(1);
-            
-            lineRenderer.SetPositions(newLineRendererPoints.ToArray());
+        Debug.Log($"closeenoughtogasstation: {closeEnoughToGasStation}. near gas station: {m_nearGasStation}");
+        if (!m_nearGasStation && closeEnoughToGasStation)
+        { 
+            Debug.Log("entering gas station (playernetworkbehaviour)");
+            m_onPlayerEnterGasStationRadius(m_playerNum.Value);
+            m_nearGasStation = true;
+        }
+        else if (m_nearGasStation && !closeEnoughToGasStation)
+        {
+            Debug.Log("exiting gas station (playernetworkbehaviour)");
+            m_onPlayerExitGasStationRadius(m_playerNum.Value);
+            m_nearGasStation = false;
         }
     }
     
@@ -83,6 +107,8 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
             m_playerNum.Value = 0;
 
             m_numGasRemaining.Value = GameRoot.Instance.configData.MaxGasPerPlayer;
+
+            m_numGasRemaining.OnValueChanged += OnGasValueChangedServerSide;
         }
         else if (this.IsClient) {
             clickAction.performed += OnClick;
@@ -97,15 +123,38 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
         position.OnValueChanged += UpdatePosition;
     }
 
+    private void OnGasValueChangedServerSide(int old, int current)
+    {
+        if (current == GameRoot.Instance.configData.MaxGasPerPlayer)
+        {
+            m_fillUpGasSFX.Play();
+            
+            Debug.Log($"player: {m_playerNum.Value} just refilled");
+            OrderSystem.Instance.AddScoreToPlayer(m_playerNum.Value, Mathf.Min(-GameRoot.Instance.configData.GasRefillCost, GameRoot.Instance.configData.GasRefillCost));
+        }
+    }
+
     private void SetRotation()
     {
         int playerNum = ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum;
     
-        Debug.Log($"setting player rotation! player num: {playerNum}");
         int rotation = CameraNetworkBehaviour.Instance.cameraRotationPerPlayer.Value.arr[playerNum];
 
         float yawRotation = rotation * 90f;
         transform.rotation = Quaternion.Euler(0, 0, yawRotation);
+    }
+
+    //to be called from client side
+    public void RefillGas()
+    {
+        m_fillUpGasSFX.Play();
+        RefillGas_ServerRpc();
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void RefillGas_ServerRpc()
+    {
+        m_numGasRemaining.Value = GameRoot.Instance.configData.MaxGasPerPlayer;
     }
 
     public void OnClick(InputAction.CallbackContext context) {
@@ -227,7 +276,20 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
             lastPosition = nextPosition;
             nextPosition = new Vector3(destination.x * MapGenerator.Instance.tileWidth,
                 destination.y * MapGenerator.Instance.tileHeight, playerZ);
-            m_numGasRemaining.Value--;
+            if (GameRoot.Instance.configData.MaxGasPerPlayer > 0)
+            {
+                m_numGasRemaining.Value--;
+            }
+
+            if (m_numGasRemaining.Value == 0)
+            {
+                m_outOfGasSFX.Play();
+            }
+            else if (m_numGasRemaining.Value / (float)GameRoot.Instance.configData.MaxGasPerPlayer < 0.4f)
+            {
+                m_lowGasSFX.Play();
+            }
+            
 
             foreach (GameObject child in m_children)
             {

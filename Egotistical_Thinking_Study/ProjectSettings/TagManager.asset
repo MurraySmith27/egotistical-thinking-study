@@ -9,6 +9,7 @@ TagManager:
   - Player0
   - PlayerCamera
   - GameViewQuad
+  - GasStation
   layers:
   - Default
   - TransparentFX

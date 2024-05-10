@@ -105,7 +105,6 @@ public class InventoryNetworkBehaviour : NetworkBehaviour
                 bool works = true;
                 for (int j = 0; j < m_numItems.Value; j++)
                 {
-                    Debug.Log($"j: {j}, m_itemPlacements length: {m_itemPlacements.Value.arr.Length}");
                     if (m_itemPlacements.Value.arr[j] == i)
                     {
                         works = false;
