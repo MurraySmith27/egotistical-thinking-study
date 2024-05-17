@@ -5,6 +5,7 @@ using System.Linq;
 using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.UIElements;
 
 public class ClientMenuController : MonoBehaviour
@@ -161,6 +162,10 @@ public class ClientMenuController : MonoBehaviour
 
         ProgressBar gasBar = m_root.Q<ProgressBar>("truck-gas-bar");
 
+        if (MapDataNetworkBehaviour.Instance.maxGasPerPlayer.Value == -1)
+        {
+            m_root.Q<VisualElement>("truck-gas-bar-root").style.display = DisplayStyle.None;
+        }
         
         int maxGas = MapDataNetworkBehaviour.Instance.maxGasPerPlayer.Value;
         gasBar.title = $"{maxGas}/{maxGas}";

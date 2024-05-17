@@ -6,6 +6,8 @@ using Unity.Netcode;
 
 public delegate void RecieveClientSideSessionInfoEvent();
 
+public delegate void ClientConnectedEvent(ulong clientId);
+
 public class ClientConnectionHandler : NetworkBehaviour
 {
     private static ClientConnectionHandler _instance;
@@ -16,6 +18,8 @@ public class ClientConnectionHandler : NetworkBehaviour
 
     public RecieveClientSideSessionInfoEvent m_onRecieveClientSideSessionInfo;
 
+    public ClientConnectedEvent m_onClientConnected;
+    
     public int m_numConnectedClients = 0;
 
     void Awake()
@@ -69,6 +73,8 @@ public class ClientConnectionHandler : NetworkBehaviour
                 break;
             }
         }
+
+        m_onClientConnected(clientId);
     }
     
     [ClientRpc]

@@ -74,28 +74,22 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
     [ClientRpc]
     private void OnPositionChange_ClientRpc(Vector3 newPosition)
     {
-        Debug.Log($"new position: {newPosition}. gas refill radius: {m_gasRefillRadius}");
         bool closeEnoughToGasStation = false;
         foreach (GameObject gasStation in GameObject.FindGameObjectsWithTag("GasStation"))
         {
-            Debug.Log($"gas station paosition: {gasStation.transform.position}. distance: {Vector3.Distance(gasStation.transform.position,newPosition)}");
             if (Vector3.Distance(gasStation.transform.position,newPosition) < m_gasRefillRadius)
             {
-                Debug.Log("close enough to gas station");
                 closeEnoughToGasStation = true;
             }
         }
 
-        Debug.Log($"closeenoughtogasstation: {closeEnoughToGasStation}. near gas station: {m_nearGasStation}");
         if (!m_nearGasStation && closeEnoughToGasStation)
         { 
-            Debug.Log("entering gas station (playernetworkbehaviour)");
             m_onPlayerEnterGasStationRadius(m_playerNum.Value);
             m_nearGasStation = true;
         }
         else if (m_nearGasStation && !closeEnoughToGasStation)
         {
-            Debug.Log("exiting gas station (playernetworkbehaviour)");
             m_onPlayerExitGasStationRadius(m_playerNum.Value);
             m_nearGasStation = false;
         }
@@ -125,11 +119,10 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
 
     private void OnGasValueChangedServerSide(int old, int current)
     {
-        if (current == GameRoot.Instance.configData.MaxGasPerPlayer)
+        if (current == GameRoot.Instance.configData.MaxGasPerPlayer && GameRoot.Instance.configData.MaxGasPerPlayer != -1)
         {
             m_fillUpGasSFX.Play();
             
-            Debug.Log($"player: {m_playerNum.Value} just refilled");
             OrderSystem.Instance.AddScoreToPlayer(m_playerNum.Value, Mathf.Min(-GameRoot.Instance.configData.GasRefillCost, GameRoot.Instance.configData.GasRefillCost));
         }
     }
@@ -144,11 +137,23 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
         transform.rotation = Quaternion.Euler(0, 0, yawRotation);
     }
 
-    //to be called from client side
+    [ClientRpc]
+    private void RefillGas_ClientRpc()
+    {
+        RefillGas();
+    }
+    
     public void RefillGas()
     {
         m_fillUpGasSFX.Play();
-        RefillGas_ServerRpc();
+        if (this.IsServer)
+        {
+            RefillGas_ClientRpc();
+        }
+        else 
+        {
+            RefillGas_ServerRpc();
+        }
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -285,7 +290,7 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
             {
                 m_outOfGasSFX.Play();
             }
-            else if (m_numGasRemaining.Value / (float)GameRoot.Instance.configData.MaxGasPerPlayer < 0.4f)
+            else if (m_numGasRemaining.Value != -1 && m_numGasRemaining.Value / (float)GameRoot.Instance.configData.MaxGasPerPlayer < 0.4f)
             {
                 m_lowGasSFX.Play();
             }

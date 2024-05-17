@@ -8,6 +8,7 @@
             <ui:VisualElement name="score-label-root" style="flex-grow: 1;">
                 <ui:VisualElement name="spacer" style="flex-grow: 0.1; flex-shrink: 0.1;" />
                 <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="score-label" style="font-size: 25%; -unity-font-style: bold; color: rgb(0, 0, 0); background-color: rgb(255, 237, 175); border-left-color: rgb(255, 207, 23); border-right-color: rgb(255, 207, 23); border-top-color: rgb(255, 207, 23); border-bottom-color: rgb(255, 207, 23); border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; border-top-left-radius: 5px; border-top-right-radius: 5px; border-bottom-right-radius: 5px; border-bottom-left-radius: 5px; -unity-text-align: middle-center;" />
+                <ui:VisualElement name="refill-buttons-parent" style="flex-grow: 1;" />
                 <ui:VisualElement name="spacer" style="flex-grow: 1;" />
             </ui:VisualElement>
             <ui:VisualElement name="spacer" style="flex-grow: 0.1; flex-shrink: 0.1;" />

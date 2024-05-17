@@ -1571,6 +1571,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_orderElement: {fileID: 9197481963319205126, guid: 71e99ac59c69e5342abfb1b48206c635, type: 3}
+  m_gasRefillButtonElement: {fileID: 9197481963319205126, guid: 7bb3f9cda53069d45974d46ea5639cde, type: 3}
 --- !u!1 &2117876675
 GameObject:
   m_ObjectHideFlags: 0

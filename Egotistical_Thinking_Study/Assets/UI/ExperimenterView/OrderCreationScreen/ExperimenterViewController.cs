@@ -4,12 +4,16 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
 using Unity.VisualScripting;
+using UnityEditor;
+using UnityEditor.PackageManager;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 public class ExperimenterViewController : MonoBehaviour
 {
     [SerializeField] private VisualTreeAsset m_orderElement;
+
+    [SerializeField] private VisualTreeAsset m_gasRefillButtonElement;
 
     private VisualElement m_root;
     private VisualElement m_orderContainer;
@@ -72,6 +76,7 @@ public class ExperimenterViewController : MonoBehaviour
             int x = i;
             orderElement.Q<Button>("send-order-button").clicked += () =>
             {
+                orderElement.Q<Button>("send-order-button").style.visibility = Visibility.Hidden;
                 OnOrderSent(x);
             };
 
@@ -80,7 +85,8 @@ public class ExperimenterViewController : MonoBehaviour
             m_orderElements.Add(orderElement);
             m_orderContainer.MarkDirtyRepaint();
         }
-        
+
+        ClientConnectionHandler.Instance.m_onClientConnected += OnClientConnected;
         
         m_root.Q<Label>("score-label").text = "0G";
 
@@ -93,7 +99,39 @@ public class ExperimenterViewController : MonoBehaviour
     {
         m_root.Q<Label>("score-label").text = $"Total Score: {current.arr.Sum()}G";
     }
+    
+    private void OnClientConnected(ulong clientId)
+    {
+        foreach (Guid guid in ClientConnectionHandler.Instance.serverSideClientList.Keys)
+        {
+            if (ClientConnectionHandler.Instance.serverSideClientList[guid].clientId == clientId)
+            {
+                int playerNum = ClientConnectionHandler.Instance.serverSideClientList[guid].playerNum;
 
+                GameObject playerGameObject = GameObject.FindGameObjectWithTag($"Player{playerNum}");
+
+                Sprite playerIcon = playerGameObject.transform.GetChild(0).GetComponent<SpriteRenderer>().sprite;
+
+                VisualElement gasRefillElement = m_gasRefillButtonElement.Instantiate();
+                
+                m_root.Q<VisualElement>("refill-buttons-parent").Add(gasRefillElement);
+
+                gasRefillElement.Q<VisualElement>("icon").style.backgroundImage = Background.FromSprite(playerIcon);
+
+                gasRefillElement.Q<Button>("refill-button").clicked += () => OnGasRefillButtonClicked(guid);
+            }
+        }
+    }
+
+    private void OnGasRefillButtonClicked(Guid playerGuid)
+    {
+        int playerNum = ClientConnectionHandler.Instance.serverSideClientList[playerGuid].playerNum;
+        GameObject playerGameObject = GameObject.FindGameObjectWithTag($"Player{playerNum}");
+
+        playerGameObject.GetComponent<PlayerNetworkBehaviour>().RefillGas();
+    }
+    
+    
     private void OnOrderValueChanged(int orderIndex)
     {
         VisualElement orderElement = m_orderElements[orderIndex];

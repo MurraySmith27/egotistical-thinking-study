@@ -1,0 +1,6 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement name="root" style="flex-grow: 1; flex-direction: row; min-height: 100px;">
+        <ui:VisualElement name="icon" style="flex-grow: 1; width: 25%; height: 100%; position: absolute;" />
+        <ui:Button text="Refill" parse-escape-sequences="true" display-tooltip-when-elided="true" name="refill-button" style="position: absolute; width: 75%; height: 100%; left: 25%; font-size: 25px;" />
+    </ui:VisualElement>
+</ui:UXML>
