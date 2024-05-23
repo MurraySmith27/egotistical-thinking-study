@@ -305,7 +305,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 35
+  orthographic size: 60
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
@@ -600,6 +600,7 @@ MonoBehaviour:
   - {fileID: 3312492696678046763, guid: 1e4bdc004935a584f82d30256b449ad6, type: 3}
   destinationPrefabs:
   - {fileID: 1354401770332528486, guid: eb24a97c341a79c4aa1bd935bb3412ea, type: 3}
+  - {fileID: 1354401770332528486, guid: a526ee3ff0caa514587dd327fb02fa3c, type: 3}
   gridOrigin: {x: 0, y: 0}
   playerObjects: []
   warehouses: []

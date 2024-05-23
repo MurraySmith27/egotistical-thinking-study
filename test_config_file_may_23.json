@@ -1,0 +1,87 @@
+{
+    "Warehouses": [
+        {
+            "Contents": {
+            },
+            "PlayerOwner": -1
+        },
+        {
+            "Contents": {
+            },
+            "PlayerOwner": -1
+        },
+        {
+            "Contents": {
+                "0": 1,
+                "1": 2,
+                "2": 2,
+                "3": 5,
+                "4": 2
+            },
+            "PlayerOwner": 0
+        },
+        {
+            "Contents": {
+                "3": 1
+            },
+            "PlayerOwner": 1
+        }
+    ],
+    "Orders": [
+        {
+            "TimeLimitSeconds": 120,
+            "RecievingPlayer": 0,
+            "DestinationWarehouse": 0,
+            "RequiredItems": {
+                "0": 1,
+                "2": 2,
+                "4": 1
+            },
+            "TextDescription": "Example Order",
+            "ScoreReward": 1500,
+            "IncompleteOrderPenalty": 100
+        },
+        {
+            "TimeLimitSeconds": -1,
+            "RecievingPlayer": 0,
+            "DestinationWarehouse": 1,
+            "RequiredItems": {
+                "1": 1,
+                "3": 2,
+                "5": 1
+            },
+            "TextDescription": "Example Order 2",
+            "ScoreReward": 1000,
+            "IncompleteOrderPenalty": 100
+        },
+        {
+            "TimeLimitSeconds": -1,
+            "RecievingPlayer": 0,
+            "DestinationWarehouse": 0,
+            "RequiredItems": {
+                "7": 2
+            },
+            "TextDescription": "Example Order 3",
+            "ScoreReward": 1000,
+            "IncompleteOrderPenalty": 100
+        },
+        {
+            "TimeLimitSeconds": 180,
+            "RecievingPlayer": 1,
+            "DestinationWarehouse": 1,
+            "RequiredItems": {
+                "2": 2,
+                "6": 1
+            },
+            "TextDescription": "Example Order 4",
+            "ScoreReward": 1200,
+            "IncompleteOrderPenalty": 100
+        }
+    ],
+    "MaxGasPerPlayer": 10,
+    "NumPlayers": 2,
+    "IsScoreShared": true,
+    "CameraRotationPerPlayer": [1, 0],
+    "IncorrectItemPenalty": 5,
+    "GasRefillCost": 5
+}
