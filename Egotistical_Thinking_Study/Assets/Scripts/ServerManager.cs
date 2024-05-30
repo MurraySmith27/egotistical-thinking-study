@@ -13,8 +13,15 @@ public class ServerManager : MonoBehaviour
 
     [SerializeField] private MapGenerator mapGenerator;
 
+    public static string m_ipAddress { get; private set; }
+
+    public static int m_port { get; private set; }
+
     public void StartServer(string address, int port)
     {
+        m_ipAddress = address;
+        m_port = port;
+        
         NetworkManager.Singleton.GetComponent<UnityTransport>().SetConnectionData(address, (ushort)port);
 
         NetworkManager.Singleton.ConnectionApprovalCallback = ClientConnectionHandler.Instance.Server_ApproveConnection;

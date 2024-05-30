@@ -137,7 +137,7 @@ public class ClientMenuController : MonoBehaviour
 
         m_ghostIcon = m_root.Q<VisualElement>("ghost-icon");
 
-        m_ghostIcon.RegisterCallback<PointerMoveEvent>(OnPointerMove);
+        m_root.RegisterCallback<PointerMoveEvent>(OnPointerMove);
         m_ghostIcon.RegisterCallback<PointerUpEvent>(OnPointerUp);
 
         m_ownedWarehouseInventoryElement = m_root.Q<VisualElement>("warehouse-inventory");
@@ -413,6 +413,7 @@ public class ClientMenuController : MonoBehaviour
             return;
         }
         
+        Debug.Log("on pointer move!");
         m_ghostIcon.style.top = evt.position.y - m_ghostIcon.layout.height / 2f;
         m_ghostIcon.style.left = evt.position.x - m_ghostIcon.layout.width / 2f;
     }
@@ -622,8 +623,6 @@ public class ClientMenuController : MonoBehaviour
                 }
                 else if (!foundNearestWarehouse && m_currentLoadingWarehouseNum != -1)
                 {
-                    
-                    Debug.Log($"did not find nearest warehouse. current warehouse num: {m_currentLoadingWarehouseNum}");
 
                     if (InventorySystem.Instance.GetOwnerOfWarehouse(m_currentLoadingWarehouseNum) == playerNum)
                     {
@@ -727,6 +726,8 @@ public class ClientMenuController : MonoBehaviour
             //update warehouse visuals if nearby
             if (m_otherPlayersTrucksInventoryElements.Keys.Count > 0)
             {
+                m_ownedWarehouseInventoryElement.style.opacity = 1f;
+                        
                 VisualElement inventoryElement =
                     m_ownedWarehouseInventoryElement.Q<VisualElement>("inventory");
 
@@ -736,6 +737,8 @@ public class ClientMenuController : MonoBehaviour
                 inventoryElement.style.borderRightColor = Color.green;
             }
             else if (m_ownedWarehouseNum != m_currentLoadingWarehouseNum) {
+                m_ownedWarehouseInventoryElement.style.opacity = 0.5f;
+                
                 VisualElement inventoryElement =
                     m_ownedWarehouseInventoryElement.Q<VisualElement>("inventory");
                 
@@ -1106,7 +1109,7 @@ public class ClientMenuController : MonoBehaviour
             inventoryCapacityLabel.text = $"{numTotalItems}/{InventorySystem.Instance.m_inventoryCapacityPerPlayer}";
         }
 
-        if (numTotalItems >= InventorySystem.Instance.m_inventoryCapacityPerPlayer)
+        if (isPlayer && numTotalItems >= InventorySystem.Instance.m_inventoryCapacityPerPlayer)
         {
             //gray out inventorySlots
             for (int i = 0; i < numInventorySlots; i++)

@@ -81,6 +81,9 @@ public class MapGenerator : MonoBehaviour
 
     public void GenerateMap(string[] textMap)
     {
+        numNonDestinationWarehouses = 0;
+        warehouses.Clear();
+        gasStations.Clear();
         map = new List<List<GameObject>>(textMap[0].Length);
         roadMap = new List<List<bool>>(textMap[0].Length);
         playerObjects = new List<GameObject>();

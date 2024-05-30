@@ -5,6 +5,7 @@ using System.Linq;
 using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 public class ExperimenterViewController : MonoBehaviour
@@ -85,13 +86,37 @@ public class ExperimenterViewController : MonoBehaviour
         }
 
         ClientConnectionHandler.Instance.m_onClientConnected += OnClientConnected;
+
+        m_root.Q<Label>("ip-label").text = $"IP: {ServerManager.m_ipAddress}";
+        
+        m_root.Q<Label>("port-label").text = $"Port: {ServerManager.m_port}";
         
         m_root.Q<Label>("score-label").text = "0G";
 
+        m_root.Q<Button>("reset-button").clicked += OnResetButtonClicked;
+        
         OrderSystem.Instance.currentScorePerPlayer.OnValueChanged += OnScoreChanged;
 
         OrderSystem.Instance.onOrderChanged += OnOrderValueChanged;
+        OrderSystem.Instance.onOrderComplete += OnOrderComplete;
+        OrderSystem.Instance.onOrderIncomplete += OnOrderIncomplete;
     }
+
+
+    private void OnResetButtonClicked()
+    {
+        foreach (GameObject obj in FindObjectsOfType(typeof(GameObject)))
+        {
+            if (obj.name != this.gameObject.name && obj.name != this.transform.parent.name && obj.name != NetworkManager.Singleton.gameObject.name)
+            {
+                DestroyImmediate(obj);
+            }
+        }
+        NetworkManager.Singleton.Shutdown();
+        DestroyImmediate(NetworkManager.Singleton.gameObject);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
 
     private void OnScoreChanged(NetworkSerializableIntArray prev, NetworkSerializableIntArray current)
     {
@@ -141,6 +166,26 @@ public class ExperimenterViewController : MonoBehaviour
                                   (float)order.orderTimeLimit;
             orderTimer.title = $"{order.orderTimeRemaining}s";
             orderTimer.MarkDirtyRepaint();
+        }
+    }
+
+    private void OnOrderComplete(int orderIndex)
+    {
+        VisualElement orderElement = m_orderElements[orderIndex];
+        
+        if (OrderSystem.Instance.completeOrders.Value.arr[orderIndex] != 0)
+        {
+            orderElement.Q<VisualElement>("checkmark-overlay").style.visibility = Visibility.Visible;
+        }
+    }
+
+    private void OnOrderIncomplete(int orderIndex)
+    {
+        VisualElement orderElement = m_orderElements[orderIndex];
+        
+        if (OrderSystem.Instance.incompleteOrders.Value.arr[orderIndex] != 0)
+        {
+            orderElement.Q <VisualElement>("x-overlay").style.visibility = Visibility.Visible;
         }
     }
 

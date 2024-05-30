@@ -2,9 +2,16 @@
     <Style src="project://database/Assets/UI/ExperimenterView/ExperimenterView.uss?fileID=7433441132597879392&amp;guid=4db16f4e505707543ad7a194ba4d15da&amp;type=3#ExperimenterView" />
     <Style src="project://database/Assets/UI/Shared/InventoryStyleSheet.uss?fileID=7433441132597879392&amp;guid=12734419a02e5734c81a16aba3a1dd5c&amp;type=3#InventoryStyleSheet" />
     <ui:VisualElement name="root" style="flex-grow: 1; flex-direction: row;">
-        <ui:VisualElement name="order-container" class="order-container" style="flex-grow: 1; background-color: rgb(255, 255, 255); border-top-left-radius: 2px; border-top-right-radius: 2px; border-bottom-right-radius: 2px; border-bottom-left-radius: 2px;" />
+        <ui:ScrollView name="order-container" class="order-container" style="flex-grow: 1; background-color: rgb(255, 255, 255); border-top-left-radius: 2px; border-top-right-radius: 2px; border-bottom-right-radius: 2px; border-bottom-left-radius: 2px;" />
         <ui:VisualElement name="main-screen" style="flex-grow: 2; flex-shrink: 2; flex-direction: row; background-image: url(&apos;project://database/Assets/UI/Shared/GameViewRenderTexture.asset?fileID=8600000&amp;guid=24b9b189363a5ef45adf6d482555cb46&amp;type=2#GameViewRenderTexture&apos;);">
-            <ui:VisualElement name="spacer" style="flex-grow: 1;" />
+            <ui:VisualElement name="left-section" style="flex-grow: 1;">
+                <ui:VisualElement name="top-part" style="flex-grow: 1;">
+                    <ui:Label tabindex="-1" text="IP:" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ip-label" style="font-size: 30%; color: rgb(255, 255, 255); background-color: rgba(0, 0, 0, 0.5);" />
+                    <ui:Label tabindex="-1" text="Port:" parse-escape-sequences="true" display-tooltip-when-elided="true" name="port-label" style="font-size: 30%; color: rgb(255, 255, 255); background-color: rgba(0, 0, 0, 0.5);" />
+                </ui:VisualElement>
+                <ui:Button text="Reset" parse-escape-sequences="true" display-tooltip-when-elided="true" name="reset-button" style="font-size: 30%;" />
+                <ui:VisualElement name="spacer" style="flex-grow: 6; flex-shrink: 6;" />
+            </ui:VisualElement>
             <ui:VisualElement name="score-label-root" style="flex-grow: 1;">
                 <ui:VisualElement name="spacer" style="flex-grow: 0.1; flex-shrink: 0.1;" />
                 <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="score-label" style="font-size: 25%; -unity-font-style: bold; color: rgb(0, 0, 0); background-color: rgb(255, 237, 175); border-left-color: rgb(255, 207, 23); border-right-color: rgb(255, 207, 23); border-top-color: rgb(255, 207, 23); border-bottom-color: rgb(255, 207, 23); border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; border-top-left-radius: 5px; border-top-right-radius: 5px; border-bottom-right-radius: 5px; border-bottom-left-radius: 5px; -unity-text-align: middle-center;" />

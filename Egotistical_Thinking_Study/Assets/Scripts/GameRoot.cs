@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Windows.Speech;
@@ -95,5 +96,14 @@ public class GameRoot : MonoBehaviour
         MapDataNetworkBehaviour.Instance.OnGameStart();
 
         CameraNetworkBehaviour.Instance.OnGameStart();
+    }
+
+    public void ResetGame()
+    {
+        var objects = NetworkManager.Singleton.SpawnManager.SpawnedObjects.Values;
+        foreach (NetworkObject obj in objects.ToList())
+        {
+            obj.Despawn();
+        }
     }
 }
