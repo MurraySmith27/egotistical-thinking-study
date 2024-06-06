@@ -1,0 +1,10 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement name="root" style="flex-grow: 1;">
+        <ui:VisualElement name="button-root" style="flex-grow: 0.1; flex-direction: row; align-self: center; align-items: center;">
+            <ui:Label tabindex="-1" text="Connecting..." parse-escape-sequences="true" display-tooltip-when-elided="true" name="loading-label" style="font-size: 100px; flex-shrink: 1; flex-grow: 1;" />
+            <ui:VisualElement name="spacer" style="flex-grow: 3; flex-shrink: 3;" />
+            <ui:Button text="Back" parse-escape-sequences="true" display-tooltip-when-elided="true" name="back-button" style="flex-grow: 2; flex-shrink: 2; font-size: 50px;" />
+        </ui:VisualElement>
+        <ui:VisualElement name="spacer" style="flex-grow: 1;" />
+    </ui:VisualElement>
+</ui:UXML>

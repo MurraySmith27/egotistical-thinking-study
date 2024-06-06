@@ -13,9 +13,12 @@ public class ServerManager : MonoBehaviour
 
     [SerializeField] private MapGenerator mapGenerator;
 
-    public static string m_ipAddress { get; private set; }
+    public static string m_ipAddress;
+    public static int m_port;
+    public static string m_mapFilePath;
+    public static string m_configFilePath;
 
-    public static int m_port { get; private set; }
+    public static bool m_reset = false;
 
     public void StartServer(string address, int port)
     {
@@ -37,8 +40,12 @@ public class ServerManager : MonoBehaviour
         mainMenu.SetActive(false);
         serverControlMenu.SetActive(true);
 
+        
         VisualElement rootServerMenuElement = serverControlMenu.GetComponent<UIDocument>().rootVisualElement;
-        rootServerMenuElement.Q<Label>("ip-text").text = $"IP: {address}";
-        rootServerMenuElement.Q<Label>("port-text").text = $"Port: {port}";
+        if (rootServerMenuElement != null)
+        {
+            rootServerMenuElement.Q<Label>("ip-text").text = $"IP: {address}";
+            rootServerMenuElement.Q<Label>("port-text").text = $"Port: {port}";
+        }
     }
 }

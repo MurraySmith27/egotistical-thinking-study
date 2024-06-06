@@ -156,7 +156,7 @@ public class ClientMenuController : MonoBehaviour
         
         m_ownedWarehouseInventoryElement.Q<Label>("header").text = $"Warehouse";
 
-        m_ownedWarehouseInventoryElement.style.opacity = 0.5f;
+        // m_ownedWarehouseInventoryElement.style.opacity = 0.5f;
         
         m_root.Q<Label>("score-label").text = "0G";
 
@@ -626,7 +626,7 @@ public class ClientMenuController : MonoBehaviour
 
                     if (InventorySystem.Instance.GetOwnerOfWarehouse(m_currentLoadingWarehouseNum) == playerNum)
                     {
-                        m_ownedWarehouseInventoryElement.style.opacity = 0.5f;
+                        // m_ownedWarehouseInventoryElement.style.opacity = 0.5f;
 
                         VisualElement inventoryElement =
                             m_ownedWarehouseInventoryElement.Q<VisualElement>("inventory");
@@ -737,7 +737,7 @@ public class ClientMenuController : MonoBehaviour
                 inventoryElement.style.borderRightColor = Color.green;
             }
             else if (m_ownedWarehouseNum != m_currentLoadingWarehouseNum) {
-                m_ownedWarehouseInventoryElement.style.opacity = 0.5f;
+                // m_ownedWarehouseInventoryElement.style.opacity = 0.5f;
                 
                 VisualElement inventoryElement =
                     m_ownedWarehouseInventoryElement.Q<VisualElement>("inventory");

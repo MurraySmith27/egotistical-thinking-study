@@ -39,6 +39,18 @@ public class ServerControlMenuController : MonoBehaviour
 
         startGameButton.clicked += OnGameStart;
 
+        Debug.Log($"reset? : {ServerManager.m_reset}");
+        
+        if (ServerManager.m_reset)
+        {
+            ServerManager.m_reset = false;
+            
+            SetMapFile(new string[]{ServerManager.m_mapFilePath});
+            SetConfigFile(new string[]{ServerManager.m_configFilePath});
+
+            OnGameStart();
+        }
+
     }
 
     void OnGameStart()
@@ -62,6 +74,8 @@ public class ServerControlMenuController : MonoBehaviour
     void SetMapFile(string[] paths) {
         string path = paths[0];
 
+        ServerManager.m_mapFilePath = path;
+
         //load in text file at that path and set the map.
 
         string[] lines = File.ReadAllLines(path);
@@ -84,6 +98,8 @@ public class ServerControlMenuController : MonoBehaviour
     {
         string path = paths[0];
 
+        ServerManager.m_configFilePath = path;
+        
         StreamReader sr = new StreamReader(path);
 
         string json = sr.ReadToEnd();

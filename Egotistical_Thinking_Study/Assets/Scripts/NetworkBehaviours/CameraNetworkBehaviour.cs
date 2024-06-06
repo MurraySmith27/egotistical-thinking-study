@@ -37,7 +37,13 @@ public class CameraNetworkBehaviour : NetworkBehaviour
         if (!this.IsServer)
         {
             ClientConnectionHandler.Instance.m_onRecieveClientSideSessionInfo += SetCameraRotation;
+
         }
+        SetCameraXPos(0, MapDataNetworkBehaviour.Instance.mapWidth.Value);
+        SetCameraYPos(0, MapDataNetworkBehaviour.Instance.mapHeight.Value);
+        
+        MapDataNetworkBehaviour.Instance.mapWidth.OnValueChanged += SetCameraXPos;
+        MapDataNetworkBehaviour.Instance.mapHeight.OnValueChanged += SetCameraYPos;
     }
 
     private void SetCameraRotation()
@@ -48,6 +54,16 @@ public class CameraNetworkBehaviour : NetworkBehaviour
 
         float yawRotation = rotation * 90f;
         transform.rotation = Quaternion.Euler(0, 0, yawRotation);
+    }
+
+    private void SetCameraXPos(int oldWidth, int width)
+    {
+        transform.position = new Vector3((width / 2f) * MapGenerator.Instance.tileWidth, transform.position.y, transform.position.z);
+    }
+    
+    private void SetCameraYPos(int oldHeight, int height)
+    {
+        transform.position = new Vector3(transform.position.x, -(height / 2f) * MapGenerator.Instance.tileHeight, transform.position.z);
     }
 
     public void OnGameStart()

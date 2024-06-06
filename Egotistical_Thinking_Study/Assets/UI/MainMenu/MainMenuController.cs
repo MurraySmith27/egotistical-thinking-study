@@ -28,8 +28,23 @@ public class MainMenuController : MonoBehaviour
         addressText = root.Q<TextField>("address-field");
         portText = root.Q<TextField>("port-field");
 
+        if (ClientManager.m_ipAddress != null)
+        {
+            addressText.value = ClientManager.m_ipAddress;
+        }
+
+        if (ClientManager.m_port != 0)
+        {
+            portText.value = ClientManager.m_port.ToString();
+        }
+
         invalidConnectionDataLabel = root.Q<Label>("error-label");
 
+        if (ServerManager.m_reset)
+        {
+            OnStartAsServerButtonClicked();
+        }
+        
         startAsServerButton.clicked += OnStartAsServerButtonClicked;
         startAsClientButton.clicked += OnStartAsClientButtonClicked;
     }
@@ -56,9 +71,18 @@ public class MainMenuController : MonoBehaviour
 
     void OnStartAsServerButtonClicked()
     {
-        string address = GetIpAddress();
+        string address = ServerManager.m_ipAddress;
+        if (!ServerManager.m_reset)
+        {
+            address = GetIpAddress();
+        }
 
-        int portNum = GetFreePort();
+        int portNum = ServerManager.m_port;
+        if (!ServerManager.m_reset)
+        {
+            portNum = GetFreePort();
+        }
+        
         IPAddress ip;
         // if (portNum < 1024) {
         //     invalidConnectionDataLabel.text = "Invalid Port!";
@@ -75,6 +99,9 @@ public class MainMenuController : MonoBehaviour
     void OnStartAsClientButtonClicked() {
         string address = addressText.text;
         int portNum = Int32.Parse(portText.text);
+
+        ClientManager.m_port = portNum;
+        ClientManager.m_ipAddress = address;
         
         IPAddress ip;
         if (portNum < 1024) {

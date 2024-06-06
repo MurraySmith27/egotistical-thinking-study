@@ -25,6 +25,10 @@ public class MapDataNetworkBehaviour : NetworkBehaviour
 
     public NetworkVariable<bool> isScoreShared = new NetworkVariable<bool>();
 
+    public NetworkVariable<int> mapWidth = new NetworkVariable<int>();
+    
+    public NetworkVariable<int> mapHeight = new NetworkVariable<int>();
+    
     void Awake()
     {
         if (_instance != null && _instance != this)
@@ -99,6 +103,13 @@ public class MapDataNetworkBehaviour : NetworkBehaviour
         {
             playerNetworkObjectIds.Value.arr[i] = players[i].GetComponent<NetworkObject>().NetworkObjectId;
         }
+    }
+
+    public void RegisterMapDimentions(int width, int height)
+    {
+        Debug.Log($"values: {width}, {height}");
+        mapWidth.Value = width;
+        mapHeight.Value = height;
     }
     
     

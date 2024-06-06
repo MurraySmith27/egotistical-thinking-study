@@ -6,7 +6,7 @@
         <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="map-destination-label" style="flex-shrink: 1; flex-grow: 1;" />
         <ui:VisualElement name="map-destination-image-container" style="flex-grow: 6; flex-direction: row; flex-shrink: 1; min-width: 0; min-height: 0;">
             <ui:VisualElement style="flex-grow: 1;" />
-            <ui:VisualElement name="map-destination-image" style="flex-grow: 1; background-image: none; min-width: 100px; min-height: 100px;" />
+            <ui:VisualElement name="map-destination-image" style="flex-grow: 1; background-image: none; min-width: 100px; min-height: 100px; max-width: 100px; max-height: 100px;" />
             <ui:VisualElement style="flex-grow: 1;" />
         </ui:VisualElement>
         <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="send-to-player-label" style="flex-shrink: 1; flex-grow: 1;" />

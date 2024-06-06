@@ -13,8 +13,12 @@ public class ClientManager : MonoBehaviour
 
     [SerializeField] private GameObject mainMenu;
     [SerializeField] private GameObject clientMenu;
+    [SerializeField] private GameObject clientConnectionIntermediateMenu;
 
     public bool m_testing = true;
+
+    public static string m_ipAddress;
+    public static int m_port;
 
     public void StartClient(string address, int port)
     {
@@ -50,16 +54,19 @@ public class ClientManager : MonoBehaviour
 
         if (!success) {
             Debug.LogError("Could not create client!");
+            OnDisconnected(0);
             return;
         }
 
         mainMenu.SetActive(false);
 
-        NetworkManager.Singleton.OnClientConnectedCallback += obj => { clientMenu.SetActive(true); };
+        clientConnectionIntermediateMenu.SetActive(true);
+
+        NetworkManager.Singleton.OnClientConnectedCallback += obj => { clientMenu.SetActive(true); clientConnectionIntermediateMenu.SetActive(false);};
     
     }
 
-    private void OnDisconnected(ulong clientId)
+    public void OnDisconnected(ulong clientId)
     {
         
         foreach (GameObject obj in FindObjectsOfType(typeof(GameObject)))

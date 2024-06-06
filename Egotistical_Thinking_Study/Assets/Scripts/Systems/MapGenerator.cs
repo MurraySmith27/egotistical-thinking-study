@@ -173,6 +173,8 @@ public class MapGenerator : MonoBehaviour
         
         MapDataNetworkBehaviour.Instance.RegisterWareHouseNetworkObjectIds(warehouses);
         MapDataNetworkBehaviour.Instance.RegisterPlayerNetworkObjectIds(playerObjects);
+
+        MapDataNetworkBehaviour.Instance.RegisterMapDimentions(textMap[0].Length, textMap.Length);
     }
 
     private Dictionary<Vector2Int, List<Vector2Int>> ConstructGraphFromMap()

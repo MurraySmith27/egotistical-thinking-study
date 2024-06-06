@@ -18,6 +18,9 @@ public class ExperimenterViewController : MonoBehaviour
     private VisualElement m_orderContainer;
 
     private List<VisualElement> m_orderElements;
+    
+    private string m_cachedConfigFilePath;
+    private string m_cachedMapFilePath;
 
     private void Start()
     {
@@ -105,6 +108,10 @@ public class ExperimenterViewController : MonoBehaviour
 
     private void OnResetButtonClicked()
     {
+        ServerManager.m_reset = true;
+        Debug.Log("setting reset to true!");
+
+        
         foreach (GameObject obj in FindObjectsOfType(typeof(GameObject)))
         {
             if (obj.name != this.gameObject.name && obj.name != this.transform.parent.name && obj.name != NetworkManager.Singleton.gameObject.name)
@@ -116,8 +123,7 @@ public class ExperimenterViewController : MonoBehaviour
         DestroyImmediate(NetworkManager.Singleton.gameObject);
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
-
-
+    
     private void OnScoreChanged(NetworkSerializableIntArray prev, NetworkSerializableIntArray current)
     {
         m_root.Q<Label>("score-label").text = $"Total Score: {current.arr.Sum()}G";

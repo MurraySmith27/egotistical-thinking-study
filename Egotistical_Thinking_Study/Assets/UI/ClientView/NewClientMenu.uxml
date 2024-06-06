@@ -9,7 +9,7 @@
         </ui:VisualElement>
         <ui:VisualElement name="menu" style="flex-grow: 1; background-color: rgb(255, 255, 255);">
             <ui:ScrollView name="order-root" mode="Horizontal" style="flex-shrink: 2; flex-grow: 2; max-height: 40%; flex-direction: row;" />
-            <ui:VisualElement name="warehouse-root" style="flex-grow: 0.25; flex-shrink: 0.25; position: relative; max-height: 15%;">
+            <ui:VisualElement name="warehouse-root" style="flex-grow: 1; flex-shrink: 1; position: relative; max-height: 25%;">
                 <ui:Instance template="InventoryElement" name="warehouse-inventory" style="flex-grow: 1;" />
             </ui:VisualElement>
             <ui:VisualElement name="truck-root" style="flex-grow: 1;">
