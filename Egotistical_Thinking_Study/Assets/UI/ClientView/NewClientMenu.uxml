@@ -13,16 +13,16 @@
                 <ui:Instance template="InventoryElement" name="warehouse-inventory" style="flex-grow: 1;" />
             </ui:VisualElement>
             <ui:VisualElement name="truck-root" style="flex-grow: 1;">
-                <ui:VisualElement name="score-label-root" style="flex-grow: 0.5; flex-direction: row; flex-shrink: 0.5;">
+                <ui:VisualElement name="score-label-root" style="flex-grow: 0.25; flex-direction: row; flex-shrink: 0.25;">
                     <ui:VisualElement name="spacer" style="flex-grow: 1;" />
-                    <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="score-label" style="flex-shrink: 2; flex-grow: 2; align-self: center; -unity-text-align: middle-center; -unity-font-style: bold; font-size: 50%; background-color: rgba(255, 227, 76, 0.65); border-left-color: rgb(149, 134, 0); border-right-color: rgb(149, 134, 0); border-top-color: rgb(149, 134, 0); border-bottom-color: rgb(149, 134, 0); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-top-left-radius: 2px; border-top-right-radius: 2px; border-bottom-right-radius: 2px; border-bottom-left-radius: 2px;" />
+                    <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="score-label" style="flex-shrink: 2; flex-grow: 2; align-self: center; -unity-text-align: middle-center; -unity-font-style: bold; font-size: 30%; background-color: rgba(255, 227, 76, 0.65); border-left-color: rgb(149, 134, 0); border-right-color: rgb(149, 134, 0); border-top-color: rgb(149, 134, 0); border-bottom-color: rgb(149, 134, 0); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-top-left-radius: 2px; border-top-right-radius: 2px; border-bottom-right-radius: 2px; border-bottom-left-radius: 2px;" />
                 </ui:VisualElement>
                 <ui:VisualElement name="truck-gas-bar-root" style="flex-grow: 0.5; flex-direction: row; flex-shrink: 0.5;">
                     <ui:VisualElement name="truck-gas-icon" style="flex-grow: 1; background-image: url(&apos;project://database/Assets/Art/Icons/gas.png?fileID=2800000&amp;guid=9b12844e557c478498bd9dc167b715a9&amp;type=3#gas&apos;); align-self: stretch; position: absolute; width: 25%; height: 100%;" />
                     <ui:ProgressBar value="100" name="truck-gas-bar" style="flex-shrink: 2; flex-grow: 2; align-self: center; position: absolute; width: 75%; height: 100%; left: 25%;" />
                     <ui:Button text="Refill (5G)" parse-escape-sequences="true" display-tooltip-when-elided="true" name="gas-refill-button" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; width: 25%; height: 100%; display: flex; visibility: hidden;" />
                 </ui:VisualElement>
-                <ui:VisualElement name="truck-inventory-root" style="flex-grow: 1;">
+                <ui:VisualElement name="truck-inventory-root" style="flex-grow: 1; min-width: 25%; min-height: 25%;">
                     <ui:Instance template="PlayerInventoryElement" name="owned-truck-inventory-root" style="flex-grow: 1;" />
                 </ui:VisualElement>
                 <ui:VisualElement name="other-players-inventory-root" style="flex-grow: 1;" />
