@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using Unity.Netcode;
@@ -45,6 +46,8 @@ public class InventorySystem : NetworkBehaviour
     public List<ItemDetails> m_items;
 
     public NetworkVariable<NetworkSerializableIntArray> m_warehousePlayerOwners;
+
+    private const string ITEM_IMAGES_DIRECTORY_PATH = "ItemImages";
     
     private void Awake()
     {
@@ -54,10 +57,74 @@ public class InventorySystem : NetworkBehaviour
         }
         else
         {
+            if (!Application.isEditor)
+            {
+                LoadItemImagesFromDisk();
+            }
             _instance = this;
         }
         
         m_warehousePlayerOwners = new NetworkVariable<NetworkSerializableIntArray>();
+    }
+
+    private void LoadItemImagesFromDisk()
+    {
+        string path = Application.dataPath;
+        
+        if (Application.platform == RuntimePlatform.OSXPlayer) {
+            path += "/../../";
+        }
+        else if (Application.platform == RuntimePlatform.WindowsPlayer) {
+            path += "/../";
+        }
+
+        string[] filenames = Directory.GetFiles(path + ITEM_IMAGES_DIRECTORY_PATH);
+
+        Array.Sort(filenames);
+
+        List<Sprite> itemSprites = new List<Sprite>();
+
+        foreach (string file in filenames)
+        {
+            Sprite itemSprite;
+            if (LoadImageAsSprite(file, out itemSprite))
+            {
+                itemSprites.Add(itemSprite);
+            }
+        }
+
+        for (int i = 0; i < itemSprites.Count; i++)
+        {
+            m_items[i].Icon = itemSprites[i];
+        }
+
+        m_items = m_items.Take(itemSprites.Count).ToList();
+    }
+
+    private bool LoadImageAsSprite(string filePath, out Sprite sprite)
+    {
+        sprite = null;
+        
+        if (File.Exists(filePath))
+        {
+            byte[] bytes = File.ReadAllBytes(filePath);
+
+            Texture2D tex = new Texture2D(2, 2);
+
+            if (tex.LoadImage(bytes))
+            {
+                sprite = Sprite.Create(tex, new Rect(0f, 0f, tex.width, tex.height), new Vector2(0.5f, 0.5f), 100f);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            return false;
+        }
     }
 
     public override void OnNetworkSpawn()

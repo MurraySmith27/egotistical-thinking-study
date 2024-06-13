@@ -28,6 +28,10 @@ public class ClientMenuController : MonoBehaviour
     
     [SerializeField] private AudioSource m_incorrectSFX;
 
+    [SerializeField] private AudioSource m_lowGasSFX;
+    
+    [SerializeField] private AudioSource m_outOfGasSFX;
+
     [SerializeField] private Gradient m_gasFillColorGradient;
     
     private VisualElement m_playerInventoryRoot;
@@ -250,14 +254,12 @@ public class ClientMenuController : MonoBehaviour
     
     private void OnPlayerEnterGasStationRadius(int playerNum)
     {
-        Debug.Log("etnering gas station radius");
         m_nearGasStation = true;
         m_gasRefillButton.style.visibility = Visibility.Visible;
     }
 
     private void OnPlayerExitGasStationRadius(int playerNum)
     {
-        Debug.Log("exiting gas station radius");
         m_nearGasStation = false;
         m_gasRefillButton.style.visibility = Visibility.Hidden;
     }
@@ -312,7 +314,9 @@ public class ClientMenuController : MonoBehaviour
                 //need to check if item is in an active order for this destination, if not administer a penalty.
                 for (int i = 0; i < OrderSystem.Instance.activeOrders.Value.arr.Length; i++)
                 {
-                    if (OrderSystem.Instance.activeOrders.Value.arr[i] != 0)
+                    if (OrderSystem.Instance.activeOrders.Value.arr[i] != 0 && 
+                        OrderSystem.Instance.completeOrders.Value.arr[i] == 0 && 
+                        OrderSystem.Instance.incompleteOrders.Value.arr[i] == 0)
                     {
                         Dictionary<string, int> requiredItems =
                             OrderSystem.Instance.orders.Value.orders[i].requiredItems;
@@ -377,7 +381,6 @@ public class ClientMenuController : MonoBehaviour
             //check if we can start drag from other truck's inventory
             foreach (int key in m_otherPlayersTrucksInventorySlots.Keys)
             {
-
                 VisualElement otherPlayerInventoryElement = m_otherPlayersTrucksInventoryElements[key];
                 if (originalInventorySlot.worldBound.Overlaps(otherPlayerInventoryElement.worldBound))
                 {
@@ -413,7 +416,6 @@ public class ClientMenuController : MonoBehaviour
             return;
         }
         
-        Debug.Log("on pointer move!");
         m_ghostIcon.style.top = evt.position.y - m_ghostIcon.layout.height / 2f;
         m_ghostIcon.style.left = evt.position.x - m_ghostIcon.layout.width / 2f;
     }
@@ -916,13 +918,22 @@ public class ClientMenuController : MonoBehaviour
             int playerNum = ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum;
             score = current.arr[playerNum];
         }
-        Debug.Log($"on score changed. new score for this player: {score}");
         
         m_root.Q<Label>("score-label").text = $"{score}G";
     }
     
     void OnGasValueChanged(int previous, int current)
     {
+        
+        if (current == 0)
+        {
+            m_outOfGasSFX.Play();
+        }
+        else if (current != -1 && current / (float)MapDataNetworkBehaviour.Instance.maxGasPerPlayer.Value < 0.4f)
+        {
+            m_lowGasSFX.Play();
+        }
+        
         ProgressBar gasBar = m_root.Q<ProgressBar>("truck-gas-bar");
         int maxGas = MapDataNetworkBehaviour.Instance.maxGasPerPlayer.Value;
         gasBar.value = (100f * current) / maxGas;

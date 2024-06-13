@@ -145,6 +145,7 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
     
     public void RefillGas()
     {
+        Debug.Log("REFILL GAS!");
         m_fillUpGasSFX.Play();
         if (this.IsServer)
         {

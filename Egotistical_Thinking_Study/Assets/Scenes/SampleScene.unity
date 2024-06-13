@@ -1057,6 +1057,8 @@ GameObject:
   - component: {fileID: 1448438010}
   - component: {fileID: 1448438012}
   - component: {fileID: 1448438011}
+  - component: {fileID: 1448438014}
+  - component: {fileID: 1448438013}
   m_Layer: 0
   m_Name: ClientMenu (1)
   m_TagString: Untagged
@@ -1112,6 +1114,8 @@ MonoBehaviour:
   m_playerInventoryElementAsset: {fileID: 9197481963319205126, guid: ce8c8203dad104a4fb1d0f831fff2a49, type: 3}
   m_correctSFX: {fileID: 1448438012}
   m_incorrectSFX: {fileID: 1448438011}
+  m_lowGasSFX: {fileID: 1448438014}
+  m_outOfGasSFX: {fileID: 1448438013}
   m_gasFillColorGradient:
     serializedVersion: 2
     key0: {r: 1, g: 0.121568635, b: 0.03137255, a: 1}
@@ -1334,6 +1338,198 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!82 &1448438013
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1448438006}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 8300000, guid: c06c44b98c4010349bd05b9d358c2643, type: 3}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!82 &1448438014
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1448438006}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 8300000, guid: 70368a609c49c9e44a95b0a4e40cb2b4, type: 3}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &1635170510
 GameObject:
   m_ObjectHideFlags: 0
@@ -1423,6 +1619,174 @@ MonoBehaviour:
   - Name: Item9
     GUID: 7fc9f6a6-8af3-4971-8bbc-8091a7845a90
     Icon: {fileID: 21300000, guid: 2bafb33ab7cb87043bf9e4cbbcb9ca84, type: 3}
+    CanDrop: 0
+  - Name: Item10
+    GUID: 17c103a3-8b1f-4b44-bba3-47a87af63f8b
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item10
+    GUID: 17c103a3-8b1f-4b44-bba3-47a87af63f8b
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item10
+    GUID: 17c103a3-8b1f-4b44-bba3-47a87af63f8b
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item10
+    GUID: 17c103a3-8b1f-4b44-bba3-47a87af63f8b
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item10
+    GUID: 17c103a3-8b1f-4b44-bba3-47a87af63f8b
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item10
+    GUID: 17c103a3-8b1f-4b44-bba3-47a87af63f8b
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item10
+    GUID: 17c103a3-8b1f-4b44-bba3-47a87af63f8b
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item10
+    GUID: 17c103a3-8b1f-4b44-bba3-47a87af63f8b
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item10
+    GUID: 17c103a3-8b1f-4b44-bba3-47a87af63f8b
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item10
+    GUID: 17c103a3-8b1f-4b44-bba3-47a87af63f8b
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item10
+    GUID: 17c103a3-8b1f-4b44-bba3-47a87af63f8b
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item10
+    GUID: 17c103a3-8b1f-4b44-bba3-47a87af63f8b
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item10
+    GUID: 17c103a3-8b1f-4b44-bba3-47a87af63f8b
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item10
+    GUID: 17c103a3-8b1f-4b44-bba3-47a87af63f8b
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item10
+    GUID: 17c103a3-8b1f-4b44-bba3-47a87af63f8b
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item10
+    GUID: 17c103a3-8b1f-4b44-bba3-47a87af63f8b
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item10
+    GUID: 17c103a3-8b1f-4b44-bba3-47a87af63f8b
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item10
+    GUID: 17c103a3-8b1f-4b44-bba3-47a87af63f8b
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item10
+    GUID: 17c103a3-8b1f-4b44-bba3-47a87af63f8b
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item10
+    GUID: 17c103a3-8b1f-4b44-bba3-47a87af63f8b
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item10
+    GUID: 17c103a3-8b1f-4b44-bba3-47a87af63f8b
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item10
+    GUID: 17c103a3-8b1f-4b44-bba3-47a87af63f8b
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item10
+    GUID: 17c103a3-8b1f-4b44-bba3-47a87af63f8b
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item10
+    GUID: 17c103a3-8b1f-4b44-bba3-47a87af63f8b
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item10
+    GUID: 17c103a3-8b1f-4b44-bba3-47a87af63f8b
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item10
+    GUID: 17c103a3-8b1f-4b44-bba3-47a87af63f8b
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item10
+    GUID: 17c103a3-8b1f-4b44-bba3-47a87af63f8b
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item10
+    GUID: 17c103a3-8b1f-4b44-bba3-47a87af63f8b
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item10
+    GUID: 17c103a3-8b1f-4b44-bba3-47a87af63f8b
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item10
+    GUID: 17c103a3-8b1f-4b44-bba3-47a87af63f8b
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item10
+    GUID: 17c103a3-8b1f-4b44-bba3-47a87af63f8b
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item10
+    GUID: 17c103a3-8b1f-4b44-bba3-47a87af63f8b
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item10
+    GUID: 17c103a3-8b1f-4b44-bba3-47a87af63f8b
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item10
+    GUID: 17c103a3-8b1f-4b44-bba3-47a87af63f8b
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item10
+    GUID: 17c103a3-8b1f-4b44-bba3-47a87af63f8b
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item10
+    GUID: 17c103a3-8b1f-4b44-bba3-47a87af63f8b
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item10
+    GUID: 17c103a3-8b1f-4b44-bba3-47a87af63f8b
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item10
+    GUID: 17c103a3-8b1f-4b44-bba3-47a87af63f8b
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item10
+    GUID: 17c103a3-8b1f-4b44-bba3-47a87af63f8b
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item10
+    GUID: 17c103a3-8b1f-4b44-bba3-47a87af63f8b
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item10
+    GUID: 17c103a3-8b1f-4b44-bba3-47a87af63f8b
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item10
+    GUID: 17c103a3-8b1f-4b44-bba3-47a87af63f8b
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
     CanDrop: 0
   - Name: Item10
     GUID: 17c103a3-8b1f-4b44-bba3-47a87af63f8b
@@ -1573,6 +1937,8 @@ MonoBehaviour:
   m_playerInventoryElementAsset: {fileID: 0}
   m_correctSFX: {fileID: 0}
   m_incorrectSFX: {fileID: 0}
+  m_lowGasSFX: {fileID: 0}
+  m_outOfGasSFX: {fileID: 0}
   m_gasFillColorGradient:
     serializedVersion: 2
     key0: {r: 1, g: 1, b: 1, a: 1}
