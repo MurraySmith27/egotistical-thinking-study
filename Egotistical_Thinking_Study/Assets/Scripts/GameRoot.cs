@@ -25,7 +25,8 @@ public struct Warehouse
 
 public class ConfigData
 {
-    public Warehouse[] Warehouses { get; set; }
+    public Warehouse[] Warehouses;
+    public Warehouse[] Destinations;
     public Order[] Orders;
     public int MaxGasPerPlayer;
     public int[] CameraRotationPerPlayer;

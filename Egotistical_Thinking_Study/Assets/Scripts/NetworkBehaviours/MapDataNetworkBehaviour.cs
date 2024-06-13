@@ -18,7 +18,7 @@ public class MapDataNetworkBehaviour : NetworkBehaviour
     }
 
     public NetworkVariable<NetworkSerializableUlongArray> warehouseNetworkObjectIds { get; private set; }
-    
+    public NetworkVariable<NetworkSerializableUlongArray> destinationNetworkObjectIds { get; private set; }
     public NetworkVariable<NetworkSerializableUlongArray> playerNetworkObjectIds { get; private set; }
 
     public NetworkVariable<int> maxGasPerPlayer = new NetworkVariable<int>();
@@ -41,6 +41,7 @@ public class MapDataNetworkBehaviour : NetworkBehaviour
         }
 
         warehouseNetworkObjectIds = new NetworkVariable<NetworkSerializableUlongArray>();
+        destinationNetworkObjectIds = new NetworkVariable<NetworkSerializableUlongArray>();
         playerNetworkObjectIds = new NetworkVariable<NetworkSerializableUlongArray>();
     }
 
@@ -53,6 +54,11 @@ public class MapDataNetworkBehaviour : NetworkBehaviour
     public ulong GetNetworkIdOfWarehouse(int warehouseNum)
     {
         return warehouseNetworkObjectIds.Value.arr[warehouseNum];
+    }
+
+    public ulong GetNetworkIdOfDestination(int destinationNum)
+    {
+        return destinationNetworkObjectIds.Value.arr[destinationNum];
     }
 
     public ulong GetNetworkIdOfPlayer(int playerNum)
@@ -76,6 +82,9 @@ public class MapDataNetworkBehaviour : NetworkBehaviour
         {
             warehouseNetworkObjectIds.Value = new NetworkSerializableUlongArray();
             warehouseNetworkObjectIds.Value.arr = new ulong[0];
+
+            destinationNetworkObjectIds.Value = new NetworkSerializableUlongArray();
+            destinationNetworkObjectIds.Value.arr = new ulong[0];
             
             playerNetworkObjectIds.Value = new NetworkSerializableUlongArray();
             playerNetworkObjectIds.Value.arr = new ulong[0];
@@ -95,6 +104,16 @@ public class MapDataNetworkBehaviour : NetworkBehaviour
         }
     }
 
+    public void RegisterDestinationNetworkObjectIds(List<GameObject> destinations)
+    {
+        destinationNetworkObjectIds.Value.arr = new ulong[destinations.Count];
+
+        for (int i = 0; i < destinations.Count; i++)
+        {
+            destinationNetworkObjectIds.Value.arr[i] = destinations[i].GetComponent<NetworkObject>().NetworkObjectId;
+        }
+    }
+
     public void RegisterPlayerNetworkObjectIds(List<GameObject> players)
     {
         playerNetworkObjectIds.Value.arr = new ulong[players.Count];
@@ -107,7 +126,6 @@ public class MapDataNetworkBehaviour : NetworkBehaviour
 
     public void RegisterMapDimentions(int width, int height)
     {
-        Debug.Log($"values: {width}, {height}");
         mapWidth.Value = width;
         mapHeight.Value = height;
     }

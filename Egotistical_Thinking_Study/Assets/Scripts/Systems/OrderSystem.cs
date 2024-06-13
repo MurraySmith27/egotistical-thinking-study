@@ -75,11 +75,11 @@ public class OrderSystem : NetworkBehaviour
         InventorySystem.Instance.onInventoryChanged += OnInventoryChanged;
     }
 
-    private void OnInventoryChanged(int inventoryNum, bool isPlayer, InventoryChangeType changeType)
+    private void OnInventoryChanged(int inventoryNum, InventoryType inventoryType, InventoryChangeType changeType)
     {
-        if (!isPlayer)
+        if (inventoryType == InventoryType.Destination || inventoryType == InventoryType.Warehouse)
         {
-            List<(int, int)> inventory = InventorySystem.Instance.GetInventory(inventoryNum, isPlayer);
+            List<(int, int)> inventory = InventorySystem.Instance.GetInventory(inventoryNum, inventoryType);
             for (int i = 0; i < activeOrders.Value.arr.Length; i++)
             {
                 if (activeOrders.Value.arr[i] == 1)

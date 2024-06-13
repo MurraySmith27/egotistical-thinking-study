@@ -70,6 +70,8 @@ public class ClientMenuController : MonoBehaviour
     
     private int m_currentLoadingWarehouseNum = -1;
 
+    private InventoryType m_currentLoadingWarehouseType;
+
     private VisualElement m_orderRoot;
     
     private Button m_gasRefillButton;
@@ -308,7 +310,7 @@ public class ClientMenuController : MonoBehaviour
                 }
 
                 List<(int, int)> destinationInventory =
-                    InventorySystem.Instance.GetInventory(m_currentLoadingWarehouseNum, false);
+                    InventorySystem.Instance.GetInventory(m_currentLoadingWarehouseNum, m_currentLoadingWarehouseType);
 
                 bool foundItemInActiveOrder = false;
                 //need to check if item is in an active order for this destination, if not administer a penalty.
@@ -343,8 +345,8 @@ public class ClientMenuController : MonoBehaviour
                 {
                     m_correctSFX.Play();
                     InventorySystem.Instance.TransferItem(
-                        ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum, true,
-                        m_currentLoadingWarehouseNum, false, details.GUID, 1);
+                        ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum, InventoryType.Player,
+                        m_currentLoadingWarehouseNum, m_currentLoadingWarehouseType, details.GUID, 1);
                 }
                 else
                 {
@@ -448,7 +450,17 @@ public class ClientMenuController : MonoBehaviour
         int inventoryNum = m_draggingFromInventoryNum;
         //}
 
-        List<(int, int)> originInventory = InventorySystem.Instance.GetInventory(inventoryNum, m_draggingFromPlayerInventory);
+        InventoryType originInventoryType;
+        if (m_draggingFromPlayerInventory)
+        {
+            originInventoryType = InventoryType.Player;
+        }
+        else
+        {
+            originInventoryType = InventoryType.Warehouse;
+        }
+
+        List<(int, int)> originInventory = InventorySystem.Instance.GetInventory(inventoryNum, originInventoryType);
 
         for (int i = 0; i < originInventory.Count; i++)
         {
@@ -494,12 +506,12 @@ public class ClientMenuController : MonoBehaviour
 
             destinationInventoryNum = ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum;
             //need to this is valid by checking player inventory capacity
-            int inventoryCount = InventorySystem.Instance.GetNumItemsInInventory(destinationInventoryNum, true);
+            int inventoryCount = InventorySystem.Instance.GetNumItemsInInventory(destinationInventoryNum, InventoryType.Player);
 
             if (inventoryCount < InventorySystem.Instance.m_inventoryCapacityPerPlayer)
             {
                 //need to update inventory
-                InventorySystem.Instance.TransferItem(m_draggingFromInventoryNum, m_draggingFromPlayerInventory, destinationInventoryNum, true, details.GUID, 1);
+                InventorySystem.Instance.TransferItem(m_draggingFromInventoryNum, originInventoryType, destinationInventoryNum, InventoryType.Player, details.GUID, 1);
             }
         }
         else if (warehouseInventorySlots.Count != 0)
@@ -513,7 +525,7 @@ public class ClientMenuController : MonoBehaviour
                     (int, InventorySlot) closestSlot = warehouseInventorySlots.OrderBy(x =>
                         Vector2.Distance(x.Item2.worldBound.position, m_ghostIcon.worldBound.position)).First();
 
-                    InventorySystem.Instance.TransferItem(m_draggingFromInventoryNum, m_draggingFromPlayerInventory, destinationInventoryNum, false, details.GUID, 1);
+                    InventorySystem.Instance.TransferItem(m_draggingFromInventoryNum, originInventoryType, destinationInventoryNum, InventoryType.Warehouse, details.GUID, 1);
                 }
             }
         }
@@ -539,12 +551,12 @@ public class ClientMenuController : MonoBehaviour
                         Vector2.Distance(x.Item2.worldBound.position, m_ghostIcon.worldBound.position)).First();
 
                     destinationInventoryNum = key;
-                    int inventoryCount = InventorySystem.Instance.GetNumItemsInInventory(destinationInventoryNum, true);
+                    int inventoryCount = InventorySystem.Instance.GetNumItemsInInventory(destinationInventoryNum, InventoryType.Player);
 
                     if (inventoryCount < InventorySystem.Instance.m_inventoryCapacityPerPlayer)
                     {
                         //need to update inventory
-                        InventorySystem.Instance.TransferItem(m_draggingFromInventoryNum, m_draggingFromPlayerInventory, destinationInventoryNum, true, details.GUID, 1);
+                        InventorySystem.Instance.TransferItem(m_draggingFromInventoryNum, originInventoryType, destinationInventoryNum, InventoryType.Player, details.GUID, 1);
                     }
                 }
             }
@@ -587,6 +599,23 @@ public class ClientMenuController : MonoBehaviour
                             }
                         }
                     }
+                    
+                    ulong destinationNetworkId = MapDataNetworkBehaviour.Instance.GetNetworkIdOfDestination(warehouseNum);
+                    foreach (NetworkObject networkObject in FindObjectsOfType<NetworkObject>())
+                    {
+                        if (networkObject.NetworkObjectId == destinationNetworkId)
+                        {
+                            float playerToDestinationDistance =
+                                (m_thisPlayerGameObject.transform.position - networkObject.transform.position).magnitude;
+                            if (playerToDestinationDistance < m_loadingDistanceFromWarehouse && playerToDestinationDistance < minWarehouseDistance)
+                            {
+                                foundNearestWarehouse = true;
+                                nearestWarehouseNum = warehouseNum;
+                                nearestWarehouseNetworkObject = networkObject;
+                                minWarehouseDistance = playerToDestinationDistance;
+                            }
+                        }
+                    }
                 }
                 
                 int playerNum = ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum;
@@ -600,6 +629,7 @@ public class ClientMenuController : MonoBehaviour
                     Debug.Log($"found nearest warehouse! belongs to this player: {belongsToThisPlayer}");
                     if (belongsToThisPlayer)
                     {
+                        m_currentLoadingWarehouseType = InventoryType.Warehouse;
                         m_currentLoadingWarehouseNum = m_ownedWarehouseNum;
                         m_ownedWarehouseInventoryElement.style.opacity = 1f;
                         
@@ -617,7 +647,8 @@ public class ClientMenuController : MonoBehaviour
                     {
                         m_currentLoadingWarehouse = nearestWarehouseNetworkObject.gameObject;
                         m_currentLoadingWarehouseNum = nearestWarehouseNum;
-                        
+                        m_currentLoadingWarehouseType = InventoryType.Destination;
+
                     }
                     
                     UpdateOrdersList(OrderSystem.Instance.activeOrders.Value, OrderSystem.Instance.completeOrders.Value, OrderSystem.Instance.incompleteOrders.Value, OrderSystem.Instance.acceptedOrders.Value);
@@ -827,7 +858,7 @@ public class ClientMenuController : MonoBehaviour
                     orderElement.Q<VisualElement>("map-destination-image").style.backgroundImage = destinationSprite.texture;
 
                     List<(int, int)> destinationInventory =
-                        InventorySystem.Instance.GetInventory(order.destinationWarehouse, false);
+                        InventorySystem.Instance.GetInventory(order.destinationWarehouse, InventoryType.Destination);
                     
                     VisualElement itemsContainer = orderElement.Q<VisualElement>("order-items-container");
                     foreach (string key in order.requiredItems.Keys)
@@ -949,8 +980,8 @@ public class ClientMenuController : MonoBehaviour
     {
         if (m_currentLoadingWarehouseNum == OrderSystem.Instance.orders.Value.orders[orderIndex].destinationWarehouse)
         {
-            List<(int, int)> playerInventory = InventorySystem.Instance.GetInventory(ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum, true);
-            List<(int, int)> warehouseInventory = InventorySystem.Instance.GetInventory(m_currentLoadingWarehouseNum, false);
+            List<(int, int)> playerInventory = InventorySystem.Instance.GetInventory(ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum, InventoryType.Player);
+            List<(int, int)> warehouseInventory = InventorySystem.Instance.GetInventory(m_currentLoadingWarehouseNum, m_currentLoadingWarehouseType);
             foreach (string key in OrderSystem.Instance.orders.Value.orders[orderIndex].requiredItems.Keys)
             {
                 int itemNum = Int32.Parse(key);
@@ -988,7 +1019,7 @@ public class ClientMenuController : MonoBehaviour
                 {
                     int quantityToMove = Math.Min(itemQuantity, numLeftRequired);
                     
-                    InventorySystem.Instance.TransferItem(ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum, true, m_currentLoadingWarehouseNum, false, itemGuid, quantityToMove);
+                    InventorySystem.Instance.TransferItem(ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum, InventoryType.Player, m_currentLoadingWarehouseNum, m_currentLoadingWarehouseType, itemGuid, quantityToMove);
 
                 }
             }
@@ -997,24 +1028,19 @@ public class ClientMenuController : MonoBehaviour
 
     void UpdatePlayerInventory()
     {
-        UpdateInventory(true, false);
-    }
-
-    void UpdateWarehouseInventory()
-    {
-        UpdateInventory(false, false);
+        UpdateInventory(InventoryType.Player, false);
     }
 
     void UpdateOwnedWarehouseInventory()
     {
-        UpdateInventory(false, true);
+        UpdateInventory(InventoryType.Warehouse, true);
     }
 
-    void UpdateInventory(bool isPlayer, bool ownedWarehouse)
+    void UpdateInventory(InventoryType inventoryType, bool ownedWarehouse)
     {
         int inventoryNum = ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum;
 
-        if (!isPlayer)
+        if (inventoryType != InventoryType.Player)
         {
             if (ownedWarehouse)
             {
@@ -1028,7 +1054,7 @@ public class ClientMenuController : MonoBehaviour
         
         VisualElement inventoryContainer = m_playerInventoryElement.Q<VisualElement>("slot-container");
         Label inventoryTitle = m_playerInventoryElement.Q<Label>("inventory-title");
-        if (!isPlayer)
+        if (inventoryType != InventoryType.Player)
         {
             if (ownedWarehouse)
             {
@@ -1041,7 +1067,7 @@ public class ClientMenuController : MonoBehaviour
         
 
         List<InventorySlot> inventoryItems = m_playerInventoryItems;
-        if (!isPlayer)
+        if (inventoryType != InventoryType.Player)
         {
             inventoryItems = m_warehouseInventoryItems;
         }
@@ -1066,11 +1092,11 @@ public class ClientMenuController : MonoBehaviour
         inventoryContainer.style.borderRightWidth = inventoryBorderWidth;
         
         //populate inventory
-        PopulateInventory(isPlayer, inventoryNum, inventoryItems, inventoryContainer, inventoryTitle, Color.white);
+        PopulateInventory(inventoryType, inventoryNum, inventoryItems, inventoryContainer, inventoryTitle, Color.white);
 
         m_otherPlayersInventoryRoot.Clear();
         
-        if (isPlayer)
+        if (inventoryType == InventoryType.Player)
         {
             foreach (int playerNum in m_otherPlayersTrucksInventoryElements.Keys)
             {
@@ -1078,23 +1104,23 @@ public class ClientMenuController : MonoBehaviour
                 
                 m_otherPlayersInventoryRoot.Add(otherPlayerInventoryElement);
                 
-                PopulateInventory(true, playerNum, m_otherPlayersTrucksInventorySlots[playerNum], otherPlayerInventoryElement.Q<VisualElement>("slot-container"), 
+                PopulateInventory(InventoryType.Player, playerNum, m_otherPlayersTrucksInventorySlots[playerNum], otherPlayerInventoryElement.Q<VisualElement>("slot-container"), 
                     otherPlayerInventoryElement.Q<Label>("inventory-title"), Color.white);
             }
         }
         
     }
 
-    private void PopulateInventory(bool isPlayer, int inventoryNum, List<InventorySlot> inventoryItems,
+    private void PopulateInventory(InventoryType inventoryType, int inventoryNum, List<InventorySlot> inventoryItems,
         VisualElement inventoryContainer, Label inventoryCapacityLabel, Color itemTintColor)
     {
         inventoryContainer.Clear();
         inventoryItems.Clear();
 
-        List<(int, int)> inventory = InventorySystem.Instance.GetInventory(inventoryNum, isPlayer);
+        List<(int, int)> inventory = InventorySystem.Instance.GetInventory(inventoryNum, inventoryType);
 
         int numInventorySlots = InventorySystem.Instance.m_numInventorySlotsPerPlayer;
-        if (!isPlayer)
+        if (inventoryType != InventoryType.Player)
         {
             numInventorySlots = InventorySystem.Instance.m_numInventorySlotsPerWarehouse;
         }
@@ -1120,7 +1146,7 @@ public class ClientMenuController : MonoBehaviour
             inventoryCapacityLabel.text = $"{numTotalItems}/{InventorySystem.Instance.m_inventoryCapacityPerPlayer}";
         }
 
-        if (isPlayer && numTotalItems >= InventorySystem.Instance.m_inventoryCapacityPerPlayer)
+        if (inventoryType == InventoryType.Player && numTotalItems >= InventorySystem.Instance.m_inventoryCapacityPerPlayer)
         {
             //gray out inventorySlots
             for (int i = 0; i < numInventorySlots; i++)

@@ -52,9 +52,17 @@ public class MapGenerator : MonoBehaviour
         }
     }
 
-    private int numNonDestinationWarehouses = 0;
+    public int numDestinations
+    {
+        get
+        {
+            return destinations.Count;
+        }
+    }
 
     public List<GameObject> warehouses;
+
+    public List<GameObject> destinations;
 
     public List<GameObject> gasStations;
     
@@ -81,8 +89,8 @@ public class MapGenerator : MonoBehaviour
 
     public void GenerateMap(string[] textMap)
     {
-        numNonDestinationWarehouses = 0;
         warehouses.Clear();
+        destinations.Clear();
         gasStations.Clear();
         map = new List<List<GameObject>>(textMap[0].Length);
         roadMap = new List<List<bool>>(textMap[0].Length);
@@ -100,11 +108,11 @@ public class MapGenerator : MonoBehaviour
                     GameObject prefab = nameToPrefabMap[textMap[row][col]];
                     if (warehouseLetters.Contains(textMap[row][col]))
                     {
-                        prefab = warehousePrefabs[numNonDestinationWarehouses++];
+                        prefab = warehousePrefabs[warehouses.Count];
                     }
                     else if (destinationLetters.Contains(textMap[row][col]))
                     {
-                        prefab = destinationPrefabs[numWarehouses - numNonDestinationWarehouses];
+                        prefab = destinationPrefabs[destinations.Count];
                     }
                     
                     GameObject go = Instantiate(prefab, new Vector3(col * tileWidth, -row * tileHeight, 0), Quaternion.identity);
@@ -118,7 +126,7 @@ public class MapGenerator : MonoBehaviour
                     }
                     else if (destinationLetters.Contains(textMap[row][col]))
                     {
-                        warehouses.Add(go);
+                        destinations.Add(go);
                     }
                     else if (gasStationLetters.Contains(textMap[row][col]))
                     {
@@ -172,6 +180,7 @@ public class MapGenerator : MonoBehaviour
         }
         
         MapDataNetworkBehaviour.Instance.RegisterWareHouseNetworkObjectIds(warehouses);
+        MapDataNetworkBehaviour.Instance.RegisterDestinationNetworkObjectIds(destinations);
         MapDataNetworkBehaviour.Instance.RegisterPlayerNetworkObjectIds(playerObjects);
 
         MapDataNetworkBehaviour.Instance.RegisterMapDimentions(textMap[0].Length, textMap.Length);

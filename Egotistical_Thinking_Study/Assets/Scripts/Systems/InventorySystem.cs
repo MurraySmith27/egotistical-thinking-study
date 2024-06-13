@@ -25,8 +25,15 @@ public enum InventoryChangeType
     Remove
 }
 
+public enum InventoryType
+{
+    Destination,
+    Warehouse,
+    Player
+}
 
-public delegate void InventoryChangedEvent(int inventoryNum, bool isPlayer, InventoryChangeType changeType);
+
+public delegate void InventoryChangedEvent(int inventoryNum, InventoryType inventoryType, InventoryChangeType changeType);
 public class InventorySystem : NetworkBehaviour
 {
     private static InventorySystem _instance;
@@ -213,6 +220,32 @@ public class InventorySystem : NetworkBehaviour
                     }
                 }
             }
+            
+            //initialize destination inventories
+            for (int i = 0; i < MapGenerator.Instance.destinations.Count; i++)
+            {
+                GameObject destination = MapGenerator.Instance.destinations[i];
+                InventoryNetworkBehaviour inventory = destination.GetComponent<InventoryNetworkBehaviour>();
+                inventory.SetMaxInventorySlots(m_numInventorySlotsPerWarehouse);
+                inventory.InitializeEmpty(m_numInventorySlotsPerWarehouse);
+
+                m_warehousePlayerOwners.Value.arr[i] = GameRoot.Instance.configData.Destinations[i].PlayerOwner;
+                
+                int numItems = 0;
+                foreach (string key in GameRoot.Instance.configData.Destinations[i].Contents.Keys)
+                {
+                    int itemIndex = Int32.Parse(key);
+                    if (GameRoot.Instance.configData.Destinations[i].Contents[key] > 0)
+                    {
+                        inventory.SetItemPlacement(itemIndex, numItems++);
+                    }
+
+                    for (int j = 0; j < GameRoot.Instance.configData.Destinations[i].Contents[key]; j++)
+                    {
+                        inventory.AddItem(itemIndex);
+                    }
+                }
+            }
         }
     }
 
@@ -272,25 +305,30 @@ public class InventorySystem : NetworkBehaviour
     }
     
 
-    public List<(int, int)> GetInventory(int inventoryNum, bool isPlayer)
+    public List<(int, int)> GetInventory(int inventoryNum, InventoryType inventoryType)
     {
         if (this.IsServer)
         {
-            if (isPlayer)
+            if (inventoryType == InventoryType.Player)
             {
                 ulong clientId = GetSessionInfo(inventoryNum).clientId;
                 return NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject
                     .GetComponent<InventoryNetworkBehaviour>().GetInventory();
             }
-            else
+            else if (inventoryType == InventoryType.Warehouse)
             {
                 return MapGenerator.Instance.warehouses[inventoryNum].GetComponent<InventoryNetworkBehaviour>()
+                    .GetInventory();
+            }
+            else if (inventoryType == InventoryType.Destination)
+            {
+                return MapGenerator.Instance.destinations[inventoryNum].GetComponent<InventoryNetworkBehaviour>()
                     .GetInventory();
             }
         }
         else
         {
-            if (isPlayer)
+            if (inventoryType == InventoryType.Player)
             {
                 ulong playerNetworkObjectId = MapDataNetworkBehaviour.Instance.GetNetworkIdOfPlayer(inventoryNum);
                 
@@ -302,7 +340,7 @@ public class InventorySystem : NetworkBehaviour
                     }
                 }
             }
-            else
+            else if (inventoryType == InventoryType.Warehouse)
             {
                 ulong warehouseNetworkObjectId = MapDataNetworkBehaviour.Instance.GetNetworkIdOfWarehouse(inventoryNum);
                 foreach (NetworkObject networkObject in FindObjectsOfType<NetworkObject>())
@@ -313,13 +351,25 @@ public class InventorySystem : NetworkBehaviour
                     }
                 }
             }
+            else if (inventoryType == InventoryType.Destination)
+            {
+                ulong destinationNetworkObjectId = MapDataNetworkBehaviour.Instance.GetNetworkIdOfDestination(inventoryNum);
+                foreach (NetworkObject networkObject in FindObjectsOfType<NetworkObject>())
+                {
+                    if (networkObject.NetworkObjectId == destinationNetworkObjectId)
+                    {
+                        return networkObject.GetComponent<InventoryNetworkBehaviour>().GetInventory();
+                    }
+                }
+            }
         }
+        
         return new();
     }
 
-    public int GetNumItemsInInventory(int inventoryNum, bool isPlayer)
+    public int GetNumItemsInInventory(int inventoryNum, InventoryType inventoryType)
     {
-        List<(int, int)> inventory = GetInventory(inventoryNum, isPlayer);
+        List<(int, int)> inventory = GetInventory(inventoryNum, inventoryType);
 
         int inventoryCount = 0;
         for (int i = 0; i < inventory.Count; i++)
@@ -334,43 +384,43 @@ public class InventorySystem : NetworkBehaviour
     }
     
     [ClientRpc]
-    public void BroadCastInventoryChangedEvent_ClientRpc(int inventoryNum, bool isPlayer, InventoryChangeType changeType) 
+    public void BroadCastInventoryChangedEvent_ClientRpc(int inventoryNum, InventoryType inventoryType, InventoryChangeType changeType) 
     {
         if (onInventoryChanged != null && onInventoryChanged.GetInvocationList().Length > 0)
         {
-            onInventoryChanged(inventoryNum, isPlayer, InventoryChangeType.Add);
+            onInventoryChanged(inventoryNum, inventoryType, InventoryChangeType.Add);
         }
     }
 
-    public void AddItemToInventory(int inventoryNum, bool isPlayer, string itemGuid, int quantity, int inventorySlot = -1)
+    public void AddItemToInventory(int inventoryNum, InventoryType inventoryType, string itemGuid, int quantity, int inventorySlot = -1)
     {
-        AddItemToInventory_ServerRpc(inventoryNum, isPlayer, itemGuid, quantity, inventorySlot);
+        AddItemToInventory_ServerRpc(inventoryNum, inventoryType, itemGuid, quantity, inventorySlot);
     }
 
-    public void TransferItem(int sourceInventoryNum, bool sourceInventoryIsPlayer, int destinationInventoryNum,
-        bool destinationInventoryIsPlayer, string itemGuid, int quantity, int destinationInventoryItemSlot = -1)
+    public void TransferItem(int sourceInventoryNum, InventoryType sourceInventoryType, int destinationInventoryNum,
+        InventoryType destinationInventoryType, string itemGuid, int quantity, int destinationInventoryItemSlot = -1)
     {
-        TransferItem_ServerRpc(sourceInventoryNum, sourceInventoryIsPlayer, destinationInventoryNum, destinationInventoryIsPlayer, itemGuid, quantity, destinationInventoryItemSlot);   
+        TransferItem_ServerRpc(sourceInventoryNum, sourceInventoryType, destinationInventoryNum, destinationInventoryType, itemGuid, quantity, destinationInventoryItemSlot);   
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void TransferItem_ServerRpc(int sourceInventoryNum, bool sourceInventoryIsPlayer, int destinationInventoryNum,
-        bool destinationInventoryIsPlayer, string itemGuid, int quantity, int destinationInventoryItemSlot = -1)
+    private void TransferItem_ServerRpc(int sourceInventoryNum, InventoryType sourceInventoryType, int destinationInventoryNum,
+        InventoryType destinationInventoryType, string itemGuid, int quantity, int destinationInventoryItemSlot = -1)
     {
-        if (DoAddItemToInventory(destinationInventoryNum, destinationInventoryIsPlayer, itemGuid, quantity,
+        if (DoAddItemToInventory(destinationInventoryNum, destinationInventoryType, itemGuid, quantity,
                 destinationInventoryItemSlot))
         {
-            DoRemoveItemFromInventory(sourceInventoryNum, sourceInventoryIsPlayer, itemGuid, quantity);
+            DoRemoveItemFromInventory(sourceInventoryNum, sourceInventoryType, itemGuid, quantity);
         }
     }
     
     [ServerRpc (RequireOwnership = false)]
-    private void AddItemToInventory_ServerRpc(int inventoryNum, bool isPlayer, string itemGuid, int quantity, int inventorySlot = -1, ServerRpcParams serverRpcParams = default)
+    private void AddItemToInventory_ServerRpc(int inventoryNum, InventoryType inventoryType, string itemGuid, int quantity, int inventorySlot = -1, ServerRpcParams serverRpcParams = default)
     {
-        DoAddItemToInventory(inventoryNum, isPlayer, itemGuid, quantity, inventorySlot, serverRpcParams);
+        DoAddItemToInventory(inventoryNum, inventoryType, itemGuid, quantity, inventorySlot, serverRpcParams);
     }
 
-    private bool DoAddItemToInventory(int inventoryNum, bool isPlayer, string itemGuid, int quantity, int inventorySlot = -1, ServerRpcParams serverRpcParams = default)
+    private bool DoAddItemToInventory(int inventoryNum, InventoryType inventoryType, string itemGuid, int quantity, int inventorySlot = -1, ServerRpcParams serverRpcParams = default)
     {
         int itemIdx = -1;
         for (int i = 0; i < m_items.Count; i++)
@@ -390,7 +440,7 @@ public class InventorySystem : NetworkBehaviour
         }
         else
         {
-            if (isPlayer)
+            if (inventoryType == InventoryType.Player)
             {
                 InventoryNetworkBehaviour playerInventory = MapGenerator.Instance.playerObjects[inventoryNum]
                     .GetComponent<InventoryNetworkBehaviour>();
@@ -406,7 +456,7 @@ public class InventorySystem : NetworkBehaviour
                     success = playerInventory.AddItem(itemIdx);
                 }
             }
-            else
+            else if (inventoryType == InventoryType.Warehouse)
             {
                 //warehouse
                 InventoryNetworkBehaviour warehouseInventory = MapGenerator.Instance.warehouses[inventoryNum].GetComponent<InventoryNetworkBehaviour>();
@@ -422,14 +472,31 @@ public class InventorySystem : NetworkBehaviour
                     success = warehouseInventory.AddItem(itemIdx);
                 }
             }
+            else if (inventoryType == InventoryType.Warehouse)
+            {
+                InventoryNetworkBehaviour destinationInventory = MapGenerator.Instance.destinations[inventoryNum]
+                    .GetComponent<InventoryNetworkBehaviour>();
+
+                if (inventorySlot == -1)
+                {
+                    inventorySlot = destinationInventory.FindSlotForItem(itemIdx);
+                }
+
+                destinationInventory.SetItemPlacement(itemIdx, inventorySlot);
+                
+                for (int i = 0; i < quantity; i++)
+                {
+                    success = success || destinationInventory.AddItem(itemIdx);
+                }
+            }
 
             if (success)
             {
                 if (onInventoryChanged != null && onInventoryChanged.GetInvocationList().Length > 0)
                 {
-                    onInventoryChanged(inventoryNum, isPlayer, InventoryChangeType.Add);
+                    onInventoryChanged(inventoryNum, inventoryType, InventoryChangeType.Add);
                 }
-                BroadCastInventoryChangedEvent_ClientRpc(inventoryNum, isPlayer, InventoryChangeType.Add);
+                BroadCastInventoryChangedEvent_ClientRpc(inventoryNum, inventoryType, InventoryChangeType.Add);
             }
 
         }
@@ -437,18 +504,18 @@ public class InventorySystem : NetworkBehaviour
         return success;
     }
 
-    public void RemoveItemFromInventory(int inventoryNum, bool isPlayer, string itemGuid, int quantity)
+    public void RemoveItemFromInventory(int inventoryNum, InventoryType inventoryType, string itemGuid, int quantity)
     {
-        RemoveItemFromInventory_ServerRpc(inventoryNum, isPlayer, itemGuid, quantity);
+        RemoveItemFromInventory_ServerRpc(inventoryNum, inventoryType, itemGuid, quantity);
     }
     
     [ServerRpc (RequireOwnership = false)]
-    private void RemoveItemFromInventory_ServerRpc(int inventoryNum, bool isPlayer, string itemGuid, int quantity, ServerRpcParams serverRpcParams = default)
+    private void RemoveItemFromInventory_ServerRpc(int inventoryNum, InventoryType inventoryType, string itemGuid, int quantity, ServerRpcParams serverRpcParams = default)
     {
-        DoRemoveItemFromInventory(inventoryNum, isPlayer, itemGuid, quantity);
+        DoRemoveItemFromInventory(inventoryNum, inventoryType, itemGuid, quantity);
     }
 
-    private void DoRemoveItemFromInventory(int inventoryNum, bool isPlayer, string itemGuid, int quantity)
+    private void DoRemoveItemFromInventory(int inventoryNum, InventoryType inventoryType, string itemGuid, int quantity)
     {
         int itemIdx = -1;
         for (int i = 0; i < m_items.Count; i++)
@@ -468,24 +535,29 @@ public class InventorySystem : NetworkBehaviour
 
             for (int i = 0; i < quantity; i++)
             {
-                if (isPlayer)
+                if (inventoryType == InventoryType.Player)
                 {
                     MapGenerator.Instance.playerObjects[inventoryNum]
                         .GetComponent<InventoryNetworkBehaviour>().RemoveItem(itemIdx);
                 }
-                else
+                else if (inventoryType == InventoryType.Warehouse)
                 {
                     //warehouse
                     MapGenerator.Instance.warehouses[inventoryNum].GetComponent<InventoryNetworkBehaviour>()
+                        .RemoveItem(itemIdx);
+                }
+                else if (inventoryType == InventoryType.Destination)
+                {
+                    MapGenerator.Instance.destinations[inventoryNum].GetComponent<InventoryNetworkBehaviour>()
                         .RemoveItem(itemIdx);
                 }
             }
 
             if (onInventoryChanged != null && onInventoryChanged.GetInvocationList().Length > 0)
             {
-                onInventoryChanged(inventoryNum, isPlayer, InventoryChangeType.Remove);
+                onInventoryChanged(inventoryNum, inventoryType, InventoryChangeType.Remove);
             }
-            BroadCastInventoryChangedEvent_ClientRpc(inventoryNum, isPlayer, InventoryChangeType.Remove);
+            BroadCastInventoryChangedEvent_ClientRpc(inventoryNum, inventoryType, InventoryChangeType.Remove);
         }
     }
 }
