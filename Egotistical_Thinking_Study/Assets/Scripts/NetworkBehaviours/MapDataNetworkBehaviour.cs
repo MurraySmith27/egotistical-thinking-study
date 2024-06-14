@@ -1,5 +1,7 @@
 
+using System;
 using System.Collections.Generic;
+using System.IO;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -29,6 +31,8 @@ public class MapDataNetworkBehaviour : NetworkBehaviour
     
     public NetworkVariable<int> mapHeight = new NetworkVariable<int>();
     
+    private const string DESTINATION_IMAGES_DIRECTORY_PATH = "DestinationIcons";
+    
     void Awake()
     {
         if (_instance != null && _instance != this)
@@ -45,10 +49,28 @@ public class MapDataNetworkBehaviour : NetworkBehaviour
         playerNetworkObjectIds = new NetworkVariable<NetworkSerializableUlongArray>();
     }
 
+    void Start()
+    {
+        if (!Application.isEditor && this.IsClient)
+        {
+            OverrideDestinationIconsFromDisk();
+        }
+    }
+
     public void OnGameStart()
     {
-        maxGasPerPlayer.Value = GameRoot.Instance.configData.MaxGasPerPlayer;
-        isScoreShared.Value = GameRoot.Instance.configData.IsScoreShared;
+        if (this.IsClient)
+        {
+            if (!Application.isEditor)
+            {
+                OverrideDestinationIconsFromDisk();
+            }
+        }
+        else
+        {
+            maxGasPerPlayer.Value = GameRoot.Instance.configData.MaxGasPerPlayer;
+            isScoreShared.Value = GameRoot.Instance.configData.IsScoreShared;
+        }
     }
 
     public ulong GetNetworkIdOfWarehouse(int warehouseNum)
@@ -94,6 +116,42 @@ public class MapDataNetworkBehaviour : NetworkBehaviour
         }
     }
 
+    private void OverrideDestinationIconsFromDisk()
+    {
+        string path = Application.dataPath;
+    
+        if (Application.platform == RuntimePlatform.OSXPlayer) {
+            path += "/../../";
+        }
+        else if (Application.platform == RuntimePlatform.WindowsPlayer) {
+            path += "/../";
+        }
+
+        string[] filenames = Directory.GetFiles(path + DESTINATION_IMAGES_DIRECTORY_PATH);
+
+        Array.Sort(filenames);
+
+        List<Sprite> destinationSprites = new List<Sprite>();
+
+        foreach (string file in filenames)
+        {
+            Sprite destinationSprite;
+            if (ImageLoadingUtils.LoadImageAsSprite(file, out destinationSprite))
+            {
+                destinationSprites.Add(destinationSprite);
+            }
+        }
+
+        int upperBound = Mathf.Min(destinationSprites.Count, destinationNetworkObjectIds.Value.arr.Length);
+        for (int i = 0; i < upperBound; i++)
+        {
+            GameObject destinationObject =
+                NetworkManager.Singleton.SpawnManager.SpawnedObjects[destinationNetworkObjectIds.Value.arr[i]].gameObject;
+            
+            destinationObject.GetComponentInChildren<SpriteRenderer>().sprite = destinationSprites[i];
+        }
+    }
+
     public void RegisterWareHouseNetworkObjectIds(List<GameObject> warehouses)
     {
         warehouseNetworkObjectIds.Value.arr = new ulong[warehouses.Count];
@@ -111,6 +169,11 @@ public class MapDataNetworkBehaviour : NetworkBehaviour
         for (int i = 0; i < destinations.Count; i++)
         {
             destinationNetworkObjectIds.Value.arr[i] = destinations[i].GetComponent<NetworkObject>().NetworkObjectId;
+        }
+        
+        if (!Application.isEditor)
+        {
+            OverrideDestinationIconsFromDisk();
         }
     }
 

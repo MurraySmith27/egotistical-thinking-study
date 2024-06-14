@@ -1,8 +1,11 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using Unity.Netcode;
 using Unity.VisualScripting;
+using Object = UnityEngine.Object;
 
 public class MapGenerator : MonoBehaviour
 {
@@ -185,7 +188,7 @@ public class MapGenerator : MonoBehaviour
 
         MapDataNetworkBehaviour.Instance.RegisterMapDimentions(textMap[0].Length, textMap.Length);
     }
-
+    
     private Dictionary<Vector2Int, List<Vector2Int>> ConstructGraphFromMap()
     {
         Dictionary<Vector2Int, List<Vector2Int>> graph = new Dictionary<Vector2Int, List<Vector2Int>>();

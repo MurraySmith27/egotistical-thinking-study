@@ -59,12 +59,12 @@ public class ExperimenterViewController : MonoBehaviour
             string mapDestinationText = $"Destination Warehouse:";
             
             //get map sprite
-            ulong warehouseNetworkObjectId = MapDataNetworkBehaviour.Instance.GetNetworkIdOfWarehouse(orders[i].DestinationWarehouse);
+            ulong destiationNetworkObjectId = MapDataNetworkBehaviour.Instance.GetNetworkIdOfDestination(orders[i].DestinationWarehouse);
 
             Sprite destinationSprite = null;
             foreach (NetworkBehaviour networkBehaviour in FindObjectsOfType<NetworkBehaviour>())
             {
-                if (networkBehaviour.NetworkObjectId == warehouseNetworkObjectId)
+                if (networkBehaviour.NetworkObjectId == destiationNetworkObjectId)
                 {
                     destinationSprite = networkBehaviour.GetComponentInChildren<SpriteRenderer>().sprite;
                     break;

@@ -54,7 +54,7 @@ public class InventorySystem : NetworkBehaviour
 
     public NetworkVariable<NetworkSerializableIntArray> m_warehousePlayerOwners;
 
-    private const string ITEM_IMAGES_DIRECTORY_PATH = "ItemImages";
+    private const string ITEM_IMAGES_DIRECTORY_PATH = "ItemIcons";
     
     private void Awake()
     {
@@ -66,7 +66,7 @@ public class InventorySystem : NetworkBehaviour
         {
             if (!Application.isEditor)
             {
-                LoadItemImagesFromDisk();
+                OverrideItemImagesFromDisk();
             }
             _instance = this;
         }
@@ -74,7 +74,7 @@ public class InventorySystem : NetworkBehaviour
         m_warehousePlayerOwners = new NetworkVariable<NetworkSerializableIntArray>();
     }
 
-    private void LoadItemImagesFromDisk()
+    private void OverrideItemImagesFromDisk()
     {
         string path = Application.dataPath;
         
@@ -94,7 +94,7 @@ public class InventorySystem : NetworkBehaviour
         foreach (string file in filenames)
         {
             Sprite itemSprite;
-            if (LoadImageAsSprite(file, out itemSprite))
+            if (ImageLoadingUtils.LoadImageAsSprite(file, out itemSprite))
             {
                 itemSprites.Add(itemSprite);
             }
@@ -108,32 +108,6 @@ public class InventorySystem : NetworkBehaviour
         m_items = m_items.Take(itemSprites.Count).ToList();
     }
 
-    private bool LoadImageAsSprite(string filePath, out Sprite sprite)
-    {
-        sprite = null;
-        
-        if (File.Exists(filePath))
-        {
-            byte[] bytes = File.ReadAllBytes(filePath);
-
-            Texture2D tex = new Texture2D(2, 2);
-
-            if (tex.LoadImage(bytes))
-            {
-                sprite = Sprite.Create(tex, new Rect(0f, 0f, tex.width, tex.height), new Vector2(0.5f, 0.5f), 100f);
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        else
-        {
-            return false;
-        }
-    }
-
     public override void OnNetworkSpawn()
     {
         if (this.IsServer)
@@ -145,7 +119,6 @@ public class InventorySystem : NetworkBehaviour
 
     public void RegisterPlayerInventoryChangedCallback(int playerNum, InventoryUpdatedEvent callback)
     {
-
         ulong playerNetworkObjectId = MapDataNetworkBehaviour.Instance.GetNetworkIdOfPlayer(playerNum);
         
         foreach (NetworkObject networkObject in FindObjectsOfType<NetworkObject>())
@@ -228,8 +201,6 @@ public class InventorySystem : NetworkBehaviour
                 InventoryNetworkBehaviour inventory = destination.GetComponent<InventoryNetworkBehaviour>();
                 inventory.SetMaxInventorySlots(m_numInventorySlotsPerWarehouse);
                 inventory.InitializeEmpty(m_numInventorySlotsPerWarehouse);
-
-                m_warehousePlayerOwners.Value.arr[i] = GameRoot.Instance.configData.Destinations[i].PlayerOwner;
                 
                 int numItems = 0;
                 foreach (string key in GameRoot.Instance.configData.Destinations[i].Contents.Keys)
@@ -407,9 +378,11 @@ public class InventorySystem : NetworkBehaviour
     private void TransferItem_ServerRpc(int sourceInventoryNum, InventoryType sourceInventoryType, int destinationInventoryNum,
         InventoryType destinationInventoryType, string itemGuid, int quantity, int destinationInventoryItemSlot = -1)
     {
+        Debug.Log("transfer initiated. Adding item");
         if (DoAddItemToInventory(destinationInventoryNum, destinationInventoryType, itemGuid, quantity,
                 destinationInventoryItemSlot))
         {
+            Debug.Log("add successful. Removing item from inventory");
             DoRemoveItemFromInventory(sourceInventoryNum, sourceInventoryType, itemGuid, quantity);
         }
     }
@@ -472,7 +445,7 @@ public class InventorySystem : NetworkBehaviour
                     success = warehouseInventory.AddItem(itemIdx);
                 }
             }
-            else if (inventoryType == InventoryType.Warehouse)
+            else if (inventoryType == InventoryType.Destination)
             {
                 InventoryNetworkBehaviour destinationInventory = MapGenerator.Instance.destinations[inventoryNum]
                     .GetComponent<InventoryNetworkBehaviour>();
@@ -486,7 +459,7 @@ public class InventorySystem : NetworkBehaviour
                 
                 for (int i = 0; i < quantity; i++)
                 {
-                    success = success || destinationInventory.AddItem(itemIdx);
+                    success = destinationInventory.AddItem(itemIdx);
                 }
             }
 

@@ -32,6 +32,10 @@ public class ClientMenuController : MonoBehaviour
     
     [SerializeField] private AudioSource m_outOfGasSFX;
 
+    [SerializeField] private AudioSource m_approachDestinationSFX;
+    
+    [SerializeField] private AudioSource m_leaveDestinationSFX;
+    
     [SerializeField] private Gradient m_gasFillColorGradient;
     
     private VisualElement m_playerInventoryRoot;
@@ -273,7 +277,7 @@ public class ClientMenuController : MonoBehaviour
         if (originalInventorySlot.worldBound.Overlaps(m_playerInventoryElement.worldBound))
         {
             if (m_currentLoadingWarehouseNum != -1 &&
-                InventorySystem.Instance.GetOwnerOfWarehouse(m_currentLoadingWarehouseNum) == -1)
+                m_currentLoadingWarehouseType == InventoryType.Destination)
             {
                 ItemDetails details = null;
                 for (int i = 0; i < InventorySystem.Instance.m_items.Count; i++)
@@ -346,7 +350,7 @@ public class ClientMenuController : MonoBehaviour
                     m_correctSFX.Play();
                     InventorySystem.Instance.TransferItem(
                         ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum, InventoryType.Player,
-                        m_currentLoadingWarehouseNum, m_currentLoadingWarehouseType, details.GUID, 1);
+                        m_currentLoadingWarehouseNum, InventoryType.Destination, details.GUID, 1);
                 }
                 else
                 {
@@ -580,6 +584,7 @@ public class ClientMenuController : MonoBehaviour
                 bool foundNearestWarehouse = false;
                 NetworkObject nearestWarehouseNetworkObject = null;
                 int nearestWarehouseNum = -1;
+                InventoryType nearestWarehouseType = InventoryType.Player;
                 float minWarehouseDistance = float.MaxValue;
                 for (int warehouseNum = 0; warehouseNum < MapDataNetworkBehaviour.Instance.warehouseNetworkObjectIds.Value.arr.Length; warehouseNum++)
                 {
@@ -596,6 +601,7 @@ public class ClientMenuController : MonoBehaviour
                                 nearestWarehouseNum = warehouseNum;
                                 nearestWarehouseNetworkObject = networkObject;
                                 minWarehouseDistance = playerToWarehouseDistance;
+                                nearestWarehouseType = InventoryType.Warehouse;
                             }
                         }
                     }
@@ -613,6 +619,7 @@ public class ClientMenuController : MonoBehaviour
                                 nearestWarehouseNum = warehouseNum;
                                 nearestWarehouseNetworkObject = networkObject;
                                 minWarehouseDistance = playerToDestinationDistance;
+                                nearestWarehouseType = InventoryType.Destination;
                             }
                         }
                     }
@@ -622,16 +629,19 @@ public class ClientMenuController : MonoBehaviour
 
                 int warehouseOwner = InventorySystem.Instance.GetOwnerOfWarehouse(nearestWarehouseNum);
                 
-                bool belongsToThisPlayer = nearestWarehouseNum != -1 && warehouseOwner == playerNum;
+                bool belongsToThisPlayer = nearestWarehouseNum != -1 && nearestWarehouseType == InventoryType.Warehouse && warehouseOwner == playerNum;
 
                 if (foundNearestWarehouse && m_currentLoadingWarehouseNum == -1)
                 {
-                    Debug.Log($"found nearest warehouse! belongs to this player: {belongsToThisPlayer}");
                     if (belongsToThisPlayer)
                     {
+                        m_currentLoadingWarehouse = nearestWarehouseNetworkObject.gameObject;
                         m_currentLoadingWarehouseType = InventoryType.Warehouse;
                         m_currentLoadingWarehouseNum = m_ownedWarehouseNum;
+                        m_currentLoadingWarehouse.GetComponentInChildren<SpriteRenderer>().color = Color.green;
                         m_ownedWarehouseInventoryElement.style.opacity = 1f;
+
+                        m_approachDestinationSFX.Play();
                         
                         VisualElement inventoryElement =
                             m_ownedWarehouseInventoryElement.Q<VisualElement>("inventory");
@@ -643,12 +653,14 @@ public class ClientMenuController : MonoBehaviour
                         
                         m_inRangeOfOwnedInventory = true;
                     }
-                    else if (warehouseOwner == -1)
+                    else if (nearestWarehouseType == InventoryType.Destination)
                     {
                         m_currentLoadingWarehouse = nearestWarehouseNetworkObject.gameObject;
                         m_currentLoadingWarehouseNum = nearestWarehouseNum;
+                        m_currentLoadingWarehouse.GetComponentInChildren<SpriteRenderer>().color = Color.green;
                         m_currentLoadingWarehouseType = InventoryType.Destination;
 
+                        m_approachDestinationSFX.Play();
                     }
                     
                     UpdateOrdersList(OrderSystem.Instance.activeOrders.Value, OrderSystem.Instance.completeOrders.Value, OrderSystem.Instance.incompleteOrders.Value, OrderSystem.Instance.acceptedOrders.Value);
@@ -670,20 +682,21 @@ public class ClientMenuController : MonoBehaviour
                         inventoryElement.style.borderRightColor = Color.red;
                         
                         m_inRangeOfOwnedInventory = false;
-                        m_currentLoadingWarehouseNum = -1;
-                        m_currentLoadingWarehouse = null;
                     }
-                    else
+
+                    if (m_currentLoadingWarehouseNum != -1)
                     {
-                        m_currentLoadingWarehouse = null;
-                        m_currentLoadingWarehouseNum = -1;   
+                        m_currentLoadingWarehouse.GetComponentInChildren<SpriteRenderer>().color = Color.white;
                     }
+                    
+                    m_currentLoadingWarehouseNum = -1;
+                    m_currentLoadingWarehouse = null;
+                    
+                    m_leaveDestinationSFX.Play();
                     
                     UpdateOrdersList(OrderSystem.Instance.activeOrders.Value, OrderSystem.Instance.completeOrders.Value , OrderSystem.Instance.incompleteOrders.Value, OrderSystem.Instance.acceptedOrders.Value);
-                    
                 }
             }
-            
             
             //also need to go through the trucks to see which are nearby this player's owned warehouse.
 
@@ -842,13 +855,13 @@ public class ClientMenuController : MonoBehaviour
                     string mapDestinationText = $"Destination Warehouse: ";
                     orderElement.Q<Label>("map-destination-label").text = mapDestinationText;
                     
-                    ulong warehouseNetworkObjectId = MapDataNetworkBehaviour.Instance.GetNetworkIdOfWarehouse(order.destinationWarehouse);
+                    ulong destinationNetworkObjectId = MapDataNetworkBehaviour.Instance.GetNetworkIdOfDestination(order.destinationWarehouse);
                     
                     Sprite destinationSprite = null;
                     
                     foreach (NetworkBehaviour networkBehaviour in FindObjectsOfType<NetworkBehaviour>())
                     {
-                        if (networkBehaviour.NetworkObjectId == warehouseNetworkObjectId)
+                        if (networkBehaviour.NetworkObjectId == destinationNetworkObjectId)
                         {
                             destinationSprite = networkBehaviour.GetComponentInChildren<SpriteRenderer>().sprite;
                             break;

@@ -22,7 +22,6 @@ public class ClientManager : MonoBehaviour
 
     public void StartClient(string address, int port)
     {
-
         Guid playerGUID;
         if (m_testing)
         {
@@ -62,7 +61,7 @@ public class ClientManager : MonoBehaviour
 
         clientConnectionIntermediateMenu.SetActive(true);
 
-        NetworkManager.Singleton.OnClientConnectedCallback += obj => { clientMenu.SetActive(true); clientConnectionIntermediateMenu.SetActive(false);};
+        NetworkManager.Singleton.OnClientConnectedCallback += obj => { clientMenu.SetActive(true); clientConnectionIntermediateMenu.SetActive(false); MapDataNetworkBehaviour.Instance.OnGameStart();};
     
     }
 

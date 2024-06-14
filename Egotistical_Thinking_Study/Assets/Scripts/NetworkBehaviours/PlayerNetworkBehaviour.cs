@@ -112,8 +112,6 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
             ClientConnectionHandler.Instance.m_onRecieveClientSideSessionInfo += SetRotation;
         }
 
-        // gameViewQuad = GameObject.FindGameObjectWithTag("GameViewQuad");
-        // gameViewQuad.GetComponent<MeshRenderer>().enabled = true;
         position.OnValueChanged += UpdatePosition;
     }
 
@@ -145,7 +143,6 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
     
     public void RefillGas()
     {
-        Debug.Log("REFILL GAS!");
         m_fillUpGasSFX.Play();
         if (this.IsServer)
         {
@@ -257,13 +254,11 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
 
         vec2Path[0] = playerPosVec2;
         
-
         moveCoroutine = StartCoroutine(MovePlayerAlongPath(vec2Path, playerNum));
     }
 
     private IEnumerator MovePlayerAlongPath(List<Vector2> path, int playerNum)
     {
-        
         float playerZ = transform.position.z;
 
         Vector3 lastPosition = Vector3.zero;
@@ -272,7 +267,6 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
         
         foreach (Vector2 destination in path.Skip(1))
         {
-
             if (m_numGasRemaining.Value == 0)
             {
                 yield break;
@@ -296,7 +290,6 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
                 m_lowGasSFX.Play();
             }
             
-
             foreach (GameObject child in m_children)
             {
                 child.SetActive(false);
