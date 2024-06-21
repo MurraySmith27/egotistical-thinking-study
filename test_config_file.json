@@ -2,11 +2,6 @@
     "Warehouses": [
         {
             "Contents": {
-            },
-            "PlayerOwner": -1
-        },
-        {
-            "Contents": {
                 "0": 1,
                 "1": 2,
                 "2": 2,
@@ -20,6 +15,13 @@
                 "3": 1
             },
             "PlayerOwner": 1
+        }
+    ],
+    "Destinations": [
+        {
+            "Contents": {
+            },
+            "PlayerOwner": -1
         }
     ],
     "Orders": [

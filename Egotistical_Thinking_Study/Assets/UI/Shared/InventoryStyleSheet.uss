@@ -40,6 +40,11 @@ VisualElement {
     -unity-font-style: bold;
     align-self: flex-end;
     -unity-text-align: lower-right;
+    -unity-text-outline-width: 1;
+    -unity-text-outline-color: rgba(0,0,0,255);
+    position: absolute;
+    padding-left: 80%;
+    padding-top: 60%;
 }
 
 .slot {

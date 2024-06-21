@@ -1,5 +1,5 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <ui:VisualElement name="root" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0.66);">
+    <ui:VisualElement name="root" style="flex-grow: 1; background-color: rgb(157, 157, 157); border-left-color: rgb(0, 0, 0); border-right-color: rgb(0, 0, 0); border-top-color: rgb(0, 0, 0); border-bottom-color: rgb(0, 0, 0); border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px;">
         <ui:ProgressBar value="100" title="0s" name="order-timer" style="visibility: hidden; font-size: 25px; -unity-font-style: bold; color: rgb(0, 0, 0);" />
         <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="order-number-label" style="font-size: 24px; flex-shrink: 1; flex-grow: 1;" />
         <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="order-description" style="flex-shrink: 1; flex-grow: 1;" />

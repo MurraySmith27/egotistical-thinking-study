@@ -21,7 +21,6 @@ public class ServerControlMenuController : MonoBehaviour
     private Button loadConfigFileButton;
     private Button startGameButton;
 
-    // Start is called before the first frame update
     void OnEnable()
     {
         var root = GetComponent<UIDocument>().rootVisualElement;
@@ -36,10 +35,8 @@ public class ServerControlMenuController : MonoBehaviour
         loadMapFileButton.clicked += LoadMapFile;
 
         loadConfigFileButton.clicked += LoadConfigFile;
-
+        
         startGameButton.clicked += OnGameStart;
-
-        Debug.Log($"reset? : {ServerManager.m_reset}");
         
         if (ServerManager.m_reset)
         {

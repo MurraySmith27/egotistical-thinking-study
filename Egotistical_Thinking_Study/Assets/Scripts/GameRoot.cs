@@ -34,6 +34,7 @@ public class ConfigData
     public bool IsScoreShared;
     public int IncorrectItemPenalty;
     public int GasRefillCost;
+    public int GameTimerSeconds;
 }
 
 public class GameRoot : MonoBehaviour
@@ -97,6 +98,8 @@ public class GameRoot : MonoBehaviour
         MapDataNetworkBehaviour.Instance.OnGameStart();
 
         CameraNetworkBehaviour.Instance.OnGameStart();
+
+        GameTimerSystem.Instance.OnGameStart();
     }
 
     public void ResetGame()

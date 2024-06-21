@@ -5,9 +5,13 @@
     <Style src="project://database/Assets/UI/ClientView/ClientMenu.uss?fileID=7433441132597879392&amp;guid=73af3c5d9c6254f42ad0b14461d13d99&amp;type=3#ClientMenu" />
     <ui:VisualElement name="root" style="flex-grow: 1; flex-direction: row;">
         <ui:VisualElement name="game" style="flex-grow: 1; background-image: none; min-width: 50%; max-width: 50%; background-color: rgb(43, 43, 43);">
-            <ui:VisualElement name="game-view" style="flex-grow: 1; background-image: url(&apos;project://database/Assets/UI/Shared/GameViewRenderTexture.asset?fileID=8600000&amp;guid=24b9b189363a5ef45adf6d482555cb46&amp;type=2#GameViewRenderTexture&apos;);" />
+            <ui:VisualElement name="game-view" style="flex-grow: 1; background-image: url(&apos;project://database/Assets/UI/Shared/GameViewRenderTexture.asset?fileID=8600000&amp;guid=24b9b189363a5ef45adf6d482555cb46&amp;type=2#GameViewRenderTexture&apos;);">
+                <ui:VisualElement name="timer-parent" style="flex-grow: 1; position: absolute; width: 200px; height: 100px; background-color: rgb(195, 195, 195); border-top-left-radius: 10px; border-top-right-radius: 10px; border-bottom-right-radius: 10px; border-bottom-left-radius: 10px; align-items: center; justify-content: center;">
+                    <ui:Label tabindex="-1" text="0:00" parse-escape-sequences="true" display-tooltip-when-elided="true" name="game-timer-label" style="align-self: center; font-size: 25%; -unity-text-align: middle-center;" />
+                </ui:VisualElement>
+            </ui:VisualElement>
         </ui:VisualElement>
-        <ui:VisualElement name="menu" style="flex-grow: 1; background-color: rgb(255, 255, 255);">
+        <ui:VisualElement name="menu" style="flex-grow: 1; background-color: rgb(106, 106, 106);">
             <ui:ScrollView name="order-root" mode="Horizontal" style="flex-shrink: 2; flex-grow: 2; max-height: 40%; flex-direction: row;" />
             <ui:VisualElement name="warehouse-root" style="flex-grow: 1; flex-shrink: 1; position: relative; max-height: 25%;">
                 <ui:Instance template="InventoryElement" name="warehouse-inventory" style="flex-grow: 1;" />
@@ -18,7 +22,9 @@
                     <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="score-label" style="flex-shrink: 2; flex-grow: 2; align-self: center; -unity-text-align: middle-center; -unity-font-style: bold; font-size: 30%; background-color: rgba(255, 227, 76, 0.65); border-left-color: rgb(149, 134, 0); border-right-color: rgb(149, 134, 0); border-top-color: rgb(149, 134, 0); border-bottom-color: rgb(149, 134, 0); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-top-left-radius: 2px; border-top-right-radius: 2px; border-bottom-right-radius: 2px; border-bottom-left-radius: 2px;" />
                 </ui:VisualElement>
                 <ui:VisualElement name="truck-gas-bar-root" style="flex-grow: 0.5; flex-direction: row; flex-shrink: 0.5;">
-                    <ui:VisualElement name="truck-gas-icon" style="flex-grow: 1; background-image: url(&apos;project://database/Assets/Art/Icons/gas.png?fileID=2800000&amp;guid=9b12844e557c478498bd9dc167b715a9&amp;type=3#gas&apos;); align-self: center; position: absolute; width: 50px; height: 50px; align-items: stretch;" />
+                    <ui:VisualElement name="truck-gas-icon-root" style="flex-grow: 1; position: absolute; width: 25%; height: 100%; align-self: auto; justify-content: center; align-items: center;">
+                        <ui:VisualElement name="truck-gas-icon" style="flex-grow: 1; background-image: url(&apos;project://database/Assets/Art/Icons/gas.png?fileID=2800000&amp;guid=9b12844e557c478498bd9dc167b715a9&amp;type=3#gas&apos;); align-self: flex-end; position: absolute; align-items: center; width: 75px; height: 75px;" />
+                    </ui:VisualElement>
                     <ui:ProgressBar value="100" name="truck-gas-bar" style="flex-shrink: 2; flex-grow: 2; align-self: center; position: absolute; width: 75%; height: 100%; left: 25%;" />
                     <ui:Button text="Refill (5G)" parse-escape-sequences="true" display-tooltip-when-elided="true" name="gas-refill-button" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; width: 25%; height: 100%; display: flex; visibility: hidden;" />
                 </ui:VisualElement>

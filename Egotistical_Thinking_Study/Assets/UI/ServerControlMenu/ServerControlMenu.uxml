@@ -3,7 +3,7 @@
         <ui:VisualElement name="menu-root" style="flex-grow: 1; max-width: 50%; max-height: 50%;">
             <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ip-text" style="background-color: rgb(255, 255, 255); -unity-font-style: bold; -unity-text-align: upper-left; flex-shrink: 1; flex-grow: 1; font-size: 50px;" />
             <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="port-text" style="background-color: rgb(255, 255, 255); -unity-font-style: bold; flex-shrink: 1; flex-grow: 1; font-size: 50px;" />
-            <ui:Label text="Map File: None" display-tooltip-when-elided="true" name="map-file-label" style="flex-shrink: 1; flex-grow: 1; font-size: 50px;" />
+            <ui:Label display-tooltip-when-elided="true" name="map-file-label" style="flex-shrink: 1; flex-grow: 1; font-size: 50px;" />
             <ui:Button text="Load Map File" display-tooltip-when-elided="true" name="load-map-file-button" style="flex-shrink: 1; flex-grow: 1; font-size: 50px;" />
             <ui:Button text="Load Config File" display-tooltip-when-elided="true" name="load-config-file-button" style="flex-shrink: 1; flex-grow: 1; font-size: 50px;" />
             <ui:Button text="Start Game" display-tooltip-when-elided="true" name="start-game-button" style="flex-shrink: 1; flex-grow: 1; font-size: 50px;" />

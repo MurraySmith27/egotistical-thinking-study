@@ -161,6 +161,12 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
     }
 
     public void OnClick(InputAction.CallbackContext context) {
+
+        if (GameTimerSystem.Instance.isGamePaused.Value)
+        {
+            return;
+        }
+        
         Vector2 mousePos = mousePosition.ReadValue<Vector2>();
 
         // mousePos = new Vector2(mousePos.x / Screen.width, mousePos.y / Screen.height);
@@ -321,6 +327,8 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
             }
 
             OnPositionChange(nextPosition);
+
+            yield return new WaitUntil(() => !GameTimerSystem.Instance.isGamePaused.Value);
         }
     }
 

@@ -25,33 +25,33 @@ public class ClientMenuController : MonoBehaviour
     [SerializeField] private VisualTreeAsset m_playerInventoryElementAsset;
 
     [SerializeField] private AudioSource m_correctSFX;
-    
+
     [SerializeField] private AudioSource m_incorrectSFX;
 
     [SerializeField] private AudioSource m_lowGasSFX;
-    
+
     [SerializeField] private AudioSource m_outOfGasSFX;
 
     [SerializeField] private AudioSource m_approachDestinationSFX;
-    
+
     [SerializeField] private AudioSource m_leaveDestinationSFX;
-    
+
     [SerializeField] private Gradient m_gasFillColorGradient;
-    
+
     private VisualElement m_playerInventoryRoot;
-    
+
     private VisualElement m_playerInventoryElement;
 
     private VisualElement m_otherPlayersInventoryRoot;
-    
+
     private VisualElement m_ownedWarehouseInventoryElement;
 
     private int m_ownedWarehouseNum;
-    
+
     private VisualElement m_root;
 
     private List<InventorySlot> m_playerInventoryItems = new List<InventorySlot>();
-    
+
     private List<InventorySlot> m_warehouseInventoryItems = new List<InventorySlot>();
 
     private List<VisualElement> m_loadAllButtons;
@@ -60,24 +60,26 @@ public class ClientMenuController : MonoBehaviour
 
     private VisualElement m_ghostIcon;
 
+    private Label m_gameTimerLabel;
+
     private bool m_isDragging;
-    
+
     private bool m_draggingFromPlayerInventory;
 
     private bool m_inRangeOfOwnedInventory;
 
     private int m_draggingFromInventoryNum;
-    
+
     private InventorySlot m_draggingOriginalInventorySlot;
-    
+
     private GameObject m_currentLoadingWarehouse = null;
-    
+
     private int m_currentLoadingWarehouseNum = -1;
 
     private InventoryType m_currentLoadingWarehouseType;
 
     private VisualElement m_orderRoot;
-    
+
     private Button m_gasRefillButton;
 
     private List<VisualElement> m_activeOrderElements;
@@ -101,7 +103,7 @@ public class ClientMenuController : MonoBehaviour
             _instance = this;
         }
     }
-    
+
     void Start()
     {
         StartCoroutine(InitializeCoroutine());
@@ -122,10 +124,10 @@ public class ClientMenuController : MonoBehaviour
 
         return new Color(rTotal / colors.Length, gTotal / colors.Length, bTotal / colors.Length);
     }
-    
+
     private IEnumerator InitializeCoroutine()
     {
-        yield return new WaitUntil(() => {return ClientConnectionHandler.Instance.m_clienSideSessionInfoReceived;});
+        yield return new WaitUntil(() => { return ClientConnectionHandler.Instance.m_clienSideSessionInfoReceived; });
         m_initialized = true;
         m_root = GetComponent<UIDocument>().rootVisualElement.Q<VisualElement>("root");
 
@@ -134,14 +136,19 @@ public class ClientMenuController : MonoBehaviour
         m_activeOrderElements = new List<VisualElement>();
 
         m_playerInventoryRoot = m_root.Q<VisualElement>("owned-truck-inventory-root");
-        
+
         m_playerInventoryElement = m_root.Q<VisualElement>("player-inventory-element");
 
         m_gasRefillButton = m_root.Q<Button>("gas-refill-button");
-        
+
         m_gasRefillButton.clicked += OnGasRefillButtonClicked;
 
         m_otherPlayersInventoryRoot = m_root.Q<VisualElement>("other-players-inventory-root");
+
+        m_gameTimerLabel = m_root.Q<Label>("game-timer-label");
+
+        TimeSpan t = TimeSpan.FromSeconds(GameTimerSystem.Instance.timerSecondsRemaining.Value);
+        m_gameTimerLabel.text = t.ToString(@"mm\:ss");
 
         m_loadAllButtons = new List<VisualElement>();
 
@@ -151,9 +158,9 @@ public class ClientMenuController : MonoBehaviour
         m_ghostIcon.RegisterCallback<PointerUpEvent>(OnPointerUp);
 
         m_ownedWarehouseInventoryElement = m_root.Q<VisualElement>("warehouse-inventory");
-        
+
         VisualElement inventoryElement = m_ownedWarehouseInventoryElement.Q<VisualElement>("inventory");
-        
+
         inventoryElement.style.borderBottomColor = Color.red;
         inventoryElement.style.borderTopColor = Color.red;
         inventoryElement.style.borderLeftColor = Color.red;
@@ -163,11 +170,11 @@ public class ClientMenuController : MonoBehaviour
         inventoryElement.style.borderTopWidth = 3f;
         inventoryElement.style.borderLeftWidth = 3f;
         inventoryElement.style.borderRightWidth = 3f;
-        
+
         m_ownedWarehouseInventoryElement.Q<Label>("header").text = $"Warehouse";
 
         // m_ownedWarehouseInventoryElement.style.opacity = 0.5f;
-        
+
         m_root.Q<Label>("score-label").text = "0G";
 
         ProgressBar gasBar = m_root.Q<ProgressBar>("truck-gas-bar");
@@ -176,18 +183,18 @@ public class ClientMenuController : MonoBehaviour
         {
             m_root.Q<VisualElement>("truck-gas-bar-root").style.display = DisplayStyle.None;
         }
-        
+
         int maxGas = MapDataNetworkBehaviour.Instance.maxGasPerPlayer.Value;
         gasBar.title = $"{maxGas}/{maxGas}";
         gasBar.value = 100;
-        
+
         foreach (VisualElement child in gasBar.Q<VisualElement>("unity-progress-bar").Children())
         {
             child.style.backgroundColor = m_gasFillColorGradient.Evaluate(1f);
         }
 
         m_inRangeOfOwnedInventory = false;
-        
+
         int playerNum = ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum;
 
         m_ownedWarehouseNum = -1;
@@ -205,11 +212,12 @@ public class ClientMenuController : MonoBehaviour
             Debug.LogError($"Could not find owned warehouse for player number: {playerNum}! " +
                            $"Check your config file to make sure each player has a warehouse.");
         }
-        
-        InventorySystem.Instance.RegisterWarehouseInventoryChangedCallback(m_ownedWarehouseNum, UpdateOwnedWarehouseInventory);
+
+        InventorySystem.Instance.RegisterWarehouseInventoryChangedCallback(m_ownedWarehouseNum,
+            UpdateOwnedWarehouseInventory);
         //one initial call
         UpdateOwnedWarehouseInventory();
-        
+
         InventorySystem.Instance.RegisterPlayerInventoryChangedCallback(playerNum, UpdatePlayerInventory);
 
         ulong playerNetworkObjectId = MapDataNetworkBehaviour.Instance.GetNetworkIdOfPlayer(playerNum);
@@ -237,20 +245,33 @@ public class ClientMenuController : MonoBehaviour
         OrderSystem.Instance.acceptedOrders.OnValueChanged += OnAcceptedOrdersChanged;
 
         OrderSystem.Instance.currentScorePerPlayer.OnValueChanged += OnScoreChanged;
-        
+
+        GameTimerSystem.Instance.timerSecondsRemaining.OnValueChanged += OnTimerValueChanged;
+
         PlayerNetworkBehaviour playerNetworkBehaviour = m_thisPlayerGameObject.GetComponent<PlayerNetworkBehaviour>();
 
         playerNetworkBehaviour.m_numGasRemaining.OnValueChanged +=
             OnGasValueChanged;
-        
+
         playerNetworkBehaviour.m_onPlayerEnterGasStationRadius += OnPlayerEnterGasStationRadius;
         playerNetworkBehaviour.m_onPlayerExitGasStationRadius += OnPlayerExitGasStationRadius;
-        
+
         m_otherPlayersTrucksInventorySlots = new();
         m_otherPlayersTrucksInventoryElements = new();
     }
 
-    private void OnGasRefillButtonClicked()
+    private void OnTimerValueChanged(int oldTimerValueSeconds, int currentTimerValueSeconds)
+    {
+        TimeSpan t = TimeSpan.FromSeconds(currentTimerValueSeconds);
+        m_gameTimerLabel.text = t.ToString(@"mm\:ss");
+        
+        if (currentTimerValueSeconds < 60)
+        {
+            m_gameTimerLabel.parent.style.backgroundColor = new Color(128, 0, 0);
+        }
+    }
+
+private void OnGasRefillButtonClicked()
     {
         if (m_nearGasStation)
         {
@@ -272,6 +293,10 @@ public class ClientMenuController : MonoBehaviour
     
     public void StartDrag(Vector2 position, InventorySlot originalInventorySlot)
     {
+        if (GameTimerSystem.Instance.isGamePaused.Value)
+        {
+            return;
+        }
         
         m_draggingOriginalInventorySlot = originalInventorySlot;
         if (originalInventorySlot.worldBound.Overlaps(m_playerInventoryElement.worldBound))
@@ -638,7 +663,9 @@ public class ClientMenuController : MonoBehaviour
                         m_currentLoadingWarehouse = nearestWarehouseNetworkObject.gameObject;
                         m_currentLoadingWarehouseType = InventoryType.Warehouse;
                         m_currentLoadingWarehouseNum = m_ownedWarehouseNum;
-                        m_currentLoadingWarehouse.GetComponentInChildren<SpriteRenderer>().color = Color.green;
+                        
+                        m_currentLoadingWarehouse.transform.Find("border").gameObject.SetActive(true);
+                        
                         m_ownedWarehouseInventoryElement.style.opacity = 1f;
 
                         m_approachDestinationSFX.Play();
@@ -657,7 +684,7 @@ public class ClientMenuController : MonoBehaviour
                     {
                         m_currentLoadingWarehouse = nearestWarehouseNetworkObject.gameObject;
                         m_currentLoadingWarehouseNum = nearestWarehouseNum;
-                        m_currentLoadingWarehouse.GetComponentInChildren<SpriteRenderer>().color = Color.green;
+                        m_currentLoadingWarehouse.transform.Find("border").gameObject.SetActive(true);
                         m_currentLoadingWarehouseType = InventoryType.Destination;
 
                         m_approachDestinationSFX.Play();
@@ -686,7 +713,7 @@ public class ClientMenuController : MonoBehaviour
 
                     if (m_currentLoadingWarehouseNum != -1)
                     {
-                        m_currentLoadingWarehouse.GetComponentInChildren<SpriteRenderer>().color = Color.white;
+                        m_currentLoadingWarehouse.transform.Find("border").gameObject.SetActive(false);
                     }
                     
                     m_currentLoadingWarehouseNum = -1;

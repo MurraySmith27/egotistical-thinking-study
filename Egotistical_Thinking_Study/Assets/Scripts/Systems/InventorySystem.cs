@@ -85,6 +85,11 @@ public class InventorySystem : NetworkBehaviour
             path += "/../";
         }
 
+        if (!Directory.Exists(path + ITEM_IMAGES_DIRECTORY_PATH))
+        {
+            return;
+        }
+        
         string[] filenames = Directory.GetFiles(path + ITEM_IMAGES_DIRECTORY_PATH);
 
         Array.Sort(filenames);

@@ -1,5 +1,6 @@
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using Unity.Netcode;
@@ -32,6 +33,10 @@ public class MapDataNetworkBehaviour : NetworkBehaviour
     public NetworkVariable<int> mapHeight = new NetworkVariable<int>();
     
     private const string DESTINATION_IMAGES_DIRECTORY_PATH = "DestinationIcons";
+
+    private const string WAREHOUSE_IMAGES_DIRECTORY_PATH = "WarehouseIcons";
+    
+    private const string TRUCK_IMAGES_DIRECTORY_PATH = "TruckIcons";
     
     void Awake()
     {
@@ -54,6 +59,8 @@ public class MapDataNetworkBehaviour : NetworkBehaviour
         if (!Application.isEditor && this.IsClient)
         {
             OverrideDestinationIconsFromDisk();
+            OverrideWarehouseIconsFromDisk();
+            OverrideTruckIconsFromDisk();
         }
     }
 
@@ -64,6 +71,8 @@ public class MapDataNetworkBehaviour : NetworkBehaviour
             if (!Application.isEditor)
             {
                 OverrideDestinationIconsFromDisk();
+                OverrideWarehouseIconsFromDisk();
+                OverrideTruckIconsFromDisk();
             }
         }
         else
@@ -72,7 +81,7 @@ public class MapDataNetworkBehaviour : NetworkBehaviour
             isScoreShared.Value = GameRoot.Instance.configData.IsScoreShared;
         }
     }
-
+    
     public ulong GetNetworkIdOfWarehouse(int warehouseNum)
     {
         return warehouseNetworkObjectIds.Value.arr[warehouseNum];
@@ -127,6 +136,11 @@ public class MapDataNetworkBehaviour : NetworkBehaviour
             path += "/../";
         }
 
+        if (!Directory.Exists(path + DESTINATION_IMAGES_DIRECTORY_PATH))
+        {
+            return;
+        }
+        
         string[] filenames = Directory.GetFiles(path + DESTINATION_IMAGES_DIRECTORY_PATH);
 
         Array.Sort(filenames);
@@ -151,6 +165,89 @@ public class MapDataNetworkBehaviour : NetworkBehaviour
             destinationObject.GetComponentInChildren<SpriteRenderer>().sprite = destinationSprites[i];
         }
     }
+    
+    private void OverrideWarehouseIconsFromDisk()
+    {
+        string path = Application.dataPath;
+    
+        if (Application.platform == RuntimePlatform.OSXPlayer) {
+            path += "/../../";
+        }
+        else if (Application.platform == RuntimePlatform.WindowsPlayer) {
+            path += "/../";
+        }
+        
+        if (!Directory.Exists(path + WAREHOUSE_IMAGES_DIRECTORY_PATH))
+        {
+            return;
+        }
+
+        string[] filenames = Directory.GetFiles(path + WAREHOUSE_IMAGES_DIRECTORY_PATH);
+
+        Array.Sort(filenames);
+
+        List<Sprite> warehouseSprites = new List<Sprite>();
+
+        foreach (string file in filenames)
+        {
+            Sprite warehouseSprite;
+            if (ImageLoadingUtils.LoadImageAsSprite(file, out warehouseSprite))
+            {
+                warehouseSprites.Add(warehouseSprite);
+            }
+        }
+
+        int upperBound = Mathf.Min(warehouseSprites.Count, warehouseNetworkObjectIds.Value.arr.Length);
+        for (int i = 0; i < upperBound; i++)
+        {
+            GameObject warehouseObject =
+                NetworkManager.Singleton.SpawnManager.SpawnedObjects[warehouseNetworkObjectIds.Value.arr[i]].gameObject;
+            
+            warehouseObject.GetComponentInChildren<SpriteRenderer>().sprite = warehouseSprites[i];
+        }
+    }
+    
+    private void OverrideTruckIconsFromDisk()
+    {
+        string path = Application.dataPath;
+    
+        if (Application.platform == RuntimePlatform.OSXPlayer) {
+            path += "/../../";
+        }
+        else if (Application.platform == RuntimePlatform.WindowsPlayer) {
+            path += "/../";
+        }
+        
+        if (!Directory.Exists(path + TRUCK_IMAGES_DIRECTORY_PATH))
+        {
+            return;
+        }
+
+        string[] filenames = Directory.GetFiles(path + TRUCK_IMAGES_DIRECTORY_PATH);
+
+        Array.Sort(filenames);
+
+        List<Sprite> truckSprites = new List<Sprite>();
+
+        foreach (string file in filenames)
+        {
+            Sprite truckSprite;
+            if (ImageLoadingUtils.LoadImageAsSprite(file, out truckSprite))
+            {
+                truckSprites.Add(truckSprite);
+            }
+        }
+
+        int upperBound = Mathf.Min(truckSprites.Count, playerNetworkObjectIds.Value.arr.Length);
+        
+        for (int i = 0; i < upperBound; i++)
+        {
+            GameObject playerObject =
+                NetworkManager.Singleton.SpawnManager.SpawnedObjects[playerNetworkObjectIds.Value.arr[i]].gameObject;
+            
+            playerObject.GetComponentInChildren<SpriteRenderer>().sprite = truckSprites[i];
+        }
+    }
 
     public void RegisterWareHouseNetworkObjectIds(List<GameObject> warehouses)
     {
@@ -159,6 +256,11 @@ public class MapDataNetworkBehaviour : NetworkBehaviour
         for (int i = 0; i < warehouses.Count; i++)
         {
             warehouseNetworkObjectIds.Value.arr[i] = warehouses[i].GetComponent<NetworkObject>().NetworkObjectId;
+        }
+
+        if (!Application.isEditor)
+        {
+            OverrideWarehouseIconsFromDisk();
         }
     }
 
@@ -185,6 +287,10 @@ public class MapDataNetworkBehaviour : NetworkBehaviour
         {
             playerNetworkObjectIds.Value.arr[i] = players[i].GetComponent<NetworkObject>().NetworkObjectId;
         }
+        
+        if (!Application.isEditor) {
+            OverrideTruckIconsFromDisk();
+        }
     }
 
     public void RegisterMapDimentions(int width, int height)
@@ -192,7 +298,4 @@ public class MapDataNetworkBehaviour : NetworkBehaviour
         mapWidth.Value = width;
         mapHeight.Value = height;
     }
-    
-    
-
 }

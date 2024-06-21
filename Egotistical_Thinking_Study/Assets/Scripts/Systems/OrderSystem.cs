@@ -14,6 +14,8 @@ public delegate void OrderIncompleteEvent(int orderIndex);
 
 public delegate void OrderChangedEvent(int orderIndex);
 
+public delegate void OrderRejectedEvent(int orderIndex);
+
 public class OrderSystem : NetworkBehaviour
 {
 
@@ -33,6 +35,8 @@ public class OrderSystem : NetworkBehaviour
     public OrderIncompleteEvent onOrderIncomplete;
 
     public OrderChangedEvent onOrderChanged;
+
+    public OrderRejectedEvent onOrderRejected;
     
     public NetworkVariable<NetworkSerializableOrderArray> orders = new NetworkVariable<NetworkSerializableOrderArray>();
 
@@ -190,6 +194,7 @@ public class OrderSystem : NetworkBehaviour
             {
                 activeOrders.Value.arr[i] = 0;
             }
+            activeOrders.SetDirty(true);
 
             StartCoroutine(UpdateOrderTimeRemaining());
         }
@@ -208,9 +213,17 @@ public class OrderSystem : NetworkBehaviour
                     {
                         //accept the order automatically
                         acceptedOrders.Value.arr[i] = 2;
+                        acceptedOrders.SetDirty(true);
                     }
-                    
-                    if (order.orderTimeRemaining > 0 && incompleteOrders.Value.arr[i] == 0 && completeOrders.Value.arr[i] == 0 )
+
+                    if (acceptedOrders.Value.arr[i] == 1)
+                    {
+                        if (onOrderRejected != null && onOrderRejected.GetInvocationList().Length > 0)
+                        {
+                            onOrderRejected(i);
+                        }
+                    }
+                    else if (order.orderTimeRemaining > 0 && incompleteOrders.Value.arr[i] == 0 && completeOrders.Value.arr[i] == 0)
                     {
                         orders.Value.orders[i].orderTimeRemaining--;
                         orders.SetDirty(true);
@@ -235,6 +248,7 @@ public class OrderSystem : NetworkBehaviour
             }
 
             yield return new WaitForSeconds(1f);
+            yield return new WaitUntil(() => !GameTimerSystem.Instance.isGamePaused.Value);
         }
     }
 
@@ -258,6 +272,7 @@ public class OrderSystem : NetworkBehaviour
     private void AcceptOrder_ServerRPC(int orderIndex)
     {
         acceptedOrders.Value.arr[orderIndex] = 2;
+        acceptedOrders.SetDirty(true);
     }
 
     public void RejectOrder(int orderIndex)
@@ -269,5 +284,6 @@ public class OrderSystem : NetworkBehaviour
     private void RejectOrder_ServerRPC(int orderIndex)
     {
         acceptedOrders.Value.arr[orderIndex] = 1;
+        acceptedOrders.SetDirty(true);
     }
 }

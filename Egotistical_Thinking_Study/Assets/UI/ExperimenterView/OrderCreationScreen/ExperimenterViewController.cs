@@ -96,29 +96,68 @@ public class ExperimenterViewController : MonoBehaviour
         
         m_root.Q<Label>("score-label").text = "0G";
 
+        TimeSpan t = TimeSpan.FromSeconds(GameTimerSystem.Instance.timerSecondsRemaining.Value);
+        m_root.Q<Label>("timer-label").text = t.ToString(@"mm\:ss");
+
+        m_root.Q<Button>("pause-resume-button").clicked += OnPauseResumeButtonClicked;
+        
         m_root.Q<Button>("reset-button").clicked += OnResetButtonClicked;
+        
+        GameTimerSystem.Instance.timerSecondsRemaining.OnValueChanged += OnTimerValueChanged;
         
         OrderSystem.Instance.currentScorePerPlayer.OnValueChanged += OnScoreChanged;
 
         OrderSystem.Instance.onOrderChanged += OnOrderValueChanged;
         OrderSystem.Instance.onOrderComplete += OnOrderComplete;
         OrderSystem.Instance.onOrderIncomplete += OnOrderIncomplete;
+        OrderSystem.Instance.onOrderRejected += OnOrderRejected;
     }
 
+    private void OnTimerValueChanged(int oldTimerValueSeconds, int currentTimerValueSeconds)
+    {
+        TimeSpan t = TimeSpan.FromSeconds(currentTimerValueSeconds);
+        m_root.Q<Label>("timer-label").text = t.ToString(@"mm\:ss");
 
+        if (currentTimerValueSeconds <= 0)
+        {
+            GameTimerSystem.Instance.isGamePaused.Value = true;
+
+            Button pauseResumeButton = m_root.Q<Button>("pause-resume-button");
+            pauseResumeButton.clicked -= OnPauseResumeButtonClicked;
+            pauseResumeButton.style.opacity = 0.5f;
+        }
+        else if (currentTimerValueSeconds < 60)
+        {
+            m_root.Q<VisualElement>("timer-parent").style.backgroundColor = new Color(128, 0, 0);
+        }
+    }
+
+    private void OnPauseResumeButtonClicked()
+    {
+        if (!GameTimerSystem.Instance.isGamePaused.Value)
+        {
+            m_root.Q<Button>("pause-resume-button").text = "Resume";
+        }
+        else
+        {
+            m_root.Q<Button>("pause-resume-button").text = "Pause";
+        }
+
+        GameTimerSystem.Instance.isGamePaused.Value = !GameTimerSystem.Instance.isGamePaused.Value;
+    }
+    
     private void OnResetButtonClicked()
     {
         ServerManager.m_reset = true;
-        Debug.Log("setting reset to true!");
-
         
         foreach (GameObject obj in FindObjectsOfType(typeof(GameObject)))
         {
-            if (obj.name != this.gameObject.name && obj.name != this.transform.parent.name && obj.name != NetworkManager.Singleton.gameObject.name)
+            if (obj != null && obj.name != this.gameObject.name && obj.name != this.transform.parent.name && obj.name != NetworkManager.Singleton.gameObject.name)
             {
                 DestroyImmediate(obj);
             }
         }
+        
         NetworkManager.Singleton.Shutdown();
         DestroyImmediate(NetworkManager.Singleton.gameObject);
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
@@ -192,6 +231,16 @@ public class ExperimenterViewController : MonoBehaviour
         if (OrderSystem.Instance.incompleteOrders.Value.arr[orderIndex] != 0)
         {
             orderElement.Q <VisualElement>("x-overlay").style.visibility = Visibility.Visible;
+        }
+    }
+
+    private void OnOrderRejected(int orderIndex)
+    {
+        VisualElement orderElement = m_orderElements[orderIndex];
+
+        if (OrderSystem.Instance.acceptedOrders.Value.arr[orderIndex] == 1)
+        {
+            orderElement.Q<VisualElement>("x-overlay").style.visibility = Visibility.Visible;
         }
     }
 
