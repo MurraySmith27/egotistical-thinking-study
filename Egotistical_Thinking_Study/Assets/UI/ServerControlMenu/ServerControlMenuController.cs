@@ -12,6 +12,7 @@ using Newtonsoft.Json.Linq;
 public class ServerControlMenuController : MonoBehaviour
 {
 
+    [SerializeField] private AudioSource m_mouseClickSFX;
     [SerializeField] private GameRoot gameRoot;
 
     [SerializeField] private GameObject experimenterView;
@@ -52,18 +53,21 @@ public class ServerControlMenuController : MonoBehaviour
 
     void OnGameStart()
     {
+        m_mouseClickSFX.Play();
         gameRoot.OnStart();
         experimenterView.SetActive(true);
         this.gameObject.SetActive(false);
     }
 
     void LoadMapFile() {
+        m_mouseClickSFX.Play();
         mapFileLabel.text = "loading dialogue";
         FileBrowser.ShowLoadDialog(SetMapFile, () => {}, FileBrowser.PickMode.FilesAndFolders, false, null, null, "Load Files and Folders", "Load" );
     }
 
     void LoadConfigFile()
     {
+        m_mouseClickSFX.Play();
         mapFileLabel.text = "loading dialogue";
         FileBrowser.ShowLoadDialog(SetConfigFile, () => {}, FileBrowser.PickMode.FilesAndFolders, false, null, null, "Load Files and Folders", "Load" );
     }
@@ -102,7 +106,6 @@ public class ServerControlMenuController : MonoBehaviour
         string json = sr.ReadToEnd();
 
         ConfigData configData = JsonConvert.DeserializeObject<ConfigData>(json);
-
         
         //
         // int[][] wc = warehouseContents.Value<int[][]>("WarehouseContents");

@@ -14,6 +14,7 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
 {
     public Color m_playerColor;
     
+    [SerializeField] private AudioSource m_mouseClickSFX;
     [SerializeField] private InputActionAsset clientInput;
     [SerializeField] private float secondsPerGridMove;
     [SerializeField] private float m_gasRefillRadius = 8f;
@@ -180,7 +181,6 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
         float width = bottomRightCorner.x - topLeftCorner.x;
         float height = bottomRightCorner.y - topLeftCorner.y;
         
-        
         //raycast from camera center, see if it intersects with the map.
         RaycastHit hit;
         Camera playerCameraComponent = playerCamera.GetComponent<Camera>();
@@ -193,6 +193,7 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
 
             if (hit.transform.gameObject.name.Contains("Road"))
             {
+                m_mouseClickSFX.Play();
                 int playerNum = ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum;
                 Vector2Int destinationPos = new((int)(hitPos.x / MapGenerator.Instance.tileWidth), (int)(hitPos.y / MapGenerator.Instance.tileHeight));
                 MovePlayerTo_ServerRpc(destinationPos, playerNum);
@@ -228,6 +229,7 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
 
                 if (closestHitDistance != float.PositiveInfinity)
                 {
+                    m_mouseClickSFX.Play();
                     int playerNum = ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum;
                     Vector2Int destinationPos = new((int)(closestHitPos.x / MapGenerator.Instance.tileWidth), (int)(closestHitPos.y / MapGenerator.Instance.tileHeight));
                     MovePlayerTo_ServerRpc(destinationPos, playerNum);

@@ -9,6 +9,7 @@ using Unity.Netcode;
 
 public class MainMenuController : MonoBehaviour
 {
+    [SerializeField] private AudioSource m_mouseClickSFX;
     [SerializeField] private ServerManager serverManager;
     [SerializeField] private ClientManager clientManager;
 
@@ -71,6 +72,7 @@ public class MainMenuController : MonoBehaviour
 
     void OnStartAsServerButtonClicked()
     {
+        m_mouseClickSFX.Play();
         string address = ServerManager.m_ipAddress;
         if (!ServerManager.m_reset)
         {
@@ -97,6 +99,7 @@ public class MainMenuController : MonoBehaviour
     }
 
     void OnStartAsClientButtonClicked() {
+        m_mouseClickSFX.Play();
         string address = addressText.text;
         int portNum = Int32.Parse(portText.text);
 

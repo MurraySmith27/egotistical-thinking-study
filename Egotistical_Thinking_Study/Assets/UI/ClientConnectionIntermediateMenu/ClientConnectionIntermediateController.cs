@@ -7,6 +7,8 @@ using UnityEngine.UIElements;
 public class ClientConnectionIntermediateController : MonoBehaviour
 {
 
+    [SerializeField] private AudioSource m_mouseClickSFX;
+    
     private VisualElement m_root;
 
     private Button m_backButton;
@@ -22,6 +24,7 @@ public class ClientConnectionIntermediateController : MonoBehaviour
 
     private void OnBackButtonClicked()
     {
+        m_mouseClickSFX.Play();
         NetworkManager.Singleton.Shutdown();
         ((ClientManager)Object.FindObjectOfType(typeof(ClientManager)))?.OnDisconnected(0);
     }

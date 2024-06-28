@@ -10,6 +10,7 @@ using UnityEngine.UIElements;
 
 public class ExperimenterViewController : MonoBehaviour
 {
+    [SerializeField] private AudioSource m_mouseClickSFX;
     [SerializeField] private VisualTreeAsset m_orderElement;
 
     [SerializeField] private VisualTreeAsset m_gasRefillButtonElement;
@@ -78,6 +79,7 @@ public class ExperimenterViewController : MonoBehaviour
             int x = i;
             orderElement.Q<Button>("send-order-button").clicked += () =>
             {
+                m_mouseClickSFX.Play();
                 orderElement.Q<Button>("send-order-button").style.visibility = Visibility.Hidden;
                 OnOrderSent(x);
             };
@@ -94,7 +96,7 @@ public class ExperimenterViewController : MonoBehaviour
         
         m_root.Q<Label>("port-label").text = $"Port: {ServerManager.m_port}";
         
-        m_root.Q<Label>("score-label").text = "0G";
+        m_root.Q<Label>("score-label").text = "Total Score: 0G";
 
         TimeSpan t = TimeSpan.FromSeconds(GameTimerSystem.Instance.timerSecondsRemaining.Value);
         m_root.Q<Label>("timer-label").text = t.ToString(@"mm\:ss");
@@ -105,7 +107,7 @@ public class ExperimenterViewController : MonoBehaviour
         
         GameTimerSystem.Instance.timerSecondsRemaining.OnValueChanged += OnTimerValueChanged;
         
-        OrderSystem.Instance.currentScorePerPlayer.OnValueChanged += OnScoreChanged;
+        OrderSystem.Instance.onScoreChanged += OnScoreChanged;
 
         OrderSystem.Instance.onOrderChanged += OnOrderValueChanged;
         OrderSystem.Instance.onOrderComplete += OnOrderComplete;
@@ -134,6 +136,7 @@ public class ExperimenterViewController : MonoBehaviour
 
     private void OnPauseResumeButtonClicked()
     {
+        m_mouseClickSFX.Play();
         if (!GameTimerSystem.Instance.isGamePaused.Value)
         {
             m_root.Q<Button>("pause-resume-button").text = "Resume";
@@ -148,6 +151,7 @@ public class ExperimenterViewController : MonoBehaviour
     
     private void OnResetButtonClicked()
     {
+        m_mouseClickSFX.Play();
         ServerManager.m_reset = true;
         
         foreach (GameObject obj in FindObjectsOfType(typeof(GameObject)))
@@ -163,9 +167,9 @@ public class ExperimenterViewController : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
     
-    private void OnScoreChanged(NetworkSerializableIntArray prev, NetworkSerializableIntArray current)
+    private void OnScoreChanged(int[] scorePerPlayer)
     {
-        m_root.Q<Label>("score-label").text = $"Total Score: {current.arr.Sum()}G";
+        m_root.Q<Label>("score-label").text = $"Total Score: {scorePerPlayer.Sum()}G";
     }
     
     private void OnClientConnected(ulong clientId)
@@ -193,6 +197,7 @@ public class ExperimenterViewController : MonoBehaviour
 
     private void OnGasRefillButtonClicked(Guid playerGuid)
     {
+        m_mouseClickSFX.Play();
         int playerNum = ClientConnectionHandler.Instance.serverSideClientList[playerGuid].playerNum;
         GameObject playerGameObject = GameObject.FindGameObjectWithTag($"Player{playerNum}");
 

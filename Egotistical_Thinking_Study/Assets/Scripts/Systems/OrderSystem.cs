@@ -16,6 +16,8 @@ public delegate void OrderChangedEvent(int orderIndex);
 
 public delegate void OrderRejectedEvent(int orderIndex);
 
+public delegate void ScoreChangedEvent(int[] newScoresPerPlayer);
+
 public class OrderSystem : NetworkBehaviour
 {
 
@@ -37,6 +39,8 @@ public class OrderSystem : NetworkBehaviour
     public OrderChangedEvent onOrderChanged;
 
     public OrderRejectedEvent onOrderRejected;
+    
+    public ScoreChangedEvent onScoreChanged;
     
     public NetworkVariable<NetworkSerializableOrderArray> orders = new NetworkVariable<NetworkSerializableOrderArray>();
 
@@ -81,12 +85,12 @@ public class OrderSystem : NetworkBehaviour
 
     private void OnInventoryChanged(int inventoryNum, InventoryType inventoryType, InventoryChangeType changeType)
     {
-        if (inventoryType == InventoryType.Destination || inventoryType == InventoryType.Warehouse)
+        if (inventoryType == InventoryType.Destination)
         {
             List<(int, int)> inventory = InventorySystem.Instance.GetInventory(inventoryNum, inventoryType);
             for (int i = 0; i < activeOrders.Value.arr.Length; i++)
             {
-                if (activeOrders.Value.arr[i] == 1)
+                if (activeOrders.Value.arr[i] == 1 && inventoryNum == orders.Value.orders[i].destinationWarehouse)
                 {
                     bool complete = true;
                     foreach (string key in orders.Value.orders[i].requiredItems.Keys)
@@ -118,7 +122,6 @@ public class OrderSystem : NetworkBehaviour
                         {
                             onOrderComplete(i);
                         }
-                        
                     }
                 }
             }
@@ -146,9 +149,9 @@ public class OrderSystem : NetworkBehaviour
 
     private void DoAddScoreToPlayer(int playerNum, int scoreToAdd)
     {
-        Debug.Log($"adding {scoreToAdd} score to player {playerNum}");
         currentScorePerPlayer.Value.arr[playerNum] += scoreToAdd;
         currentScorePerPlayer.SetDirty(true);
+        onScoreChanged(currentScorePerPlayer.Value.arr);
     }
 
     public void OnGameStart()

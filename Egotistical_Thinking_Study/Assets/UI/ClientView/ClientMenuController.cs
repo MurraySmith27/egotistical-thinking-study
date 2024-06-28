@@ -17,6 +17,8 @@ public class ClientMenuController : MonoBehaviour
     {
         get { return _instance; }
     }
+    
+    [SerializeField] private AudioSource m_mouseClickSFX;
 
     [SerializeField] private float m_loadingDistanceFromWarehouse = 1f;
 
@@ -275,6 +277,7 @@ private void OnGasRefillButtonClicked()
     {
         if (m_nearGasStation)
         {
+            m_mouseClickSFX.Play();
             m_thisPlayerGameObject.GetComponent<PlayerNetworkBehaviour>().RefillGas();
         }
     }
@@ -297,6 +300,8 @@ private void OnGasRefillButtonClicked()
         {
             return;
         }
+
+        m_mouseClickSFX.Play();
         
         m_draggingOriginalInventorySlot = originalInventorySlot;
         if (originalInventorySlot.worldBound.Overlaps(m_playerInventoryElement.worldBound))
@@ -347,7 +352,8 @@ private void OnGasRefillButtonClicked()
                 {
                     if (OrderSystem.Instance.activeOrders.Value.arr[i] != 0 && 
                         OrderSystem.Instance.completeOrders.Value.arr[i] == 0 && 
-                        OrderSystem.Instance.incompleteOrders.Value.arr[i] == 0)
+                        OrderSystem.Instance.incompleteOrders.Value.arr[i] == 0 &&
+                        OrderSystem.Instance.orders.Value.orders[i].destinationWarehouse == m_currentLoadingWarehouseNum)
                     {
                         Dictionary<string, int> requiredItems =
                             OrderSystem.Instance.orders.Value.orders[i].requiredItems;
@@ -366,7 +372,6 @@ private void OnGasRefillButtonClicked()
                         {
                             foundItemInActiveOrder = true;
                         }
-                        
                     }
                 }
 
@@ -550,7 +555,6 @@ private void OnGasRefillButtonClicked()
                 if ((m_draggingFromInventoryNum == ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum && m_currentLoadingWarehouseNum != -1) ||
                     m_otherPlayersTrucksInventoryElements.Keys.Contains(m_draggingFromInventoryNum))
                 {
-
                     (int, InventorySlot) closestSlot = warehouseInventorySlots.OrderBy(x =>
                         Vector2.Distance(x.Item2.worldBound.position, m_ghostIcon.worldBound.position)).First();
 
@@ -890,7 +894,7 @@ private void OnGasRefillButtonClicked()
                     {
                         if (networkBehaviour.NetworkObjectId == destinationNetworkObjectId)
                         {
-                            destinationSprite = networkBehaviour.GetComponentInChildren<SpriteRenderer>().sprite;
+                            destinationSprite = networkBehaviour.transform.GetChild(2).GetComponent<SpriteRenderer>().sprite;
                             break;
                         }
                     }
@@ -903,7 +907,6 @@ private void OnGasRefillButtonClicked()
                     VisualElement itemsContainer = orderElement.Q<VisualElement>("order-items-container");
                     foreach (string key in order.requiredItems.Keys)
                     {
-                        
                         int itemNum = Int32.Parse(key);
 
                         int quantityInDestinationInventory = 0; 
@@ -946,8 +949,16 @@ private void OnGasRefillButtonClicked()
                     Button rejectOrderButton = orderElement.Q<Button>("reject-button");
                     rejectOrderButton.style.visibility = Visibility.Hidden;
                     
+                    Debug.Log($"refreshing! Accepted order: {acceptedOrders.arr[i]}");
+                    
                     if (acceptedOrders.arr[i] == 2)
                     {
+                        VisualElement root = orderElement.Q<VisualElement>("root");
+                        root.style.borderBottomColor = Color.green;
+                        root.style.borderTopColor = Color.green;
+                        root.style.borderRightColor = Color.green;
+                        root.style.borderLeftColor = Color.green;
+                        
                         if (m_currentLoadingWarehouseNum == order.destinationWarehouse && completeOrders.arr[i] != 0 &&
                             incompleteOrders.arr[i] != 0)
                         {
@@ -964,9 +975,9 @@ private void OnGasRefillButtonClicked()
                         rejectOrderButton.style.visibility = Visibility.Visible;
 
                         int temp = i;
-                        acceptOrderButton.clicked += () => { OrderSystem.Instance.AcceptOrder(temp); };
+                        acceptOrderButton.clicked += () => { m_mouseClickSFX.Play(); OrderSystem.Instance.AcceptOrder(temp); };
                         
-                        rejectOrderButton.clicked += () => { OrderSystem.Instance.RejectOrder(temp); };
+                        rejectOrderButton.clicked += () => { m_mouseClickSFX.Play(); OrderSystem.Instance.RejectOrder(temp); };
 
                     }
 
@@ -1018,6 +1029,7 @@ private void OnGasRefillButtonClicked()
 
     private void LoadAllFromOrderCallback(int orderIndex)
     {
+        m_mouseClickSFX.Play();
         if (m_currentLoadingWarehouseNum == OrderSystem.Instance.orders.Value.orders[orderIndex].destinationWarehouse)
         {
             List<(int, int)> playerInventory = InventorySystem.Instance.GetInventory(ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum, InventoryType.Player);
@@ -1103,9 +1115,6 @@ private void OnGasRefillButtonClicked()
             }
         }
 
-        
-        
-
         List<InventorySlot> inventoryItems = m_playerInventoryItems;
         if (inventoryType != InventoryType.Player)
         {
@@ -1148,7 +1157,6 @@ private void OnGasRefillButtonClicked()
                     otherPlayerInventoryElement.Q<Label>("inventory-title"), Color.white);
             }
         }
-        
     }
 
     private void PopulateInventory(InventoryType inventoryType, int inventoryNum, List<InventorySlot> inventoryItems,

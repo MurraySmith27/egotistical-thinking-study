@@ -1,16 +1,16 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <ui:VisualElement name="root" style="flex-grow: 1; background-color: rgb(157, 157, 157); border-left-color: rgb(0, 0, 0); border-right-color: rgb(0, 0, 0); border-top-color: rgb(0, 0, 0); border-bottom-color: rgb(0, 0, 0); border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px;">
+    <ui:VisualElement name="root" style="flex-grow: 1; background-color: rgb(157, 157, 157); border-left-color: rgb(0, 0, 0); border-right-color: rgb(0, 0, 0); border-top-color: rgb(0, 0, 0); border-bottom-color: rgb(0, 0, 0); border-top-width: 3px; border-right-width: 3px; border-bottom-width: 3px; border-left-width: 3px;">
         <ui:ProgressBar value="100" title="0s" name="order-timer" style="visibility: hidden; font-size: 25px; -unity-font-style: bold; color: rgb(0, 0, 0);" />
-        <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="order-number-label" style="font-size: 24px; flex-shrink: 1; flex-grow: 1;" />
-        <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="order-description" style="flex-shrink: 1; flex-grow: 1;" />
-        <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="map-destination-label" style="flex-shrink: 1; flex-grow: 1;" />
+        <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="order-number-label" style="font-size: 24px; flex-shrink: 1; flex-grow: 1; -unity-font-style: bold;" />
+        <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="order-description" style="flex-shrink: 1; flex-grow: 1; -unity-font-style: bold;" />
+        <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="map-destination-label" style="flex-shrink: 1; flex-grow: 1; -unity-font-style: bold;" />
         <ui:VisualElement name="map-destination-image-container" style="flex-grow: 6; flex-direction: row; flex-shrink: 1; min-width: 0; min-height: 0;">
             <ui:VisualElement style="flex-grow: 1;" />
             <ui:VisualElement name="map-destination-image" style="flex-grow: 1; background-image: none; min-width: 100px; min-height: 100px; max-width: 100px; max-height: 100px;" />
             <ui:VisualElement style="flex-grow: 1;" />
         </ui:VisualElement>
-        <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="send-to-player-label" style="flex-shrink: 1; flex-grow: 1;" />
-        <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="score-reward-label" style="flex-shrink: 1; flex-grow: 1;" />
+        <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="send-to-player-label" style="flex-shrink: 1; flex-grow: 1; -unity-font-style: bold;" />
+        <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="score-reward-label" style="flex-shrink: 1; flex-grow: 1; -unity-font-style: bold;" />
         <ui:VisualElement name="order-items-container" style="flex-grow: 6; flex-wrap: wrap; flex-direction: row; justify-content: center;" />
         <ui:Button text="Send&#10;" parse-escape-sequences="true" display-tooltip-when-elided="true" name="send-order-button" style="flex-shrink: 1; flex-grow: 6; visibility: visible; flex-direction: row;">
             <ui:Button text="Accept" parse-escape-sequences="true" display-tooltip-when-elided="true" name="accept-button" style="flex-shrink: 1; flex-grow: 1; background-color: rgb(85, 147, 2); visibility: hidden;" />

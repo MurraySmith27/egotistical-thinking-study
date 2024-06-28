@@ -351,6 +351,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d92a8740a792644db736c81a13b592d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_mouseClickSFX: {fileID: 1198937716}
 --- !u!114 &309916985
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1056,7 +1057,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1198937714}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6e323978b1641fb40b48380ab0ba9788, type: 3}
   m_Name: 
@@ -1123,6 +1124,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 987882a9680704bf0877e1b00ee45fdd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_mouseClickSFX: {fileID: 1198937716}
   serverManager: {fileID: 861436898}
   clientManager: {fileID: 861436897}
 --- !u!1 &1246304675
@@ -1206,15 +1208,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6814136195806154924, guid: 16ecc78d1564e2a498351e6d5080fbdd, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6814136195806154924, guid: 16ecc78d1564e2a498351e6d5080fbdd, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7991011569998868463, guid: 16ecc78d1564e2a498351e6d5080fbdd, type: 3}
       propertyPath: m_Name
       value: ---Debug---
+      objectReference: {fileID: 0}
+    - target: {fileID: 7991011569998868463, guid: 16ecc78d1564e2a498351e6d5080fbdd, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1288,6 +1294,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 70b195228e671774b98a0fae3ce73e2c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_mouseClickSFX: {fileID: 1198937716}
   m_loadingDistanceFromWarehouse: 8
   m_orderElementAsset: {fileID: 9197481963319205126, guid: 71e99ac59c69e5342abfb1b48206c635, type: 3}
   m_playerInventoryElementAsset: {fileID: 9197481963319205126, guid: ce8c8203dad104a4fb1d0f831fff2a49, type: 3}
@@ -2241,6 +2248,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b310ddbf7ff34eaa848f43d7de36480, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_mouseClickSFX: {fileID: 1198937716}
   gameRoot: {fileID: 1735363259}
   experimenterView: {fileID: 2102443905}
 --- !u!1 &1728702172
@@ -2305,6 +2313,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 70b195228e671774b98a0fae3ce73e2c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_mouseClickSFX: {fileID: 1198937716}
   m_loadingDistanceFromWarehouse: 8
   m_orderElementAsset: {fileID: 9197481963319205126, guid: 71e99ac59c69e5342abfb1b48206c635, type: 3}
   m_playerInventoryElementAsset: {fileID: 0}
@@ -2607,6 +2616,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 807ec8a91dd3a224a9860c5623452d09, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_mouseClickSFX: {fileID: 1198937716}
   m_orderElement: {fileID: 9197481963319205126, guid: 71e99ac59c69e5342abfb1b48206c635, type: 3}
   m_gasRefillButtonElement: {fileID: 9197481963319205126, guid: 7bb3f9cda53069d45974d46ea5639cde, type: 3}
 --- !u!1 &2117876675
