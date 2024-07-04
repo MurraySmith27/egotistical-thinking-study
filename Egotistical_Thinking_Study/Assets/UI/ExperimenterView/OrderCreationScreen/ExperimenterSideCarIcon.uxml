@@ -1,0 +1,10 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement name="root" style="flex-grow: 1; flex-direction: row; min-height: 100px;">
+        <ui:VisualElement name="icon" style="flex-grow: 1; width: 25%; height: 100%; position: absolute;" />
+        <ui:VisualElement name="score-element" style="flex-grow: 1; position: absolute; width: 45%; height: 100%; left: 25%; background-color: rgb(255, 237, 175); flex-direction: row;">
+            <ui:VisualElement name="gold-icon" style="flex-grow: 1; position: absolute; width: 75px; height: 75px; align-self: center; background-image: url(&apos;project://database/Assets/Art/Icons/gold_coin.png?fileID=21300000&amp;guid=0a5f2fae349391440b701229cb614fe1&amp;type=3#gold_coin&apos;);" />
+            <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="score-label" style="font-size: 25%; -unity-text-align: middle-center; -unity-font-style: bold; left: 75px;" />
+        </ui:VisualElement>
+        <ui:Button text="Refill" parse-escape-sequences="true" display-tooltip-when-elided="true" name="refill-button" style="position: absolute; width: 30%; height: 100%; left: 70%; font-size: 25px;" />
+    </ui:VisualElement>
+</ui:UXML>

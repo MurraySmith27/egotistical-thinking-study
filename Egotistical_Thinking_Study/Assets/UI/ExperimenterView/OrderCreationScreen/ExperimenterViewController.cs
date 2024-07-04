@@ -19,6 +19,8 @@ public class ExperimenterViewController : MonoBehaviour
     private VisualElement m_orderContainer;
 
     private List<VisualElement> m_orderElements;
+
+    private Dictionary<int, VisualElement> m_gasRefillElementsPerPlayer = new Dictionary<int, VisualElement>();
     
     private string m_cachedConfigFilePath;
     private string m_cachedMapFilePath;
@@ -170,6 +172,14 @@ public class ExperimenterViewController : MonoBehaviour
     private void OnScoreChanged(int[] scorePerPlayer)
     {
         m_root.Q<Label>("score-label").text = $"Total Score: {scorePerPlayer.Sum()}G";
+        
+        for (int i = 0; i < scorePerPlayer.Length; i++)
+        {
+            if (m_gasRefillElementsPerPlayer.ContainsKey(i))
+            {
+                m_gasRefillElementsPerPlayer[i].Q<Label>("score-label").text = $"{scorePerPlayer[i]}G";
+            }
+        }
     }
     
     private void OnClientConnected(ulong clientId)
@@ -187,6 +197,19 @@ public class ExperimenterViewController : MonoBehaviour
                 VisualElement gasRefillElement = m_gasRefillButtonElement.Instantiate();
                 
                 m_root.Q<VisualElement>("refill-buttons-parent").Add(gasRefillElement);
+
+                Label scoreLabel = gasRefillElement.Q<Label>("score-label");
+                
+                if (!GameRoot.Instance.configData.IsScoreShared)
+                {
+                    scoreLabel.parent.Remove(scoreLabel);
+                }
+                else
+                {
+                    scoreLabel.text = $"{OrderSystem.Instance.currentScorePerPlayer.Value.arr[playerNum]}G";
+                }
+                
+                m_gasRefillElementsPerPlayer.Add(playerNum, gasRefillElement);
 
                 gasRefillElement.Q<VisualElement>("icon").style.backgroundImage = Background.FromSprite(playerIcon);
 

@@ -48,7 +48,7 @@ public class InventorySystem : NetworkBehaviour
     
     public int m_numInventorySlotsPerWarehouse = 20;
 
-    public int m_inventoryCapacityPerPlayer = 5;
+    public NetworkVariable<int> m_inventoryCapacityPerPlayer = new NetworkVariable<int>();
     
     public List<ItemDetails> m_items;
 
@@ -222,6 +222,8 @@ public class InventorySystem : NetworkBehaviour
                     }
                 }
             }
+
+            m_inventoryCapacityPerPlayer.Value = GameRoot.Instance.configData.InventoryCapacityPerPlayer;
         }
     }
 

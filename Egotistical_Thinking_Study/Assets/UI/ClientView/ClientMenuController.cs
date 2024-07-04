@@ -176,8 +176,17 @@ public class ClientMenuController : MonoBehaviour
         m_ownedWarehouseInventoryElement.Q<Label>("header").text = $"Warehouse";
 
         // m_ownedWarehouseInventoryElement.style.opacity = 0.5f;
+        
+        int playerNum = ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum;
 
-        m_root.Q<Label>("score-label").text = "0G";
+        if (MapDataNetworkBehaviour.Instance.isScoreShared.Value)
+        {
+            m_root.Q<Label>("score-label").text = $"{OrderSystem.Instance.currentScorePerPlayer.Value.arr.Sum()}G";
+        }
+        else
+        {
+            m_root.Q<Label>("score-label").text = $"{OrderSystem.Instance.currentScorePerPlayer.Value.arr[playerNum]}G";
+        }
 
         ProgressBar gasBar = m_root.Q<ProgressBar>("truck-gas-bar");
 
@@ -197,7 +206,6 @@ public class ClientMenuController : MonoBehaviour
 
         m_inRangeOfOwnedInventory = false;
 
-        int playerNum = ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum;
 
         m_ownedWarehouseNum = -1;
         for (int i = 0; i < MapDataNetworkBehaviour.Instance.warehouseNetworkObjectIds.Value.arr.Length; i++)
@@ -542,7 +550,7 @@ private void OnGasRefillButtonClicked()
             //need to this is valid by checking player inventory capacity
             int inventoryCount = InventorySystem.Instance.GetNumItemsInInventory(destinationInventoryNum, InventoryType.Player);
 
-            if (inventoryCount < InventorySystem.Instance.m_inventoryCapacityPerPlayer)
+            if (inventoryCount < InventorySystem.Instance.m_inventoryCapacityPerPlayer.Value)
             {
                 //need to update inventory
                 InventorySystem.Instance.TransferItem(m_draggingFromInventoryNum, originInventoryType, destinationInventoryNum, InventoryType.Player, details.GUID, 1);
@@ -586,7 +594,7 @@ private void OnGasRefillButtonClicked()
                     destinationInventoryNum = key;
                     int inventoryCount = InventorySystem.Instance.GetNumItemsInInventory(destinationInventoryNum, InventoryType.Player);
 
-                    if (inventoryCount < InventorySystem.Instance.m_inventoryCapacityPerPlayer)
+                    if (inventoryCount < InventorySystem.Instance.m_inventoryCapacityPerPlayer.Value)
                     {
                         //need to update inventory
                         InventorySystem.Instance.TransferItem(m_draggingFromInventoryNum, originInventoryType, destinationInventoryNum, InventoryType.Player, details.GUID, 1);
@@ -949,8 +957,6 @@ private void OnGasRefillButtonClicked()
                     Button rejectOrderButton = orderElement.Q<Button>("reject-button");
                     rejectOrderButton.style.visibility = Visibility.Hidden;
                     
-                    Debug.Log($"refreshing! Accepted order: {acceptedOrders.arr[i]}");
-                    
                     if (acceptedOrders.arr[i] == 2)
                     {
                         VisualElement root = orderElement.Q<VisualElement>("root");
@@ -1191,10 +1197,10 @@ private void OnGasRefillButtonClicked()
 
         if (inventoryCapacityLabel != null)
         {
-            inventoryCapacityLabel.text = $"{numTotalItems}/{InventorySystem.Instance.m_inventoryCapacityPerPlayer}";
+            inventoryCapacityLabel.text = $"{numTotalItems}/{InventorySystem.Instance.m_inventoryCapacityPerPlayer.Value}";
         }
 
-        if (inventoryType == InventoryType.Player && numTotalItems >= InventorySystem.Instance.m_inventoryCapacityPerPlayer)
+        if (inventoryType == InventoryType.Player && numTotalItems >= InventorySystem.Instance.m_inventoryCapacityPerPlayer.Value)
         {
             //gray out inventorySlots
             for (int i = 0; i < numInventorySlots; i++)

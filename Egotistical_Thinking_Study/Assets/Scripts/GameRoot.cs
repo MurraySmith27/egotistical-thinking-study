@@ -35,6 +35,8 @@ public class ConfigData
     public int IncorrectItemPenalty;
     public int GasRefillCost;
     public int GameTimerSeconds;
+    public int StartingMoneyPerPlayer;
+    public int InventoryCapacityPerPlayer;
 }
 
 public class GameRoot : MonoBehaviour

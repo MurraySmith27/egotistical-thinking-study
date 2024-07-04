@@ -193,6 +193,11 @@ public class OrderSystem : NetworkBehaviour
             
             currentScorePerPlayer.Value.arr = new int[GameRoot.Instance.configData.NumPlayers];
 
+            for (int i = 0; i < GameRoot.Instance.configData.NumPlayers; i++)
+            {
+                currentScorePerPlayer.Value.arr[i] = GameRoot.Instance.configData.StartingMoneyPerPlayer;
+            }
+
             for (int i = 0; i < GameRoot.Instance.configData.Orders.Length; i++)
             {
                 activeOrders.Value.arr[i] = 0;
