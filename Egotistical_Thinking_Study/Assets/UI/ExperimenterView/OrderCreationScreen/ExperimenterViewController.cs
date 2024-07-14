@@ -98,7 +98,7 @@ public class ExperimenterViewController : MonoBehaviour
         
         m_root.Q<Label>("port-label").text = $"Port: {ServerManager.m_port}";
         
-        m_root.Q<Label>("score-label").text = "Total Score: 0G";
+        m_root.Q<Label>("score-label").text = $"Total Score: {OrderSystem.Instance.currentScorePerPlayer.Value.arr.Sum()}G";
 
         TimeSpan t = TimeSpan.FromSeconds(GameTimerSystem.Instance.timerSecondsRemaining.Value);
         m_root.Q<Label>("timer-label").text = t.ToString(@"mm\:ss");

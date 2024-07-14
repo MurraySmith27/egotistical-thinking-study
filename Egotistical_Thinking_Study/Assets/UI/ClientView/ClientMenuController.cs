@@ -39,6 +39,8 @@ public class ClientMenuController : MonoBehaviour
     [SerializeField] private AudioSource m_leaveDestinationSFX;
 
     [SerializeField] private Gradient m_gasFillColorGradient;
+    
+    [SerializeField] private float m_warehouseItemSlotSize;
 
     private VisualElement m_playerInventoryRoot;
 
@@ -168,10 +170,10 @@ public class ClientMenuController : MonoBehaviour
         inventoryElement.style.borderLeftColor = Color.red;
         inventoryElement.style.borderRightColor = Color.red;
 
-        inventoryElement.style.borderBottomWidth = 3f;
-        inventoryElement.style.borderTopWidth = 3f;
-        inventoryElement.style.borderLeftWidth = 3f;
-        inventoryElement.style.borderRightWidth = 3f;
+        inventoryElement.style.borderBottomWidth = 10;
+        inventoryElement.style.borderTopWidth = 10;
+        inventoryElement.style.borderLeftWidth = 10;
+        inventoryElement.style.borderRightWidth = 10;
 
         m_ownedWarehouseInventoryElement.Q<Label>("header").text = $"Warehouse";
 
@@ -555,6 +557,10 @@ private void OnGasRefillButtonClicked()
                 //need to update inventory
                 InventorySystem.Instance.TransferItem(m_draggingFromInventoryNum, originInventoryType, destinationInventoryNum, InventoryType.Player, details.GUID, 1);
             }
+            else
+            {
+                m_incorrectSFX.Play();
+            }
         }
         else if (warehouseInventorySlots.Count != 0)
         {
@@ -681,6 +687,13 @@ private void OnGasRefillButtonClicked()
                         m_ownedWarehouseInventoryElement.style.opacity = 1f;
 
                         m_approachDestinationSFX.Play();
+
+                        VisualElement playerInventoryElement = m_playerInventoryElement.Q<VisualElement>("inventory");
+                        
+                        playerInventoryElement.style.borderBottomColor = Color.green;
+                        playerInventoryElement.style.borderTopColor = Color.green;
+                        playerInventoryElement.style.borderLeftColor = Color.green;
+                        playerInventoryElement.style.borderRightColor = Color.green;
                         
                         VisualElement inventoryElement =
                             m_ownedWarehouseInventoryElement.Q<VisualElement>("inventory");
@@ -698,6 +711,13 @@ private void OnGasRefillButtonClicked()
                         m_currentLoadingWarehouseNum = nearestWarehouseNum;
                         m_currentLoadingWarehouse.transform.Find("border").gameObject.SetActive(true);
                         m_currentLoadingWarehouseType = InventoryType.Destination;
+                        
+                        VisualElement playerInventoryElement = m_playerInventoryElement.Q<VisualElement>("inventory");
+                        
+                        playerInventoryElement.style.borderBottomColor = Color.green;
+                        playerInventoryElement.style.borderTopColor = Color.green;
+                        playerInventoryElement.style.borderLeftColor = Color.green;
+                        playerInventoryElement.style.borderRightColor = Color.green;
 
                         m_approachDestinationSFX.Play();
                     }
@@ -730,6 +750,14 @@ private void OnGasRefillButtonClicked()
                     
                     m_currentLoadingWarehouseNum = -1;
                     m_currentLoadingWarehouse = null;
+                    
+                    VisualElement playerInventoryElement = m_playerInventoryElement.Q<VisualElement>("inventory");
+
+                    Color defaultBorderColor = new Color(0.584f, 0.451f, 0);
+                    playerInventoryElement.style.borderBottomColor = defaultBorderColor;
+                    playerInventoryElement.style.borderTopColor = defaultBorderColor;
+                    playerInventoryElement.style.borderLeftColor = defaultBorderColor;
+                    playerInventoryElement.style.borderRightColor = defaultBorderColor;
                     
                     m_leaveDestinationSFX.Play();
                     
@@ -1111,7 +1139,7 @@ private void OnGasRefillButtonClicked()
         }
         
         VisualElement inventoryContainer = m_playerInventoryElement.Q<VisualElement>("slot-container");
-        Label inventoryTitle = m_playerInventoryElement.Q<Label>("inventory-title");
+        ProgressBar inventoryTitle = m_playerInventoryElement.Q<ProgressBar>("inventory-title");
         if (inventoryType != InventoryType.Player)
         {
             if (ownedWarehouse)
@@ -1160,13 +1188,13 @@ private void OnGasRefillButtonClicked()
                 m_otherPlayersInventoryRoot.Add(otherPlayerInventoryElement);
                 
                 PopulateInventory(InventoryType.Player, playerNum, m_otherPlayersTrucksInventorySlots[playerNum], otherPlayerInventoryElement.Q<VisualElement>("slot-container"), 
-                    otherPlayerInventoryElement.Q<Label>("inventory-title"), Color.white);
+                    otherPlayerInventoryElement.Q<ProgressBar>("inventory-title"), Color.white);
             }
         }
     }
 
     private void PopulateInventory(InventoryType inventoryType, int inventoryNum, List<InventorySlot> inventoryItems,
-        VisualElement inventoryContainer, Label inventoryCapacityLabel, Color itemTintColor)
+        VisualElement inventoryContainer, ProgressBar inventoryCapacityProgressBar, Color itemTintColor)
     {
         inventoryContainer.Clear();
         inventoryItems.Clear();
@@ -1179,12 +1207,26 @@ private void OnGasRefillButtonClicked()
             numInventorySlots = InventorySystem.Instance.m_numInventorySlotsPerWarehouse;
         }
 
+        int maxSlotsPerRow = numInventorySlots / 2;
+
+        int maxSlotsPerColumn = 2;
+        
+        int itemSlotSize = Mathf.FloorToInt(Mathf.Min(inventoryContainer.resolvedStyle.width / maxSlotsPerRow - 16,
+            inventoryContainer.resolvedStyle.height / maxSlotsPerColumn - 16));
+
         int numTotalItems = 0;
         for (int i = 0; i < numInventorySlots; i++)
         {
             InventorySlot itemSlot = new InventorySlot();
             inventoryContainer.Add(itemSlot);
             inventoryItems.Add(itemSlot);
+
+            if (inventoryType == InventoryType.Warehouse)
+            {
+                itemSlot.style.width = itemSlotSize;
+                itemSlot.style.height = itemSlotSize;
+            }
+            
             if (inventory[i].Item1 != -1)
             {
                 numTotalItems += inventory[i].Item2;
@@ -1195,9 +1237,11 @@ private void OnGasRefillButtonClicked()
             }
         }
 
-        if (inventoryCapacityLabel != null)
+        if (inventoryCapacityProgressBar != null)
         {
-            inventoryCapacityLabel.text = $"{numTotalItems}/{InventorySystem.Instance.m_inventoryCapacityPerPlayer.Value}";
+            inventoryCapacityProgressBar.value = numTotalItems;
+            inventoryCapacityProgressBar.highValue = InventorySystem.Instance.m_inventoryCapacityPerPlayer.Value;
+            inventoryCapacityProgressBar.title = $"Capacity: {numTotalItems}/{InventorySystem.Instance.m_inventoryCapacityPerPlayer.Value}";
         }
 
         if (inventoryType == InventoryType.Player && numTotalItems >= InventorySystem.Instance.m_inventoryCapacityPerPlayer.Value)

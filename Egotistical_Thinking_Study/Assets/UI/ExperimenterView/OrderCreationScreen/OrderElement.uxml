@@ -29,7 +29,7 @@
             <ui:VisualElement style="flex-grow: 1;" />
             <ui:VisualElement style="flex-grow: 1; flex-direction: row;">
                 <ui:VisualElement style="flex-grow: 1;" />
-                <ui:VisualElement name="x" style="flex-grow: 1; background-image: url(&apos;project://database/Assets/Art/Icons/x.png?fileID=2800000&amp;guid=a41f78d55edb0b349923866d59b4d60d&amp;type=3#x&apos;); -unity-background-image-tint-color: rgb(103, 5, 5);" />
+                <ui:VisualElement name="x" style="flex-grow: 1; background-image: url(&apos;project://database/Assets/Art/Icons/x.png?fileID=2800000&amp;guid=a41f78d55edb0b349923866d59b4d60d&amp;type=3#x&apos;); -unity-background-image-tint-color: rgb(255, 0, 0);" />
                 <ui:VisualElement style="flex-grow: 1;" />
             </ui:VisualElement>
             <ui:VisualElement style="flex-grow: 1;" />
