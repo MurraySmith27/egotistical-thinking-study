@@ -78,9 +78,9 @@ public class ExperimenterViewFloatingInventoryController : MonoBehaviour
         
         Debug.Log($"drawing ray from: {ray.origin} to {ray.origin + ray.direction * 100}");
         Debug.DrawRay(ray.origin, ray.origin + ray.direction * 100, color:Color.red, duration: 5f, false);
-        if (Physics.Raycast(ray.origin, ray.direction, out hit, 100, ~LayerMask.NameToLayer("MapTile")))
+        if (Physics.Raycast(ray.origin, ray.direction, out hit, 100, LayerMask.GetMask(new string[]{"MapTile", "Player"})))
         {
-            Vector2 hitPos = new Vector2(hit.transform.position.x, hit.transform.position.y);
+            Debug.Log($"HIT! name: {hit.transform.name}");
 
             InventoryNetworkBehaviour inventoryNetworkBehaviour =
                 hit.transform.gameObject.GetComponent<InventoryNetworkBehaviour>(); 
@@ -96,7 +96,7 @@ public class ExperimenterViewFloatingInventoryController : MonoBehaviour
                     inventoryType = InventoryType.Destination;
                     for (int i = 0; i < MapGenerator.Instance.destinations.Count; i++)
                     {
-                        if (MapGenerator.Instance.destinations[i].gameObject == hit.transform.gameObject)
+                        if (MapGenerator.Instance.destinations[i].gameObject.name == hit.transform.gameObject.name)
                         {
                             inventoryNum = i;
                             break;
@@ -108,7 +108,7 @@ public class ExperimenterViewFloatingInventoryController : MonoBehaviour
                     inventoryType = InventoryType.Warehouse;
                     for (int i = 0; i < MapGenerator.Instance.warehouses.Count; i++)
                     {
-                        if (MapGenerator.Instance.warehouses[i].gameObject == hit.transform.gameObject)
+                        if (MapGenerator.Instance.warehouses[i].gameObject.name == hit.transform.gameObject.name)
                         {
                             inventoryNum = i;
                             break;
@@ -120,6 +120,8 @@ public class ExperimenterViewFloatingInventoryController : MonoBehaviour
                     inventoryType = InventoryType.Player;
                     inventoryNum = hit.transform.gameObject.GetComponent<PlayerNetworkBehaviour>().m_playerNum.Value;
                 }
+                
+                Debug.Log($"populating popup for inventory number: {inventoryNum}");
                 
                 PopulateInventory(inventoryType, inventoryNum, viewportPoint);
             }
