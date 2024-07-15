@@ -20,22 +20,38 @@ public class ExperimenterViewFloatingInventoryController : MonoBehaviour
 
     private VisualElement inventorySlotContainer;
 
+    private VisualElement inventoryRootElement;
+
     private List<InventorySlot> _inventorySlots;
     
     private InputAction clickAction;
     private InputAction mousePosition;
 
 
+    void Awake()
+    {
+        clickAction = experimenterInput["mouseClick"];
+        mousePosition = experimenterInput["mousePosition"];
+    }
+    
     void Start()
     {
         rootVisualElement = GetComponent<UIDocument>().rootVisualElement.Q<VisualElement>("root");
 
-        inventorySlotContainer = rootVisualElement.Q<VisualElement>("floating-inventory-popup").Q<VisualElement>("slot-container");
-
-        clickAction = experimenterInput["mouseClick"];
-        mousePosition = experimenterInput["mousePosition"];
+        inventoryRootElement = rootVisualElement.Q<VisualElement>("floating-inventory-popup");
+        inventorySlotContainer = inventoryRootElement.Q<VisualElement>("slot-container");
 
         clickAction.performed += OnClick;
+    }
+    
+    private void OnEnable() {
+        clickAction.Enable();
+        mousePosition.Enable();
+    }
+
+    private void OnDisable() {
+        clickAction.Disable();
+        mousePosition.Disable();
     }
 
     void OnDestroy()
@@ -53,46 +69,84 @@ public class ExperimenterViewFloatingInventoryController : MonoBehaviour
         float width = bottomRightCorner.x - topLeftCorner.x;
         float height = bottomRightCorner.y - topLeftCorner.y;
         
+        Vector2 viewportPoint = new Vector2((mousePos.x - topLeftCorner.x) / width, (mousePos.y - topLeftCorner.y) / height);
+        
         //raycast from camera center, see if it intersects with the map.
         RaycastHit hit;
         Camera playerCameraComponent = playerCamera.GetComponent<Camera>();
-        Ray ray = playerCameraComponent.ViewportPointToRay(new Vector3((mousePos.x - topLeftCorner.x) / width, ((mousePos.y - topLeftCorner.y) / height), 0));
+        Ray ray = playerCameraComponent.ViewportPointToRay(new Vector3(viewportPoint.x, viewportPoint.y, 0));
         
+        Debug.Log($"drawing ray from: {ray.origin} to {ray.origin + ray.direction * 100}");
+        Debug.DrawRay(ray.origin, ray.origin + ray.direction * 100, color:Color.red, duration: 5f, false);
         if (Physics.Raycast(ray.origin, ray.direction, out hit, 100, ~LayerMask.NameToLayer("MapTile")))
         {
-            Vector3 hitPos = hit.transform.position;
+            Vector2 hitPos = new Vector2(hit.transform.position.x, hit.transform.position.y);
 
             InventoryNetworkBehaviour inventoryNetworkBehaviour =
                 hit.transform.gameObject.GetComponent<InventoryNetworkBehaviour>(); 
             if (inventoryNetworkBehaviour != null)
             {
                 mouseClickSFX.Play();
-                Vector2Int destinationPos = new((int)(hitPos.x / MapGenerator.Instance.tileWidth),
-                        (int)(hitPos.y / MapGenerator.Instance.tileHeight));
                 
+                int inventoryNum = -1;
+                InventoryType inventoryType = InventoryType.Destination;
                 if (hit.transform.gameObject.name.Contains("Destination"))
                 {
-                    int inventoryNum;
-                    
-                    for (int i = 0 ;)
 
-
+                    inventoryType = InventoryType.Destination;
+                    for (int i = 0; i < MapGenerator.Instance.destinations.Count; i++)
+                    {
+                        if (MapGenerator.Instance.destinations[i].gameObject == hit.transform.gameObject)
+                        {
+                            inventoryNum = i;
+                            break;
+                        }
+                    }
                 }
+                else if (hit.transform.gameObject.name.Contains("Warehouse"))
+                {
+                    inventoryType = InventoryType.Warehouse;
+                    for (int i = 0; i < MapGenerator.Instance.warehouses.Count; i++)
+                    {
+                        if (MapGenerator.Instance.warehouses[i].gameObject == hit.transform.gameObject)
+                        {
+                            inventoryNum = i;
+                            break;
+                        }
+                    }
+                }
+                else if (hit.transform.gameObject.name.Contains("Player"))
+                {
+                    inventoryType = InventoryType.Player;
+                    inventoryNum = hit.transform.gameObject.GetComponent<PlayerNetworkBehaviour>().m_playerNum.Value;
+                }
+                
+                PopulateInventory(inventoryType, inventoryNum, viewportPoint);
             }
         }
     }
 
 
-    private void PopulateInventory(InventoryType inventoryType, int inventoryNum)
+    private void PopulateInventory(InventoryType inventoryType, int inventoryNum, Vector2 screenPos)
     {
         _inventorySlots.Clear();
         
         inventorySlotContainer.Clear();
         
         List<(int, int)> inventory = InventorySystem.Instance.GetInventory(inventoryNum, inventoryType);
-
+        
         int numInventoryRows = Mathf.CeilToInt(inventory.Count / (float)numItemsPerRow);
 
+        int width = numItemsPerRow * (inventorySlotSizePixels + 4) + 4;
+        int height = numInventoryRows * (inventorySlotSizePixels + 4) + 4;
+
+
+        inventoryRootElement.style.width = width;
+        inventoryRootElement.style.height = height;
+
+        inventoryRootElement.style.left = screenPos.x - width / 2f;
+        inventoryRootElement.style.top = screenPos.y - height / 2f;
+            
         for (int row = 0; row < numInventoryRows; row++)
         {
 

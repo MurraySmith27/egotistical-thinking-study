@@ -2569,6 +2569,7 @@ GameObject:
   - component: {fileID: 2102443906}
   - component: {fileID: 2102443908}
   - component: {fileID: 2102443909}
+  - component: {fileID: 2102443910}
   m_Layer: 0
   m_Name: ExperimenterMenu
   m_TagString: Untagged
@@ -2622,6 +2623,23 @@ MonoBehaviour:
   m_mouseClickSFX: {fileID: 1198937716}
   m_orderElement: {fileID: 9197481963319205126, guid: 71e99ac59c69e5342abfb1b48206c635, type: 3}
   m_gasRefillButtonElement: {fileID: 9197481963319205126, guid: 7bb3f9cda53069d45974d46ea5639cde, type: 3}
+--- !u!114 &2102443910
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2102443905}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c6fb740940b4175a22f60bf7fcfca23, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inventorySlotSizePixels: 64
+  numItemsPerRow: 8
+  experimenterInput: {fileID: -944628639613478452, guid: f56f377b14612cd428eee8eda76df8b3, type: 3}
+  playerCamera: {fileID: 788084014}
+  mouseClickSFX: {fileID: 1198937716}
 --- !u!1 &2117876675
 GameObject:
   m_ObjectHideFlags: 0
