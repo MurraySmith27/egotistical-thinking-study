@@ -30,6 +30,8 @@ public class ExperimenterViewFloatingInventoryController : MonoBehaviour
 
     void Awake()
     {
+        _inventorySlots = new List<InventorySlot>();
+        
         clickAction = experimenterInput["mouseClick"];
         mousePosition = experimenterInput["mousePosition"];
     }
@@ -63,8 +65,8 @@ public class ExperimenterViewFloatingInventoryController : MonoBehaviour
     {
         Vector2 mousePos = mousePosition.ReadValue<Vector2>();
         
-        Vector2 topLeftCorner = new Vector2(0f, 0f);
-        Vector2 bottomRightCorner = new Vector2(Screen.width / 2f,Screen.height);
+        Vector2 topLeftCorner = new Vector2(Screen.width * 0.3f - 96, 0f);
+        Vector2 bottomRightCorner = new Vector2(Screen.width,Screen.height * 0.75f);
         
         float width = bottomRightCorner.x - topLeftCorner.x;
         float height = bottomRightCorner.y - topLeftCorner.y;
@@ -92,11 +94,10 @@ public class ExperimenterViewFloatingInventoryController : MonoBehaviour
                 InventoryType inventoryType = InventoryType.Destination;
                 if (hit.transform.gameObject.name.Contains("Destination"))
                 {
-
                     inventoryType = InventoryType.Destination;
                     for (int i = 0; i < MapGenerator.Instance.destinations.Count; i++)
                     {
-                        if (MapGenerator.Instance.destinations[i].gameObject.name == hit.transform.gameObject.name)
+                        if (MapGenerator.Instance.destinations[i].name == hit.transform.name)
                         {
                             inventoryNum = i;
                             break;
@@ -108,7 +109,7 @@ public class ExperimenterViewFloatingInventoryController : MonoBehaviour
                     inventoryType = InventoryType.Warehouse;
                     for (int i = 0; i < MapGenerator.Instance.warehouses.Count; i++)
                     {
-                        if (MapGenerator.Instance.warehouses[i].gameObject.name == hit.transform.gameObject.name)
+                        if (MapGenerator.Instance.warehouses[i].name == hit.transform.name)
                         {
                             inventoryNum = i;
                             break;
@@ -148,17 +149,25 @@ public class ExperimenterViewFloatingInventoryController : MonoBehaviour
 
         inventoryRootElement.style.left = screenPos.x - width / 2f;
         inventoryRootElement.style.top = screenPos.y - height / 2f;
-            
+
+        int itemIdx = 0;
+        
         for (int row = 0; row < numInventoryRows; row++)
         {
-
             for (int col = 0; col < numItemsPerRow; col++)
             {
-                int itemNum = inventory[row * numItemsPerRow + col].Item1;
-                int itemCount = inventory[row * numItemsPerRow + col].Item2;
+                int itemNum = inventory[itemIdx].Item1;
+
+                if (itemNum == -1)
+                {
+                    continue;
+                }
+                
+                int itemCount = inventory[itemIdx].Item2;
                 
                 InventorySlot newSlot = new InventorySlot(false);
 
+                Debug.Log($"getting item number: {itemNum}");
                 ItemDetails itemDetails = InventorySystem.Instance.m_items[itemNum];
                 
                 newSlot.HoldItem(itemDetails, itemCount);
@@ -168,6 +177,7 @@ public class ExperimenterViewFloatingInventoryController : MonoBehaviour
 
                 _inventorySlots.Add(newSlot);
                 inventorySlotContainer.Add(newSlot);
+                itemIdx++;
             }
         }
 
