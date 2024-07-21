@@ -151,6 +151,21 @@ public class InventorySystem : NetworkBehaviour
         }
     }
     
+    public void RegisterDestinationInventoryChangedCallback(int destinationNum, InventoryUpdatedEvent callback)
+    {
+        ulong destinationNetworkObjectId = MapDataNetworkBehaviour.Instance.GetNetworkIdOfDestination(destinationNum);
+        
+        foreach (NetworkObject networkObject in FindObjectsOfType<NetworkObject>())
+        {
+            if (networkObject.NetworkObjectId == destinationNetworkObjectId)
+            {
+                GameObject destinationObj = networkObject.gameObject;
+                destinationObj.GetComponent<InventoryNetworkBehaviour>().m_inventoryUpdated -= callback;
+                destinationObj.GetComponent<InventoryNetworkBehaviour>().m_inventoryUpdated += callback;
+            }
+        }
+    }
+    
     public void DeregisterWarehouseInventoryChangedCallback(int warehouseNum, InventoryUpdatedEvent callback)
     {
         ulong warehouseNetworkObjectId = MapDataNetworkBehaviour.Instance.GetNetworkIdOfWarehouse(warehouseNum);
@@ -161,6 +176,34 @@ public class InventorySystem : NetworkBehaviour
             {
                 GameObject warehouseObj = networkObject.gameObject;
                 warehouseObj.GetComponent<InventoryNetworkBehaviour>().m_inventoryUpdated -= callback;
+            }
+        }
+    }
+    
+    public void DeregisterDestinationInventoryChangedCallback(int destinationNum, InventoryUpdatedEvent callback)
+    {
+        ulong destinationNetworkObjectId = MapDataNetworkBehaviour.Instance.GetNetworkIdOfDestination(destinationNum);
+        
+        foreach (NetworkObject networkObject in FindObjectsOfType<NetworkObject>())
+        {
+            if (networkObject.NetworkObjectId == destinationNetworkObjectId)
+            {
+                GameObject destinationObj = networkObject.gameObject;
+                destinationObj.GetComponent<InventoryNetworkBehaviour>().m_inventoryUpdated -= callback;
+            }
+        }
+    }
+    
+    public void DeregisterPlayerInventoryChangedCallback(int playerNum, InventoryUpdatedEvent callback)
+    {
+        ulong playerNetworkObjectId = MapDataNetworkBehaviour.Instance.GetNetworkIdOfPlayer(playerNum);
+        
+        foreach (NetworkObject networkObject in FindObjectsOfType<NetworkObject>())
+        {
+            if (networkObject.NetworkObjectId == playerNetworkObjectId)
+            {
+                GameObject playerObj = networkObject.gameObject;
+                playerObj.GetComponent<InventoryNetworkBehaviour>().m_inventoryUpdated -= callback;
             }
         }
     }

@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
@@ -20,6 +21,8 @@ public class ExperimenterViewFloatingInventoryController : MonoBehaviour
 
     private VisualElement inventorySlotContainer;
 
+    private Label inventoryHeader;
+
     private VisualElement inventoryRootElement;
 
     private List<InventorySlot> _inventorySlots;
@@ -27,7 +30,13 @@ public class ExperimenterViewFloatingInventoryController : MonoBehaviour
     private InputAction clickAction;
     private InputAction mousePosition;
 
+    [SerializeField] private int inventoryRootAdditionalHeight = 50;
 
+    private InventoryNetworkBehaviour currentInventory;
+
+    private InventoryType inventoryType;
+    private int inventoryNum;
+    
     void Awake()
     {
         _inventorySlots = new List<InventorySlot>();
@@ -42,7 +51,8 @@ public class ExperimenterViewFloatingInventoryController : MonoBehaviour
 
         inventoryRootElement = rootVisualElement.Q<VisualElement>("floating-inventory-popup");
         inventorySlotContainer = inventoryRootElement.Q<VisualElement>("slot-container");
-
+        inventoryHeader = inventoryRootElement.Q<Label>("header");
+        
         clickAction.performed += OnClick;
     }
     
@@ -78,20 +88,14 @@ public class ExperimenterViewFloatingInventoryController : MonoBehaviour
         Camera playerCameraComponent = playerCamera.GetComponent<Camera>();
         Ray ray = playerCameraComponent.ViewportPointToRay(new Vector3(viewportPoint.x, viewportPoint.y, 0));
         
-        Debug.Log($"drawing ray from: {ray.origin} to {ray.origin + ray.direction * 100}");
-        Debug.DrawRay(ray.origin, ray.origin + ray.direction * 100, color:Color.red, duration: 5f, false);
         if (Physics.Raycast(ray.origin, ray.direction, out hit, 100, LayerMask.GetMask(new string[]{"MapTile", "Player"})))
         {
-            Debug.Log($"HIT! name: {hit.transform.name}");
-
             InventoryNetworkBehaviour inventoryNetworkBehaviour =
                 hit.transform.gameObject.GetComponent<InventoryNetworkBehaviour>(); 
             if (inventoryNetworkBehaviour != null)
             {
                 mouseClickSFX.Play();
                 
-                int inventoryNum = -1;
-                InventoryType inventoryType = InventoryType.Destination;
                 if (hit.transform.gameObject.name.Contains("Destination"))
                 {
                     inventoryType = InventoryType.Destination;
@@ -100,6 +104,7 @@ public class ExperimenterViewFloatingInventoryController : MonoBehaviour
                         if (MapGenerator.Instance.destinations[i].name == hit.transform.name)
                         {
                             inventoryNum = i;
+                            InventorySystem.Instance.RegisterDestinationInventoryChangedCallback(inventoryNum, OnInventoryUpdate);
                             break;
                         }
                     }
@@ -112,6 +117,7 @@ public class ExperimenterViewFloatingInventoryController : MonoBehaviour
                         if (MapGenerator.Instance.warehouses[i].name == hit.transform.name)
                         {
                             inventoryNum = i;
+                            InventorySystem.Instance.RegisterWarehouseInventoryChangedCallback(inventoryNum, OnInventoryUpdate);
                             break;
                         }
                     }
@@ -120,35 +126,62 @@ public class ExperimenterViewFloatingInventoryController : MonoBehaviour
                 {
                     inventoryType = InventoryType.Player;
                     inventoryNum = hit.transform.gameObject.GetComponent<PlayerNetworkBehaviour>().m_playerNum.Value;
+                    InventorySystem.Instance.RegisterPlayerInventoryChangedCallback(inventoryNum, OnInventoryUpdate);
                 }
                 
-                Debug.Log($"populating popup for inventory number: {inventoryNum}");
                 
-                PopulateInventory(inventoryType, inventoryNum, viewportPoint);
+                PopulateInventory(inventoryNetworkBehaviour, hit.transform.gameObject.name, viewportPoint * new Vector2(Screen.width, Screen.height));
             }
+            else
+            {
+                HideInventoryPopup();
+            }
+        }
+        else
+        {
+            HideInventoryPopup();
         }
     }
 
+    private void OnInventoryUpdate()
+    {
+        Debug.Log("invnetory updated!");
+        if (currentInventory != null)
+        {
+            PopulateInventory(currentInventory, "", new Vector2(-1, -1));
+        }
+    }
 
-    private void PopulateInventory(InventoryType inventoryType, int inventoryNum, Vector2 screenPos)
+    private void PopulateInventory(InventoryNetworkBehaviour inventoryNetworkBehaviour, string inventoryName, Vector2 screenPos)
     {
         _inventorySlots.Clear();
         
         inventorySlotContainer.Clear();
+
+        if (inventoryName != "")
+        {
+            inventoryHeader.text = inventoryName;
+        }
         
-        List<(int, int)> inventory = InventorySystem.Instance.GetInventory(inventoryNum, inventoryType);
-        
+        List<(int, int)> inventory = inventoryNetworkBehaviour.GetInventory();
+
         int numInventoryRows = Mathf.CeilToInt(inventory.Count / (float)numItemsPerRow);
+        
+        if (screenPos.x > 0)
+        {
+            int width = numItemsPerRow * (inventorySlotSizePixels + 4) + 4;
+            int height = Mathf.Max(numInventoryRows * (inventorySlotSizePixels + 4) + 4 + inventoryRootAdditionalHeight,
+                80);
 
-        int width = numItemsPerRow * (inventorySlotSizePixels + 4) + 4;
-        int height = numInventoryRows * (inventorySlotSizePixels + 4) + 4;
+            inventoryRootElement.style.width = width;
+            inventoryRootElement.style.height = height;
 
+            inventoryRootElement.style.left = screenPos.x - width / 2f;
+            inventoryRootElement.style.top = Screen.height - screenPos.y - height / 2f;
 
-        inventoryRootElement.style.width = width;
-        inventoryRootElement.style.height = height;
+            inventoryRootElement.style.visibility = Visibility.Visible;
 
-        inventoryRootElement.style.left = screenPos.x - width / 2f;
-        inventoryRootElement.style.top = screenPos.y - height / 2f;
+        }
 
         int itemIdx = 0;
         
@@ -167,13 +200,14 @@ public class ExperimenterViewFloatingInventoryController : MonoBehaviour
                 
                 InventorySlot newSlot = new InventorySlot(false);
 
-                Debug.Log($"getting item number: {itemNum}");
                 ItemDetails itemDetails = InventorySystem.Instance.m_items[itemNum];
                 
                 newSlot.HoldItem(itemDetails, itemCount);
 
                 newSlot.style.width = inventorySlotSizePixels;
                 newSlot.style.height = inventorySlotSizePixels;
+                newSlot.style.maxWidth = inventorySlotSizePixels;
+                newSlot.style.maxHeight = inventorySlotSizePixels;
 
                 _inventorySlots.Add(newSlot);
                 inventorySlotContainer.Add(newSlot);
@@ -181,6 +215,37 @@ public class ExperimenterViewFloatingInventoryController : MonoBehaviour
             }
         }
 
+        currentInventory = inventoryNetworkBehaviour;
+    }
+
+    private void HideInventoryPopup()
+    {
+        inventoryRootElement.style.visibility = Visibility.Hidden;
+        
+        inventoryHeader.text = "";
+        
+        _inventorySlots.Clear();
+        
+        inventorySlotContainer.Clear();
+
+        if (currentInventory != null)
+        {
+            if (inventoryType == InventoryType.Destination)
+            {
+                InventorySystem.Instance.DeregisterDestinationInventoryChangedCallback(inventoryNum, OnInventoryUpdate);
+            }
+            else if (inventoryType == InventoryType.Warehouse)
+            {
+                InventorySystem.Instance.DeregisterWarehouseInventoryChangedCallback(inventoryNum, OnInventoryUpdate);
+            }
+            else if (inventoryType == InventoryType.Player)
+            {
+                InventorySystem.Instance.DeregisterPlayerInventoryChangedCallback(inventoryNum, OnInventoryUpdate);
+            }
+
+            inventoryNum = -1;
+            currentInventory = null;
+        }
     }
 
 }

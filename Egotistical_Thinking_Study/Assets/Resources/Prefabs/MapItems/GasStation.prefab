@@ -340,7 +340,6 @@ GameObject:
   - component: {fileID: 2779722927573151361}
   - component: {fileID: 3639817271706156607}
   - component: {fileID: 7258517803644338267}
-  - component: {fileID: -7165275013842723118}
   m_Layer: 6
   m_Name: GasStation
   m_TagString: GasStation
@@ -378,7 +377,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3044209700
+  GlobalObjectIdHash: 2944653577
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
   ActiveSceneSynchronization: 0
@@ -419,20 +418,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 7, y: 7, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &-7165275013842723118
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1354401770332528486}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: edb0438570dfe9b48b5f85d426ccfaa3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_maxInventorySlots:
-    m_InternalValue: 0
 --- !u!1 &1588790158491982797
 GameObject:
   m_ObjectHideFlags: 0

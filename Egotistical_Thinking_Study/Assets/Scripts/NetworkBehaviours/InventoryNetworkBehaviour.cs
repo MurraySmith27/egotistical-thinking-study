@@ -35,16 +35,13 @@ public class InventoryNetworkBehaviour : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        if (!this.IsServer)
+        m_inventoryChangeAlert.OnValueChanged += (int prevousValue, int newValue) =>
         {
-            m_inventoryChangeAlert.OnValueChanged += (int prevousValue, int newValue) =>
+            if (m_inventoryUpdated != null && m_inventoryUpdated.GetInvocationList().Length > 0)
             {
-                if (m_inventoryUpdated != null && m_inventoryUpdated.GetInvocationList().Length > 0)
-                {
-                    m_inventoryUpdated();
-                }
-            };
-        }
+                m_inventoryUpdated();
+            }
+        };
     }
     
     public List<(int, int)> GetInventory()
