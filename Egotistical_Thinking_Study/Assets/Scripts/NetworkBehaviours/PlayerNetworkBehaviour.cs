@@ -22,6 +22,8 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
     [SerializeField] private AudioSource m_outOfGasSFX;
     [SerializeField] private AudioSource m_fillUpGasSFX;
     
+    private Vector3 lastPosition;
+    
     private InputAction clickAction;
     private InputAction mousePosition;
     private NetworkVariable<Vector3> position = new NetworkVariable<Vector3>();
@@ -123,6 +125,19 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
             m_fillUpGasSFX.Play();
             
             OrderSystem.Instance.AddScoreToPlayer(m_playerNum.Value, Mathf.Min(-GameRoot.Instance.configData.GasRefillCost, GameRoot.Instance.configData.GasRefillCost));
+        }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (this.IsServer && GameRoot.Instance.configData.IsPlayerCollisionEnabled && collision.rigidbody.gameObject.layer == LayerMask.NameToLayer("Player"))
+        {
+            if (moveCoroutine != null)
+            {
+                StopCoroutine(moveCoroutine);
+
+                position.Value = lastPosition;
+            }
         }
     }
 
@@ -256,7 +271,7 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
             (playerPos.y / MapGenerator.Instance.tileHeight));
         Vector2Int playerGridPos = new((int)Math.Round(playerPosVec2.x),(int)Math.Round(playerPosVec2.y));
 
-        List<Vector2Int> path = MapGenerator.Instance.NavigateRoads(playerGridPos, destinationPos);
+        List<Vector2Int> path = MapGenerator.Instance.NavigateRoads(playerGridPos, destinationPos, playerNum);
 
         List<Vector2> vec2Path = new List<Vector2>(path.Select(obj => new Vector2(obj.x, obj.y)).ToArray());
 
@@ -269,7 +284,7 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
     {
         float playerZ = transform.position.z;
 
-        Vector3 lastPosition = Vector3.zero;
+        lastPosition = Vector3.zero;
         Vector3 nextPosition = new Vector3(path[0].x * MapGenerator.Instance.tileWidth,
             path[0].y * MapGenerator.Instance.tileHeight, playerZ);
         

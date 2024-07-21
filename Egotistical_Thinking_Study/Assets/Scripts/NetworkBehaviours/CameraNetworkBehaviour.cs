@@ -16,6 +16,8 @@ public class CameraNetworkBehaviour : NetworkBehaviour
         }
     }
 
+    private Camera camera;
+
 
     public NetworkVariable<NetworkSerializableIntArray> cameraRotationPerPlayer = new NetworkVariable<NetworkSerializableIntArray>();
 
@@ -29,6 +31,8 @@ public class CameraNetworkBehaviour : NetworkBehaviour
         {
             _instance = this;
         }
+
+        camera = GetComponent<Camera>();
     }
 
 
@@ -36,7 +40,7 @@ public class CameraNetworkBehaviour : NetworkBehaviour
     {
         if (!this.IsServer)
         {
-            ClientConnectionHandler.Instance.m_onRecieveClientSideSessionInfo += SetCameraRotation;
+            ClientConnectionHandler.Instance.m_onRecieveClientSideSessionInfo += SetCameraProperties;
 
         }
         SetCameraXPos(0, MapDataNetworkBehaviour.Instance.mapWidth.Value);
@@ -46,7 +50,7 @@ public class CameraNetworkBehaviour : NetworkBehaviour
         MapDataNetworkBehaviour.Instance.mapHeight.OnValueChanged += SetCameraYPos;
     }
 
-    private void SetCameraRotation()
+    private void SetCameraProperties()
     {
         int playerNum = ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum;
 
@@ -54,16 +58,24 @@ public class CameraNetworkBehaviour : NetworkBehaviour
 
         float yawRotation = rotation * 90f;
         transform.rotation = Quaternion.Euler(0, 0, yawRotation);
+        
+        SetCameraXPos(0, MapDataNetworkBehaviour.Instance.mapWidth.Value);
+        SetCameraYPos(0, MapDataNetworkBehaviour.Instance.mapHeight.Value);
     }
 
     private void SetCameraXPos(int oldWidth, int width)
     {
         transform.position = new Vector3((width / 2f) * MapGenerator.Instance.tileWidth, transform.position.y, transform.position.z);
+        
+        Debug.Log($"width: {width}");
+        camera.orthographicSize = Mathf.Max(camera.orthographicSize, 4 + width * MapGenerator.Instance.tileWidth / 2f);
     }
     
     private void SetCameraYPos(int oldHeight, int height)
     {
         transform.position = new Vector3(transform.position.x, -(height / 2f) * MapGenerator.Instance.tileHeight, transform.position.z);
+        
+        camera.orthographicSize = Mathf.Max(camera.orthographicSize, 4 + height * MapGenerator.Instance.tileHeight / 2f);
     }
 
     public void OnGameStart()

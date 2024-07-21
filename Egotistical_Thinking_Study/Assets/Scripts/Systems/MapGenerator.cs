@@ -189,31 +189,59 @@ public class MapGenerator : MonoBehaviour
         MapDataNetworkBehaviour.Instance.RegisterMapDimentions(textMap[0].Length, textMap.Length);
     }
     
-    private Dictionary<Vector2Int, List<Vector2Int>> ConstructGraphFromMap()
+    private Dictionary<Vector2Int, List<Vector2Int>> ConstructGraphFromMap(int movingPlayerNum)
     {
+        Vector2Int[] playerPositions = new Vector2Int[playerObjects.Count];
+
+        for (int i = 0; i < playerObjects.Count; i++)
+        {
+            if (i != movingPlayerNum)
+            {
+                playerPositions[i] = new Vector2Int(Mathf.FloorToInt(playerObjects[i].transform.position.x / tileWidth),
+                    -Mathf.FloorToInt(playerObjects[i].transform.position.y / tileHeight));
+            }
+        }
+
+        bool IsPlayerPos(int x, int y)
+        {
+            if (GameRoot.Instance.configData.IsPlayerCollisionEnabled)
+            {
+                return false;
+            }
+            foreach (Vector2Int playerPos in playerPositions)
+            {
+                if (playerPos.x == x && playerPos.y == y)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        
         Dictionary<Vector2Int, List<Vector2Int>> graph = new Dictionary<Vector2Int, List<Vector2Int>>();
 
         for (int x = 0; x < map.Count; x++)
         {
             for (int y = 0; y < map[x].Count; y++)
             {
-                if (roadMap[x][y])
+                if (roadMap[x][y] && !IsPlayerPos(x, y))
                 {
                     Vector2Int location = new(x, y);
                     graph.Add(location, new List<Vector2Int>());
-                    if (x != 0 && roadMap[x-1][y])
+                    if (x != 0 && roadMap[x-1][y] && !IsPlayerPos(x-1, y))
                     {
                         graph[location].Add(new(x-1, y));
                     }
-                    if (x != map.Count - 1 && roadMap[x+1][y])
+                    if (x != map.Count - 1 && roadMap[x+1][y] && !IsPlayerPos(x+1, y))
                     {
                         graph[location].Add(new(x+1, y));
                     }
-                    if (y != 0 && roadMap[x][y-1])
+                    if (y != 0 && roadMap[x][y-1] && !IsPlayerPos(x, y-1))
                     {
                         graph[location].Add(new(x, y-1));
                     }
-                    if (y != map[x].Count - 1 && roadMap[x][y+1])
+                    if (y != map[x].Count - 1 && roadMap[x][y+1] && !IsPlayerPos(x, y+1))
                     {
                         graph[location].Add(new(x, y+1));
                     }
@@ -243,13 +271,13 @@ public class MapGenerator : MonoBehaviour
         return minIndex;
     }
 
-    public List<Vector2Int> NavigateRoads(Vector2Int startingPos, Vector2Int endingPos)
+    public List<Vector2Int> NavigateRoads(Vector2Int startingPos, Vector2Int endingPos, int movingPlayerNum)
     {
         //the grid instantiates with -y increasing. need to correct for this.
         startingPos = new Vector2Int(startingPos.x, -startingPos.y);
         endingPos = new Vector2Int(endingPos.x, -endingPos.y);
         
-        Dictionary<Vector2Int, List<Vector2Int>> graph = this.ConstructGraphFromMap();
+        Dictionary<Vector2Int, List<Vector2Int>> graph = this.ConstructGraphFromMap(movingPlayerNum);
         
         Dictionary<Vector2Int, int> distances = new Dictionary<Vector2Int, int>();
         Dictionary<Vector2Int, bool> shortestPathSet = new Dictionary<Vector2Int, bool>();

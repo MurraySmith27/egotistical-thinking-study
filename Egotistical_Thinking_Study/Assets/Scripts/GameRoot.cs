@@ -37,6 +37,7 @@ public class ConfigData
     public int GameTimerSeconds;
     public int StartingMoneyPerPlayer;
     public int InventoryCapacityPerPlayer;
+    public bool IsPlayerCollisionEnabled;
 }
 
 public class GameRoot : MonoBehaviour
