@@ -258,7 +258,7 @@ public class ExperimenterViewController : MonoBehaviour
         
         if (OrderSystem.Instance.incompleteOrders.Value.arr[orderIndex] != 0)
         {
-            orderElement.Q <VisualElement>("x-overlay").style.visibility = Visibility.Visible;
+            orderElement.Q <VisualElement>("x-overlay").style.display = DisplayStyle.Flex;
         }
     }
 
@@ -268,7 +268,7 @@ public class ExperimenterViewController : MonoBehaviour
 
         if (OrderSystem.Instance.acceptedOrders.Value.arr[orderIndex] == 1)
         {
-            orderElement.Q<VisualElement>("x-overlay").style.visibility = Visibility.Visible;
+            orderElement.Q<VisualElement>("x-overlay").style.display = DisplayStyle.Flex;
         }
     }
 

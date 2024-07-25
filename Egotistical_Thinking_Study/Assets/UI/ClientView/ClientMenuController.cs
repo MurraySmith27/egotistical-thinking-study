@@ -970,7 +970,7 @@ private void OnGasRefillButtonClicked()
                     }
                     else if (incompleteOrders.arr[i] != 0)
                     {
-                        orderElement.Q <VisualElement>("x-overlay").style.visibility = Visibility.Visible;
+                        orderElement.Q <VisualElement>("x-overlay").style.display = DisplayStyle.Flex;
                     }
 
                     Button loadAllButton = orderElement.Q<Button>("send-order-button");
