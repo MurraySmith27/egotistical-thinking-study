@@ -204,7 +204,7 @@ public class MapGenerator : MonoBehaviour
 
         bool IsPlayerPos(int x, int y)
         {
-            if (GameRoot.Instance.configData.IsPlayerCollisionEnabled)
+            if (!GameRoot.Instance.configData.TrucksPathAroundEachOther)
             {
                 return false;
             }

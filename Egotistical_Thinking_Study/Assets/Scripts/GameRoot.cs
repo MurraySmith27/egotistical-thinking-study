@@ -38,6 +38,7 @@ public class ConfigData
     public int StartingMoneyPerPlayer;
     public int InventoryCapacityPerPlayer;
     public bool IsPlayerCollisionEnabled;
+    public bool TrucksPathAroundEachOther;
 }
 
 public class GameRoot : MonoBehaviour

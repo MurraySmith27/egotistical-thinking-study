@@ -1,9 +1,9 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/Shared/InventoryStyleSheet.uss?fileID=7433441132597879392&amp;guid=12734419a02e5734c81a16aba3a1dd5c&amp;type=3#InventoryStyleSheet" />
     <ui:VisualElement name="root" class="container" style="flex-grow: 1;">
-        <ui:VisualElement name="inventory" class="inventory" style="width: 100%; height: 100%; max-width: 100%; max-height: 100%; background-color: rgb(195, 195, 195);">
-            <ui:Label tabindex="-1" text="Order Contents" parse-escape-sequences="true" display-tooltip-when-elided="true" name="header" class="header" style="font-size: 20%; color: rgb(0, 0, 0);" />
-            <ui:VisualElement name="slot-container" class="slot-container" />
+        <ui:VisualElement name="inventory" class="inventory" style="width: 100%; height: 100%; max-width: 100%; max-height: 100%; background-color: rgba(195, 195, 195, 0); background-image: url(&apos;project://database/Assets/Art/kenney_ui-pack/PNG/Grey/Default/button_rectangle_depth_flat.png?fileID=21300000&amp;guid=5c597fe5fb981db498c1b3cca5b60cb5&amp;type=3#button_rectangle_depth_flat&apos;);">
+            <ui:Label tabindex="-1" text="Order Contents" parse-escape-sequences="true" display-tooltip-when-elided="true" name="header" class="header" style="font-size: 20%; color: rgb(0, 0, 0); margin-top: 25px; margin-left: 21px;" />
+            <ui:VisualElement name="slot-container" class="slot-container" style="background-image: url(&apos;project://database/Assets/Art/kenney_ui-pack/PNG/Grey/Double/button_rectangle_border.png?fileID=21300000&amp;guid=78896cde547a6964a92b5eb6f83aa578&amp;type=3#button_rectangle_border&apos;); padding-left: 30px; padding-top: 10px; padding-right: 30px; padding-bottom: 40px;" />
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

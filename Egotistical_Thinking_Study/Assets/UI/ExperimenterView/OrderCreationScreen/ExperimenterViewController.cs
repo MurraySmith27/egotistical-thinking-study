@@ -107,6 +107,8 @@ public class ExperimenterViewController : MonoBehaviour
         
         m_root.Q<Button>("reset-button").clicked += OnResetButtonClicked;
         
+        m_root.Q<Button>("main-menu-button").clicked += OnMainMenuButtonClicked;
+        
         GameTimerSystem.Instance.timerSecondsRemaining.OnValueChanged += OnTimerValueChanged;
         
         OrderSystem.Instance.onScoreChanged += OnScoreChanged;
@@ -155,6 +157,24 @@ public class ExperimenterViewController : MonoBehaviour
     {
         m_mouseClickSFX.Play();
         ServerManager.m_reset = true;
+        
+        foreach (GameObject obj in FindObjectsOfType(typeof(GameObject)))
+        {
+            if (obj != null && obj.name != this.gameObject.name && obj.name != this.transform.parent.name && obj.name != NetworkManager.Singleton.gameObject.name)
+            {
+                DestroyImmediate(obj);
+            }
+        }
+        
+        NetworkManager.Singleton.Shutdown();
+        DestroyImmediate(NetworkManager.Singleton.gameObject);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    private void OnMainMenuButtonClicked()
+    {
+        m_mouseClickSFX.Play();
+        ServerManager.m_reset = false;
         
         foreach (GameObject obj in FindObjectsOfType(typeof(GameObject)))
         {

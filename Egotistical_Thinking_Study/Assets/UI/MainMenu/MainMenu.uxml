@@ -5,8 +5,8 @@
             <ui:Label display-tooltip-when-elided="true" name="error-label" style="color: rgb(255, 0, 0); flex-shrink: 1; flex-grow: 1; font-size: 50px;" />
             <ui:TextField picking-mode="Ignore" label="Address:" value="192.168.0.186" text="127.0.0.1" name="address-field" style="flex-shrink: 1; flex-grow: 1; font-size: 50px;" />
             <ui:TextField picking-mode="Ignore" label="Port:" value="5555" text="5555" name="port-field" style="flex-shrink: 1; flex-grow: 1; font-size: 50px;" />
-            <ui:Button text="Start as Server" display-tooltip-when-elided="true" name="server-button" style="flex-shrink: 1; flex-grow: 1; font-size: 50px;" />
-            <ui:Button text="Start as Client" display-tooltip-when-elided="true" name="client-button" style="flex-shrink: 1; flex-grow: 1; font-size: 50px;" />
+            <ui:Button text="Start as Server" display-tooltip-when-elided="true" name="server-button" style="flex-shrink: 1; flex-grow: 1; font-size: 50px; background-image: url(&apos;project://database/Assets/Art/kenney_ui-pack/PNG/Blue/Default/button_rectangle_depth_flat.png?fileID=21300000&amp;guid=c9466e4a6a84fbe488b25f9275c6a6db&amp;type=3#button_rectangle_depth_flat&apos;); background-color: rgba(188, 188, 188, 0);" />
+            <ui:Button text="Start as Client" display-tooltip-when-elided="true" name="client-button" style="flex-shrink: 1; flex-grow: 1; font-size: 50px; background-image: url(&apos;project://database/Assets/Art/kenney_ui-pack/PNG/Blue/Default/button_rectangle_depth_flat.png?fileID=21300000&amp;guid=c9466e4a6a84fbe488b25f9275c6a6db&amp;type=3#button_rectangle_depth_flat&apos;); background-color: rgba(188, 188, 188, 0);" />
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

@@ -176,8 +176,14 @@ public class ExperimenterViewFloatingInventoryController : MonoBehaviour
             inventoryRootElement.style.width = width;
             inventoryRootElement.style.height = height;
 
-            inventoryRootElement.style.left = screenPos.x - width / 2f;
-            inventoryRootElement.style.top = Screen.height - screenPos.y - height / 2f;
+            int minLeftOffset = 0;
+            int maxLeftOffset = Mathf.FloorToInt(Screen.width - width*2f);
+
+            int minTopOffset = 0;
+            int maxTopOffset = Mathf.FloorToInt(Screen.height - height*2f);
+
+            inventoryRootElement.style.left = Mathf.Clamp(screenPos.x - width / 2f, minLeftOffset, maxLeftOffset);
+            inventoryRootElement.style.top = Mathf.Clamp(Screen.height - screenPos.y - height / 2f, minTopOffset, maxTopOffset);
 
             inventoryRootElement.style.visibility = Visibility.Visible;
 
