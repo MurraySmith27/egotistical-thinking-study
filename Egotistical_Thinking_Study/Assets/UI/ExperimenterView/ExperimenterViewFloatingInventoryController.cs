@@ -17,6 +17,8 @@ public class ExperimenterViewFloatingInventoryController : MonoBehaviour
 
     [SerializeField] private AudioSource mouseClickSFX;
 
+    [SerializeField] private Vector2 referenceResolution = new Vector2(1920, 1080);
+
     private VisualElement rootVisualElement;
 
     private VisualElement inventorySlotContainer;
@@ -74,6 +76,8 @@ public class ExperimenterViewFloatingInventoryController : MonoBehaviour
     private void OnClick(InputAction.CallbackContext ctx)
     {
         Vector2 mousePos = mousePosition.ReadValue<Vector2>();
+        
+        Debug.Log($"ON CLICK, WIDTH: {Screen.width}, height: {Screen.height}");
         
         Vector2 topLeftCorner = new Vector2(Screen.width * 0.3f - 96, 0f);
         Vector2 bottomRightCorner = new Vector2(Screen.width,Screen.height * 0.75f);
@@ -177,16 +181,15 @@ public class ExperimenterViewFloatingInventoryController : MonoBehaviour
             inventoryRootElement.style.height = height;
 
             int minLeftOffset = 0;
-            int maxLeftOffset = Mathf.FloorToInt(Screen.width - width*2f);
+            int maxLeftOffset = Mathf.FloorToInt(referenceResolution.x - width*2f);
 
             int minTopOffset = 0;
-            int maxTopOffset = Mathf.FloorToInt(Screen.height - height*2f);
-
-            inventoryRootElement.style.left = Mathf.Clamp(screenPos.x - width / 2f, minLeftOffset, maxLeftOffset);
-            inventoryRootElement.style.top = Mathf.Clamp(Screen.height - screenPos.y - height / 2f, minTopOffset, maxTopOffset);
+            int maxTopOffset = Mathf.FloorToInt(referenceResolution.y - height*4f);
+            
+            inventoryRootElement.style.left = Mathf.Clamp(referenceResolution.x * (screenPos.x - width / 2f) / Screen.width, minLeftOffset, maxLeftOffset);
+            inventoryRootElement.style.top = Mathf.Clamp(referenceResolution.y * (Screen.height - screenPos.y - height / 2f) / Screen.height, minTopOffset, maxTopOffset);
 
             inventoryRootElement.style.visibility = Visibility.Visible;
-
         }
 
         int itemIdx = 0;
