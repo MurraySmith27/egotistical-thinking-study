@@ -1211,8 +1211,8 @@ private void OnGasRefillButtonClicked()
 
         int maxSlotsPerColumn = 2;
         
-        int itemSlotSize = Mathf.FloorToInt(Mathf.Min(inventoryContainer.resolvedStyle.width / maxSlotsPerRow - 16,
-            inventoryContainer.resolvedStyle.height / maxSlotsPerColumn - 16));
+        int itemSlotSize = Mathf.FloorToInt(Mathf.Min(inventoryContainer.resolvedStyle.width / maxSlotsPerRow - 30,
+            inventoryContainer.resolvedStyle.height / maxSlotsPerColumn - 30));
 
         int numTotalItems = 0;
         for (int i = 0; i < numInventorySlots; i++)

@@ -13,6 +13,8 @@ public delegate void PlayerExitGasStationRadiusEvent(int playerNum);
 public class PlayerNetworkBehaviour : NetworkBehaviour
 {
     public Color m_playerColor;
+
+    public bool isMoving = false;
     
     [SerializeField] private AudioSource m_mouseClickSFX;
     [SerializeField] private InputActionAsset clientInput;
@@ -130,9 +132,10 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (this.IsServer && GameRoot.Instance.configData.IsPlayerCollisionEnabled && collision.rigidbody.gameObject.layer == LayerMask.NameToLayer("Player"))
+        if (this.IsServer &&
+            GameRoot.Instance.configData.IsPlayerCollisionEnabled && collision.rigidbody?.gameObject.layer == LayerMask.NameToLayer("Player"))
         {
-            if (moveCoroutine != null)
+            if (isMoving)
             {
                 StopCoroutine(moveCoroutine);
 
@@ -282,6 +285,8 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
 
     private IEnumerator MovePlayerAlongPath(List<Vector2> path, int playerNum)
     {
+
+        isMoving = true;
         float playerZ = transform.position.z;
 
         lastPosition = Vector3.zero;
@@ -347,6 +352,8 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
 
             yield return new WaitUntil(() => !GameTimerSystem.Instance.isGamePaused.Value);
         }
+
+        isMoving = false;
     }
 
     private void UpdatePosition(Vector3 prev, Vector3 current) {

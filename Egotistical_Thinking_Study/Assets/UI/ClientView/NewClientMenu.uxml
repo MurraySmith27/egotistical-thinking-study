@@ -19,7 +19,7 @@
         </ui:VisualElement>
         <ui:VisualElement name="menu" style="flex-grow: 1; background-color: rgb(106, 106, 106);">
             <ui:ScrollView name="order-root" mode="Horizontal" style="flex-shrink: 2; flex-grow: 2; max-height: 40%; flex-direction: row;" />
-            <ui:VisualElement name="warehouse-root" style="flex-grow: 1; flex-shrink: 1; position: relative; max-height: 25%;">
+            <ui:VisualElement name="warehouse-root" style="flex-grow: 1.2; flex-shrink: 1.2; position: relative; max-height: 25%;">
                 <ui:Instance template="InventoryElement" name="warehouse-inventory" style="flex-grow: 1;" />
             </ui:VisualElement>
             <ui:VisualElement name="truck-root" style="flex-grow: 1;">
@@ -29,7 +29,7 @@
                         <ui:VisualElement name="truck-gas-icon" style="flex-grow: 1; background-image: url(&apos;project://database/Assets/Art/Icons/gas.png?fileID=2800000&amp;guid=9b12844e557c478498bd9dc167b715a9&amp;type=3#gas&apos;); align-self: stretch; position: relative; align-items: center; justify-content: flex-start;" />
                         <ui:VisualElement style="flex-grow: 1;" />
                     </ui:VisualElement>
-                    <ui:ProgressBar value="100" name="truck-gas-bar" style="flex-shrink: 2; flex-grow: 2; align-self: center; position: absolute; width: 75%; height: 100%; left: 25%; justify-content: center;" />
+                    <ui:ProgressBar value="100" name="truck-gas-bar" title="gas-bar" style="flex-shrink: 2; flex-grow: 2; align-self: center; position: absolute; width: 75%; height: 100%; left: 25%; justify-content: center; font-size: 60%;" />
                     <ui:Button text="Refill (5G)" parse-escape-sequences="true" display-tooltip-when-elided="true" name="gas-refill-button" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; width: 25%; height: 100%; display: flex; visibility: hidden;" />
                 </ui:VisualElement>
                 <ui:VisualElement name="truck-inventory-root" style="flex-grow: 1; min-width: 25%; min-height: 25%;">
