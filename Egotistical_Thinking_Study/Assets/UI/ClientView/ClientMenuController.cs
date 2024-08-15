@@ -759,7 +759,7 @@ private void OnGasRefillButtonClicked()
                     playerInventoryElement.style.borderLeftColor = defaultBorderColor;
                     playerInventoryElement.style.borderRightColor = defaultBorderColor;
                     
-                    m_leaveDestinationSFX.Play();
+                    // m_leaveDestinationSFX.Play();
                     
                     UpdateOrdersList(OrderSystem.Instance.activeOrders.Value, OrderSystem.Instance.completeOrders.Value , OrderSystem.Instance.incompleteOrders.Value, OrderSystem.Instance.acceptedOrders.Value);
                 }

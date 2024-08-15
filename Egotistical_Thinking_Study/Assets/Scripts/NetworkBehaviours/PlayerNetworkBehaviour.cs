@@ -130,10 +130,10 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
         }
     }
 
-    private void OnCollisionEnter(Collision collision)
+    private void OnTriggerEnter(Collider other)
     {
         if (this.IsServer &&
-            GameRoot.Instance.configData.IsPlayerCollisionEnabled && collision.rigidbody?.gameObject.layer == LayerMask.NameToLayer("Player"))
+            GameRoot.Instance.configData.IsPlayerCollisionEnabled && other.gameObject.layer == LayerMask.NameToLayer("PlayerHurtbox"))
         {
             if (isMoving)
             {
