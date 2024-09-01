@@ -194,7 +194,7 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
         // Vector2 bottomRightCorner = Camera.main.WorldToScreenPoint(gameViewQuad.transform.GetChild(1).position);
 
         Vector2 topLeftCorner = new Vector2(0f, 0f);
-        Vector2 bottomRightCorner = new Vector2(Screen.width / 2f,Screen.height);
+        Vector2 bottomRightCorner = new Vector2(Screen.width * 0.5625f,Screen.height);
         
         float width = bottomRightCorner.x - topLeftCorner.x;
         float height = bottomRightCorner.y - topLeftCorner.y;

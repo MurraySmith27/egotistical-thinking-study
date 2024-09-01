@@ -4,7 +4,7 @@
     <Style src="project://database/Assets/UI/Shared/InventoryStyleSheet.uss?fileID=7433441132597879392&amp;guid=12734419a02e5734c81a16aba3a1dd5c&amp;type=3#InventoryStyleSheet" />
     <Style src="project://database/Assets/UI/ClientView/ClientMenu.uss?fileID=7433441132597879392&amp;guid=73af3c5d9c6254f42ad0b14461d13d99&amp;type=3#ClientMenu" />
     <ui:VisualElement name="root" style="flex-grow: 1; flex-direction: row;">
-        <ui:VisualElement name="game" style="flex-grow: 1; background-image: none; min-width: 50%; max-width: 50%; background-color: rgb(43, 43, 43);">
+        <ui:VisualElement name="game" style="flex-grow: 0.5625; background-image: none; min-width: 56.25%; max-width: 56.25%; background-color: rgb(43, 43, 43); flex-shrink: 0.5625;">
             <ui:VisualElement name="game-view" style="flex-grow: 1; background-image: url(&apos;project://database/Assets/UI/Shared/GameViewRenderTexture.asset?fileID=8600000&amp;guid=24b9b189363a5ef45adf6d482555cb46&amp;type=2#GameViewRenderTexture&apos;);">
                 <ui:VisualElement name="timer-and-gold-root" style="flex-grow: 1; width: 400px; height: 100px; position: absolute;">
                     <ui:VisualElement name="timer-parent" style="flex-grow: 1; position: absolute; width: 200px; height: 100px; background-color: rgba(195, 195, 195, 0); border-top-left-radius: 10px; border-top-right-radius: 10px; border-bottom-right-radius: 10px; border-bottom-left-radius: 10px; align-items: center; justify-content: center; background-image: url(&apos;project://database/Assets/Art/kenney_ui-pack/PNG/Grey/Double/button_rectangle_border.png?fileID=21300000&amp;guid=78896cde547a6964a92b5eb6f83aa578&amp;type=3#button_rectangle_border&apos;);">
@@ -17,7 +17,7 @@
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
-        <ui:VisualElement name="menu" style="flex-grow: 1; background-color: rgb(106, 106, 106);">
+        <ui:VisualElement name="menu" style="flex-grow: 0.4375; background-color: rgb(106, 106, 106); flex-shrink: 0.4375;">
             <ui:ScrollView name="order-root" mode="Horizontal" style="flex-shrink: 2; flex-grow: 2; max-height: 40%; flex-direction: row;" />
             <ui:VisualElement name="warehouse-root" style="flex-grow: 1.2; flex-shrink: 1.2; position: relative; max-height: 25%;">
                 <ui:Instance template="InventoryElement" name="warehouse-inventory" style="flex-grow: 1;" />
