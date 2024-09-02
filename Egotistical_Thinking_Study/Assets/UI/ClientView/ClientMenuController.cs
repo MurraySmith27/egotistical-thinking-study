@@ -296,6 +296,7 @@ private void OnGasRefillButtonClicked()
     {
         m_nearGasStation = true;
         m_gasRefillButton.style.visibility = Visibility.Visible;
+        m_approachDestinationSFX.Play();
     }
 
     private void OnPlayerExitGasStationRadius(int playerNum)
@@ -848,6 +849,8 @@ private void OnGasRefillButtonClicked()
                 inventoryElement.style.borderTopColor = Color.green;
                 inventoryElement.style.borderLeftColor = Color.green;
                 inventoryElement.style.borderRightColor = Color.green;
+
+                m_approachDestinationSFX.Play();
             }
             else if (m_ownedWarehouseNum != m_currentLoadingWarehouseNum) {
                 // m_ownedWarehouseInventoryElement.style.opacity = 0.5f;
@@ -1045,7 +1048,7 @@ private void OnGasRefillButtonClicked()
         {
             m_outOfGasSFX.Play();
         }
-        else if (current != -1 && current / (float)MapDataNetworkBehaviour.Instance.maxGasPerPlayer.Value < 0.4f)
+        else if (current != -1 && (current / (float)MapDataNetworkBehaviour.Instance.maxGasPerPlayer.Value) < 0.4f && (previous / (float)MapDataNetworkBehaviour.Instance.maxGasPerPlayer.Value) >= 0.4f)
         {
             m_lowGasSFX.Play();
         }

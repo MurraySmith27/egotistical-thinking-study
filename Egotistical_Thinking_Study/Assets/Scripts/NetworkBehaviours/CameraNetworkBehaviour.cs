@@ -67,7 +67,6 @@ public class CameraNetworkBehaviour : NetworkBehaviour
     {
         transform.position = new Vector3((width / 2f) * MapGenerator.Instance.tileWidth, transform.position.y, transform.position.z);
         
-        Debug.Log($"width: {width}");
         camera.orthographicSize = Mathf.Max(camera.orthographicSize, 4 + width * MapGenerator.Instance.tileWidth / 2f);
     }
     

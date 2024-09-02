@@ -179,8 +179,10 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
         m_numGasRemaining.Value = GameRoot.Instance.configData.MaxGasPerPlayer;
     }
 
-    public void OnClick(InputAction.CallbackContext context) {
+    public void OnClick(InputAction.CallbackContext context)
+    {
 
+        Debug.Log("on click!");
         if (GameTimerSystem.Instance.isGamePaused.Value)
         {
             return;
@@ -193,7 +195,7 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
         // Vector2 topLeftCorner = Camera.main.WorldToScreenPoint(gameViewQuad.transform.GetChild(0).position);
         // Vector2 bottomRightCorner = Camera.main.WorldToScreenPoint(gameViewQuad.transform.GetChild(1).position);
 
-        Vector2 topLeftCorner = new Vector2(0f, 0f);
+        Vector2 topLeftCorner = new Vector2(0f, 100f);
         Vector2 bottomRightCorner = new Vector2(Screen.width * 0.5625f,Screen.height);
         
         float width = bottomRightCorner.x - topLeftCorner.x;
@@ -203,6 +205,8 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
         RaycastHit hit;
         Camera playerCameraComponent = playerCamera.GetComponent<Camera>();
         Ray ray = playerCameraComponent.ViewportPointToRay(new Vector3((mousePos.x - topLeftCorner.x) / width, ((mousePos.y - topLeftCorner.y) / height), 0));
+        
+        Debug.Log($"ray at {ray.origin} in direction: {ray.direction}");
         
         Debug.DrawRay(ray.origin, ray.origin + ray.direction * 100, color:Color.red, duration: 5f, false);
         if (Physics.Raycast(ray.origin, ray.direction, out hit, 100, ~LayerMask.NameToLayer("MapTile")))
@@ -309,14 +313,14 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
                 m_numGasRemaining.Value--;
             }
 
-            if (m_numGasRemaining.Value == 0)
-            {
-                m_outOfGasSFX.Play();
-            }
-            else if (m_numGasRemaining.Value != -1 && m_numGasRemaining.Value / (float)GameRoot.Instance.configData.MaxGasPerPlayer < 0.4f)
-            {
-                m_lowGasSFX.Play();
-            }
+            // if (m_numGasRemaining.Value == 0)
+            // {
+            //     m_outOfGasSFX.Play();
+            // }
+            // else if (m_numGasRemaining.Value != -1 && (current / (float)MapDataNetworkBehaviour.Instance.maxGasPerPlayer.Value) < 0.4f && (previous / (float)MapDataNetworkBehaviour.Instance.maxGasPerPlayer.Value) >= 0.4f)
+            // {
+            //     m_lowGasSFX.Play();
+            // }
             
             foreach (GameObject child in m_children)
             {
