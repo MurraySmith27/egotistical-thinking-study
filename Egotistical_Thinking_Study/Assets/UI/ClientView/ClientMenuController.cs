@@ -838,8 +838,11 @@ private void OnGasRefillButtonClicked()
                 m_otherPlayersTrucksInventoryElements.Add(newCloseEnoughTrucksPlayerNumbers[i], otherPlayersTruckInventoryRoot);
                 m_otherPlayersTrucksInventorySlots.Add(newCloseEnoughTrucksPlayerNumbers[i], new List<InventorySlot>());
             }
+
+            int[] closeEnoughTrucksPlayerNumbersArr = new int[newCloseEnoughTrucksPlayerNumbers.Count];
+            newCloseEnoughTrucksPlayerNumbers.CopyTo(closeEnoughTrucksPlayerNumbersArr);
             
-            m_closeEnoughTrucksPlayerNumbers = newCloseEnoughTrucksPlayerNumbers.Copy();
+            m_closeEnoughTrucksPlayerNumbers = new List<int>(closeEnoughTrucksPlayerNumbersArr);
             
             //update warehouse visuals if nearby
             if (m_otherPlayersTrucksInventoryElements.Keys.Count > 0)
