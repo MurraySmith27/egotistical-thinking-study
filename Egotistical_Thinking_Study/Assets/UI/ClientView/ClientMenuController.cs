@@ -95,6 +95,8 @@ public class ClientMenuController : MonoBehaviour
     private bool m_initialized = false;
 
     private bool m_nearGasStation = false;
+    
+    private List<int> m_closeEnoughTrucksPlayerNumbers;
 
     void Awake()
     {
@@ -782,7 +784,7 @@ private void OnGasRefillButtonClicked()
             }
             
             List<GameObject> closeEnoughTrucks = new List<GameObject>();
-            List<int> closeEnoughTrucksPlayerNumbers = new List<int>();
+            List<int> newCloseEnoughTrucksPlayerNumbers = new List<int>();
             
             ulong thisPlayerNetworkId =
                 MapDataNetworkBehaviour.Instance.GetNetworkIdOfPlayer(ClientConnectionHandler.Instance
@@ -799,7 +801,7 @@ private void OnGasRefillButtonClicked()
                 {
                     if (networkObject.NetworkObjectId == playerNetworkId)
                     {
-                        closeEnoughTrucksPlayerNumbers.Add(truckNum);
+                        newCloseEnoughTrucksPlayerNumbers.Add(truckNum);
                         
                         float playerToWarehouseDistance =
                             (ownedWarehouseGameObject.transform.position - networkObject.transform.position).magnitude;
@@ -833,9 +835,11 @@ private void OnGasRefillButtonClicked()
                         break;
                     }
                 }
-                m_otherPlayersTrucksInventoryElements.Add(closeEnoughTrucksPlayerNumbers[i], otherPlayersTruckInventoryRoot);
-                m_otherPlayersTrucksInventorySlots.Add(closeEnoughTrucksPlayerNumbers[i], new List<InventorySlot>());
+                m_otherPlayersTrucksInventoryElements.Add(newCloseEnoughTrucksPlayerNumbers[i], otherPlayersTruckInventoryRoot);
+                m_otherPlayersTrucksInventorySlots.Add(newCloseEnoughTrucksPlayerNumbers[i], new List<InventorySlot>());
             }
+            
+            m_closeEnoughTrucksPlayerNumbers = newCloseEnoughTrucksPlayerNumbers.Copy();
             
             //update warehouse visuals if nearby
             if (m_otherPlayersTrucksInventoryElements.Keys.Count > 0)
@@ -849,8 +853,6 @@ private void OnGasRefillButtonClicked()
                 inventoryElement.style.borderTopColor = Color.green;
                 inventoryElement.style.borderLeftColor = Color.green;
                 inventoryElement.style.borderRightColor = Color.green;
-
-                m_approachDestinationSFX.Play();
             }
             else if (m_ownedWarehouseNum != m_currentLoadingWarehouseNum) {
                 // m_ownedWarehouseInventoryElement.style.opacity = 0.5f;
