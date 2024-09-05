@@ -2,11 +2,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Unity.Netcode;
 using Unity.Networking.Transport;
 using UnityEditor;
+using UnityEngine.Tilemaps;
 
 public delegate void PlayerEnterGasStationRadiusEvent(int playerNum);
 public delegate void PlayerExitGasStationRadiusEvent(int playerNum);
@@ -179,6 +181,9 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
         m_numGasRemaining.Value = GameRoot.Instance.configData.MaxGasPerPlayer;
     }
 
+
+    [CanBeNull] private Tilemap lastTileHit;
+
     public void OnClick(InputAction.CallbackContext context)
     {
 
@@ -196,7 +201,7 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
         // Vector2 bottomRightCorner = Camera.main.WorldToScreenPoint(gameViewQuad.transform.GetChild(1).position);
 
         Vector2 topLeftCorner = new Vector2(0f, 100f);
-        Vector2 bottomRightCorner = new Vector2(Screen.width * 0.5625f,Screen.height);
+        Vector2 bottomRightCorner = new Vector2(Screen.width * 0.5104f,Screen.height);
         
         float width = bottomRightCorner.x - topLeftCorner.x;
         float height = bottomRightCorner.y - topLeftCorner.y;
@@ -204,7 +209,7 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
         //raycast from camera center, see if it intersects with the map.
         RaycastHit hit;
         Camera playerCameraComponent = playerCamera.GetComponent<Camera>();
-        Ray ray = playerCameraComponent.ViewportPointToRay(new Vector3((mousePos.x - topLeftCorner.x) / width, ((mousePos.y - topLeftCorner.y) / height), 0));
+        Ray ray = playerCameraComponent.ViewportPointToRay(new Vector3((mousePos.x - topLeftCorner.x) / width, ((mousePos.y) / height), 0));
         
         Debug.Log($"ray at {ray.origin} in direction: {ray.direction}");
         
@@ -219,11 +224,22 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
                 int playerNum = ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum;
                 Vector2Int destinationPos = new((int)(hitPos.x / MapGenerator.Instance.tileWidth), (int)(hitPos.y / MapGenerator.Instance.tileHeight));
                 MovePlayerTo_ServerRpc(destinationPos, playerNum);
+                
+                if (lastTileHit != null)
+                {
+                    lastTileHit.color = Color.white;
+                }
+                lastTileHit = hit.transform.GetComponentInChildren<Tilemap>(false);
+            
+                lastTileHit.color = Color.red;
+                
             }
             else
             {
                 Vector3 closestHitPos = Vector3.zero;
                 float closestHitDistance = float.PositiveInfinity;
+                
+                Transform closestHitGO = null;
                 for (int i = -1; i <= 1; i++)
                 {
                     for (int j = -1; j <= 1; j++)
@@ -243,6 +259,8 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
                                 {
                                     closestHitPos = hit2.transform.position;
                                     closestHitDistance = distance;
+                                    
+                                    closestHitGO = hit2.transform;
                                 }
                             }
                         }
@@ -255,6 +273,17 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
                     int playerNum = ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum;
                     Vector2Int destinationPos = new((int)(closestHitPos.x / MapGenerator.Instance.tileWidth), (int)(closestHitPos.y / MapGenerator.Instance.tileHeight));
                     MovePlayerTo_ServerRpc(destinationPos, playerNum);
+                    
+                    if (closestHitGO != null)
+                    {
+                        if (lastTileHit != null)
+                        {
+                            lastTileHit.color = Color.white;
+                        }
+                        lastTileHit = closestHitGO.GetComponentInChildren<Tilemap>(false);
+
+                        lastTileHit.color = Color.red;
+                    }
                 }
             }
         }
