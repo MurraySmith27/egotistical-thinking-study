@@ -267,7 +267,11 @@ public class ClientMenuController : MonoBehaviour
         playerNetworkBehaviour.m_numGasRemaining.OnValueChanged +=
             OnGasValueChanged;
 
+        
+        playerNetworkBehaviour.m_onPlayerEnterGasStationRadius -= OnPlayerEnterGasStationRadius;
         playerNetworkBehaviour.m_onPlayerEnterGasStationRadius += OnPlayerEnterGasStationRadius;
+        
+        playerNetworkBehaviour.m_onPlayerExitGasStationRadius -= OnPlayerExitGasStationRadius;
         playerNetworkBehaviour.m_onPlayerExitGasStationRadius += OnPlayerExitGasStationRadius;
 
         m_otherPlayersTrucksInventorySlots = new();
@@ -801,12 +805,12 @@ private void OnGasRefillButtonClicked()
                 {
                     if (networkObject.NetworkObjectId == playerNetworkId)
                     {
-                        newCloseEnoughTrucksPlayerNumbers.Add(truckNum);
-                        
                         float playerToWarehouseDistance =
                             (ownedWarehouseGameObject.transform.position - networkObject.transform.position).magnitude;
                         if (playerToWarehouseDistance < m_loadingDistanceFromWarehouse && playerToWarehouseDistance < m_loadingDistanceFromWarehouse)
                         {
+                            
+                            newCloseEnoughTrucksPlayerNumbers.Add(truckNum);
                             closeEnoughTrucks.Add(networkObject.gameObject);
                         }
                     }
@@ -842,7 +846,21 @@ private void OnGasRefillButtonClicked()
             int[] closeEnoughTrucksPlayerNumbersArr = new int[newCloseEnoughTrucksPlayerNumbers.Count];
             newCloseEnoughTrucksPlayerNumbers.CopyTo(closeEnoughTrucksPlayerNumbersArr);
             
+            if (m_closeEnoughTrucksPlayerNumbers != null)
+            {
+                foreach (int newCloseEnoughTrucksPlayerNumber in newCloseEnoughTrucksPlayerNumbers)
+                {
+                    if (!m_closeEnoughTrucksPlayerNumbers.Contains(newCloseEnoughTrucksPlayerNumber))
+                    {
+                        //new truck, play sfx
+                        m_approachDestinationSFX.Play();
+                        break;
+                    }
+                }
+            }
+            
             m_closeEnoughTrucksPlayerNumbers = new List<int>(closeEnoughTrucksPlayerNumbersArr);
+            
             
             //update warehouse visuals if nearby
             if (m_otherPlayersTrucksInventoryElements.Keys.Count > 0)
