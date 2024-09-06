@@ -1,5 +1,7 @@
-VisualElement {}
+VisualElement {
+}
 
 .order-client-view {
     max-width: 30%;
+    min-width: 30%;
 }

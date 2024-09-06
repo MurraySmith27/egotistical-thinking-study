@@ -2609,6 +2609,7 @@ MonoBehaviour:
   experimenterInput: {fileID: -944628639613478452, guid: f56f377b14612cd428eee8eda76df8b3, type: 3}
   playerCamera: {fileID: 788084014}
   mouseClickSFX: {fileID: 1198937716}
+  referenceResolution: {x: 1920, y: 1080}
   inventoryRootAdditionalHeight: 60
 --- !u!1 &2117876675
 GameObject:

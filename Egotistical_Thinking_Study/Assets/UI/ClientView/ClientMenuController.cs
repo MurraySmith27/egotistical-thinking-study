@@ -84,6 +84,8 @@ public class ClientMenuController : MonoBehaviour
 
     private VisualElement m_orderRoot;
 
+    private VisualElement m_orderScrollViewContainer;
+
     private Button m_gasRefillButton;
 
     private List<VisualElement> m_activeOrderElements;
@@ -138,6 +140,8 @@ public class ClientMenuController : MonoBehaviour
         m_root = GetComponent<UIDocument>().rootVisualElement.Q<VisualElement>("root");
 
         m_orderRoot = m_root.Q<VisualElement>("order-root");
+
+        m_orderScrollViewContainer = m_orderRoot.Q<VisualElement>("unity-content-container");
 
         m_activeOrderElements = new List<VisualElement>();
 
@@ -370,6 +374,7 @@ private void OnGasRefillButtonClicked()
                     if (OrderSystem.Instance.activeOrders.Value.arr[i] != 0 && 
                         OrderSystem.Instance.completeOrders.Value.arr[i] == 0 && 
                         OrderSystem.Instance.incompleteOrders.Value.arr[i] == 0 &&
+                        OrderSystem.Instance.acceptedOrders.Value.arr[i] == 2 && 
                         OrderSystem.Instance.orders.Value.orders[i].destinationWarehouse == m_currentLoadingWarehouseNum)
                     {
                         Dictionary<string, int> requiredItems =
@@ -655,8 +660,11 @@ private void OnGasRefillButtonClicked()
                             }
                         }
                     }
-                    
-                    ulong destinationNetworkId = MapDataNetworkBehaviour.Instance.GetNetworkIdOfDestination(warehouseNum);
+                }
+                
+                for (int destinationNum = 0; destinationNum < MapDataNetworkBehaviour.Instance.destinationNetworkObjectIds.Value.arr.Length; destinationNum++)
+                {
+                    ulong destinationNetworkId = MapDataNetworkBehaviour.Instance.GetNetworkIdOfDestination(destinationNum);
                     foreach (NetworkObject networkObject in FindObjectsOfType<NetworkObject>())
                     {
                         if (networkObject.NetworkObjectId == destinationNetworkId)
@@ -666,7 +674,7 @@ private void OnGasRefillButtonClicked()
                             if (playerToDestinationDistance < m_loadingDistanceFromWarehouse && playerToDestinationDistance < minWarehouseDistance)
                             {
                                 foundNearestWarehouse = true;
-                                nearestWarehouseNum = warehouseNum;
+                                nearestWarehouseNum = destinationNum;
                                 nearestWarehouseNetworkObject = networkObject;
                                 minWarehouseDistance = playerToDestinationDistance;
                                 nearestWarehouseType = InventoryType.Destination;
@@ -677,9 +685,13 @@ private void OnGasRefillButtonClicked()
                 
                 int playerNum = ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum;
 
-                int warehouseOwner = InventorySystem.Instance.GetOwnerOfWarehouse(nearestWarehouseNum);
-                
-                bool belongsToThisPlayer = nearestWarehouseNum != -1 && nearestWarehouseType == InventoryType.Warehouse && warehouseOwner == playerNum;
+                bool belongsToThisPlayer = false;
+                if (nearestWarehouseType == InventoryType.Warehouse)
+                {
+                    int warehouseOwner = InventorySystem.Instance.GetOwnerOfWarehouse(nearestWarehouseNum);
+
+                    belongsToThisPlayer = nearestWarehouseNum != -1 && warehouseOwner == playerNum;
+                }
 
                 if (foundNearestWarehouse && m_currentLoadingWarehouseNum == -1)
                 {
@@ -913,7 +925,7 @@ private void OnGasRefillButtonClicked()
 
     void UpdateOrdersList(NetworkSerializableIntArray activeOrders, NetworkSerializableIntArray completeOrders, NetworkSerializableIntArray incompleteOrders, NetworkSerializableIntArray acceptedOrders)
     {
-        m_orderRoot.Clear();
+        m_orderScrollViewContainer.Clear();
         m_activeOrderElements.Clear();
 
         for (int i = 0; i < activeOrders.arr.Length; i++)
@@ -1041,7 +1053,7 @@ private void OnGasRefillButtonClicked()
 
                     }
 
-                    m_orderRoot.Add(orderElement);
+                    m_orderScrollViewContainer.Add(orderElement);
                     m_activeOrderElements.Add(orderElement);
                 }
             }
@@ -1184,7 +1196,7 @@ private void OnGasRefillButtonClicked()
         Color inventoryBorderColor = Color.white;
         int inventoryBorderWidth = 0;
 
-        if (m_currentLoadingWarehouseNum != -1 &&
+        if (m_currentLoadingWarehouseNum != -1 && m_currentLoadingWarehouseType == InventoryType.Warehouse &&
             InventorySystem.Instance.GetOwnerOfWarehouse(m_currentLoadingWarehouseNum) == -1)
         {
             inventoryBorderColor = Color.green;
