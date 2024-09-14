@@ -278,7 +278,7 @@ public class InventorySystem : NetworkBehaviour
         }
         return m_warehousePlayerOwners.Value.arr[warehouseNum];
     }
-
+    
     private void OnNewClientConnected(ulong clientId)
     {
         if (this.IsServer)

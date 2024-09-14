@@ -111,7 +111,9 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
 
             m_numGasRemaining.OnValueChanged += OnGasValueChangedServerSide;
         }
-        else if (this.IsClient) {
+        else if (this.IsClient)
+        {
+            clickAction.performed -= OnClick;
             clickAction.performed += OnClick;
 
             playerCamera = GameObject.FindGameObjectWithTag("PlayerCamera");
@@ -120,6 +122,11 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
         }
 
         position.OnValueChanged += UpdatePosition;
+    }
+
+    void OnDestroy()
+    {
+        clickAction.performed -= OnClick;
     }
 
     private void OnGasValueChangedServerSide(int old, int current)
@@ -193,6 +200,10 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
             return;
         }
         
+        if (playerCamera == null) {
+            playerCamera = GameObject.FindGameObjectWithTag("PlayerCamera"); 
+        }
+        
         Vector2 mousePos = mousePosition.ReadValue<Vector2>();
 
         // mousePos = new Vector2(mousePos.x / Screen.width, mousePos.y / Screen.height);
@@ -200,7 +211,7 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
         // Vector2 topLeftCorner = Camera.main.WorldToScreenPoint(gameViewQuad.transform.GetChild(0).position);
         // Vector2 bottomRightCorner = Camera.main.WorldToScreenPoint(gameViewQuad.transform.GetChild(1).position);
 
-        Vector2 topLeftCorner = new Vector2(0f, 100f);
+        Vector2 topLeftCorner = new Vector2(0f, (100f / 1080f) * Screen.height );
         Vector2 bottomRightCorner = new Vector2(Screen.width * 0.5104f,Screen.height);
         
         float width = bottomRightCorner.x - topLeftCorner.x;

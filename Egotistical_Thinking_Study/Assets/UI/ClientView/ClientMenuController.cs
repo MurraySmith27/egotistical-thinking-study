@@ -746,8 +746,8 @@ private void OnGasRefillButtonClicked()
                 }
                 else if (!foundNearestWarehouse && m_currentLoadingWarehouseNum != -1)
                 {
-
-                    if (InventorySystem.Instance.GetOwnerOfWarehouse(m_currentLoadingWarehouseNum) == playerNum)
+                    
+                    if (m_currentLoadingWarehouseType == InventoryType.Warehouse && InventorySystem.Instance.GetOwnerOfWarehouse(m_currentLoadingWarehouseNum) == playerNum)
                     {
                         // m_ownedWarehouseInventoryElement.style.opacity = 0.5f;
 
@@ -954,7 +954,7 @@ private void OnGasRefillButtonClicked()
 
                     orderElement.Q<Label>("order-number-label").text = $"Order {i + 1}:";
                     orderElement.Q<Label>("order-description").text = order.textDescription.ToString();
-                    orderElement.Q<Label>("send-to-player-label").text = $"Receiving Player: {order.receivingPlayer}";
+                    orderElement.Q<Label>("send-to-player-label").style.visibility = Visibility.Hidden;
                     orderElement.Q<Label>("score-reward-label").text = $"Reward: {order.scoreReward}G";
 
                     string mapDestinationText = $"Destination Warehouse: ";
