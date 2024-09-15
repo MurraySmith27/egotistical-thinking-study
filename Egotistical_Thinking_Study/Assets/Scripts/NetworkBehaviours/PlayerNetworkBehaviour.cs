@@ -49,6 +49,8 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
     private List<GameObject> m_children;
 
     private bool m_nearGasStation = false;
+
+    private Vector2Int m_currentDestinationPos;
     
     void Awake() {
         clickAction = clientInput["mouseClick"];
@@ -304,10 +306,12 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
     [ServerRpc(RequireOwnership=false)]
     void MovePlayerTo_ServerRpc(Vector2Int destinationPos,  int playerNum, ServerRpcParams serverRpcParams = default)
     {
-        if (m_playerNum.Value != playerNum)
+        if (m_playerNum.Value != playerNum || destinationPos == m_currentDestinationPos)
         {
             return;
         }
+        
+        m_currentDestinationPos = destinationPos;
         
         if (moveCoroutine != null)
         {
@@ -332,6 +336,8 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
 
         isMoving = true;
         float playerZ = transform.position.z;
+        
+        Debug.Log($"moving player! Path legnth: {path.Count}");
 
         lastPosition = Vector3.zero;
         Vector3 nextPosition = new Vector3(path[0].x * MapGenerator.Instance.tileWidth,
@@ -341,9 +347,9 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
         {
             if (m_numGasRemaining.Value == 0)
             {
+                m_currentDestinationPos = new Vector2Int(999999999, 999999999);
                 yield break;
             }
-            
             
             lastPosition = nextPosition;
             nextPosition = new Vector3(destination.x * MapGenerator.Instance.tileWidth,
@@ -398,6 +404,8 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
         }
 
         isMoving = false;
+        
+        m_currentDestinationPos = new Vector2Int(999999999, 999999999);
     }
 
     private void UpdatePosition(Vector3 prev, Vector3 current) {

@@ -115,7 +115,10 @@ public class OrderSystem : NetworkBehaviour
                         {
                             completeOrders.Value.arr[i] = 1;
                             completeOrders.SetDirty(true);
-                            AddScoreToPlayer(inventoryNum, orders.Value.orders[i].scoreReward);
+
+                            NetworkSerializableOrder order = orders.Value.orders[i];
+                            
+                            AddScoreToPlayer(order.receivingPlayer, orders.Value.orders[i].scoreReward);
                         }
 
                         if (onOrderComplete != null && onOrderComplete.GetInvocationList().Length > 0)
