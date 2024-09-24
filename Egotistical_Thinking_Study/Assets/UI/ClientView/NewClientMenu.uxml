@@ -17,7 +17,7 @@
             <ui:VisualElement name="game-view" style="flex-grow: 1; background-image: url(&apos;project://database/Assets/UI/Shared/GameViewRenderTexture.asset?fileID=8600000&amp;guid=24b9b189363a5ef45adf6d482555cb46&amp;type=2#GameViewRenderTexture&apos;); margin-top: 100px; background-color: rgb(0, 0, 0);" />
         </ui:VisualElement>
         <ui:VisualElement name="menu" style="flex-grow: 0.4375; background-color: rgb(106, 106, 106); flex-shrink: 0.4375;">
-            <ui:ScrollView name="order-root" mode="Horizontal" horizontal-scroller-visibility="AlwaysVisible" style="flex-shrink: 2; flex-grow: 2; max-height: 40%; flex-direction: row;" />
+            <ui:ScrollView name="order-root" mode="Horizontal" horizontal-scroller-visibility="AlwaysVisible" style="flex-shrink: 2; flex-grow: 2; max-height: 40%; flex-direction: row; min-height: 40%;" />
             <ui:VisualElement name="warehouse-root" style="flex-grow: 1.2; flex-shrink: 1.2; position: relative; max-height: 25%;">
                 <ui:Instance template="InventoryElement" name="warehouse-inventory" style="flex-grow: 1;" />
             </ui:VisualElement>

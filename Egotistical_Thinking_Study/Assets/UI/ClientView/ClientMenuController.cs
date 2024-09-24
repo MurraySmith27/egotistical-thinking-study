@@ -368,6 +368,7 @@ private void OnGasRefillButtonClicked()
                     InventorySystem.Instance.GetInventory(m_currentLoadingWarehouseNum, m_currentLoadingWarehouseType);
 
                 bool foundItemInActiveOrder = false;
+                int foundOrderIndex = -1;
                 //need to check if item is in an active order for this destination, if not administer a penalty.
                 for (int i = 0; i < OrderSystem.Instance.activeOrders.Value.arr.Length; i++)
                 {
@@ -393,6 +394,7 @@ private void OnGasRefillButtonClicked()
                         if (requiredItems.Keys.Contains(itemNum.ToString()) && requiredItems[itemNum.ToString()] - quantityInDestinationInventory > 0)
                         {
                             foundItemInActiveOrder = true;
+                            foundOrderIndex = i;
                         }
                     }
                 }
@@ -403,6 +405,8 @@ private void OnGasRefillButtonClicked()
                     InventorySystem.Instance.TransferItem(
                         ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum, InventoryType.Player,
                         m_currentLoadingWarehouseNum, InventoryType.Destination, details.GUID, 1);
+
+                    OnOrderItemCorrect_ClientRpc(foundOrderIndex);
                 }
                 else
                 {
@@ -465,6 +469,16 @@ private void OnGasRefillButtonClicked()
         m_ghostIcon.style.backgroundImage = backgroundImage.texture;
 
         m_ghostIcon.style.visibility = Visibility.Visible;
+    }
+
+
+    [ClientRpc]
+    private void OnOrderItemCorrect_ClientRpc(int orderIndex)
+    {
+        if (OrderSystem.Instance.orders.Value.orders[orderIndex].receivingPlayer == ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum)
+        {
+            m_incorrectSFX.Play();
+        }
     }
 
     private void OnPointerMove(PointerMoveEvent evt)
@@ -1224,6 +1238,13 @@ private void OnGasRefillButtonClicked()
                 VisualElement otherPlayerInventoryElement = m_otherPlayersTrucksInventoryElements[playerNum];
                 
                 m_otherPlayersInventoryRoot.Add(otherPlayerInventoryElement);
+
+                VisualElement inventoryElement = otherPlayerInventoryElement.Q<VisualElement>("inventory");
+                
+                inventoryElement.style.borderBottomColor = Color.green;
+                inventoryElement.style.borderTopColor = Color.green;
+                inventoryElement.style.borderLeftColor = Color.green;
+                inventoryElement.style.borderRightColor = Color.green;
                 
                 PopulateInventory(InventoryType.Player, playerNum, m_otherPlayersTrucksInventorySlots[playerNum], otherPlayerInventoryElement.Q<VisualElement>("slot-container"), 
                     otherPlayerInventoryElement.Q<ProgressBar>("inventory-title"), Color.white);

@@ -25,6 +25,8 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
     [SerializeField] private AudioSource m_lowGasSFX;
     [SerializeField] private AudioSource m_outOfGasSFX;
     [SerializeField] private AudioSource m_fillUpGasSFX;
+
+    [SerializeField] private GameObject m_hoverIndicator;
     
     private Vector3 lastPosition;
     
@@ -121,6 +123,12 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
             playerCamera = GameObject.FindGameObjectWithTag("PlayerCamera");
             
             ClientConnectionHandler.Instance.m_onRecieveClientSideSessionInfo += SetRotation;
+
+            if (m_playerNum.Value == ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum)
+            {
+                m_hoverIndicator.SetActive(true);
+                // m_hoverIndicator.GetComponentInChildren<Animator>().Play();//
+            }
         }
 
         position.OnValueChanged += UpdatePosition;
@@ -244,7 +252,7 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
                 }
                 lastTileHit = hit.transform.GetComponentInChildren<Tilemap>(false);
             
-                lastTileHit.color = Color.red;
+                // lastTileHit.color = Color.red;
                 
             }
             else
@@ -295,7 +303,7 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
                         }
                         lastTileHit = closestHitGO.GetComponentInChildren<Tilemap>(false);
 
-                        lastTileHit.color = Color.red;
+                        // lastTileHit.color = Color.red;
                     }
                 }
             }
