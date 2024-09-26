@@ -165,6 +165,12 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
                 StopCoroutine(moveCoroutine);
 
                 position.Value = lastPosition;
+             
+                OnPositionChange(lastPosition);
+
+                isMoving = false;
+                
+                m_currentDestinationPos = new Vector2Int(999999999, 999999999);
             }
         }
     }
@@ -362,6 +368,7 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
             if (m_numGasRemaining.Value == 0)
             {
                 m_currentDestinationPos = new Vector2Int(999999999, 999999999);
+                isMoving = false;
                 yield break;
             }
             
