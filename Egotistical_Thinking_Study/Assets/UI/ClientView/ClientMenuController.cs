@@ -85,6 +85,8 @@ public class ClientMenuController : MonoBehaviour
     private VisualElement m_orderRoot;
 
     private VisualElement m_orderScrollViewContainer;
+    
+    private Scroller m_orderScrollViewScroller;
 
     private Button m_gasRefillButton;
 
@@ -141,7 +143,19 @@ public class ClientMenuController : MonoBehaviour
 
         m_orderRoot = m_root.Q<VisualElement>("order-root");
 
-        m_orderScrollViewContainer = m_orderRoot.Q<VisualElement>("unity-content-container");
+        m_orderScrollViewContainer = m_orderRoot.Q<VisualElement>("order-root-container");
+
+        m_orderScrollViewScroller = m_orderRoot.Q<Scroller>("order-scroller");
+
+        m_orderScrollViewScroller.lowValue = 0;
+        m_orderScrollViewScroller.highValue = 0;
+        m_orderScrollViewScroller.value = 0;
+
+        m_orderScrollViewScroller.slider.lowValue = 0;
+        m_orderScrollViewScroller.slider.highValue = 0;
+        
+        m_orderScrollViewScroller.valueChanged -= OnOrderScrollerValueChanged;
+        m_orderScrollViewScroller.valueChanged += OnOrderScrollerValueChanged;
 
         m_activeOrderElements = new List<VisualElement>();
 
@@ -251,8 +265,10 @@ public class ClientMenuController : MonoBehaviour
         Sprite playerImage = m_thisPlayerGameObject.transform.GetChild(0).GetComponent<SpriteRenderer>().sprite;
         m_playerInventoryRoot.Q<VisualElement>("player-inventory-icon").style.backgroundImage =
             Background.FromSprite(playerImage);
-
+        
         m_playerInventoryRoot.Q<VisualElement>("inventory").style.backgroundColor = GetAverageColor(playerImage);
+        
+        m_root.Q<VisualElement>("you-icon").style.backgroundImage = Background.FromSprite(playerImage);
 
         OrderSystem.Instance.activeOrders.OnValueChanged += OnActiveOrdersChanged;
 
@@ -280,6 +296,11 @@ public class ClientMenuController : MonoBehaviour
 
         m_otherPlayersTrucksInventorySlots = new();
         m_otherPlayersTrucksInventoryElements = new();
+    }
+
+    private void OnOrderScrollerValueChanged(float newValue)
+    {
+        m_orderScrollViewContainer.style.left = -newValue;
     }
 
     private void OnTimerValueChanged(int oldTimerValueSeconds, int currentTimerValueSeconds)
@@ -929,14 +950,36 @@ private void OnGasRefillButtonClicked()
 
     void UpdateOrdersList(NetworkSerializableIntArray activeOrders, NetworkSerializableIntArray completeOrders, NetworkSerializableIntArray incompleteOrders, NetworkSerializableIntArray acceptedOrders)
     {
+        int numOrderElements = 0;
+        int numChildren = m_orderScrollViewContainer.childCount;
         m_orderScrollViewContainer.Clear();
         m_activeOrderElements.Clear();
 
         for (int i = 0; i < activeOrders.arr.Length; i++)
         {
             m_loadAllButtons.Add(null);
-            
-            if (activeOrders.arr[i] != 0 && acceptedOrders.arr[i] != 1)
+
+            if (activeOrders.arr[i] != 0 && acceptedOrders.arr[i] != 1 && completeOrders.arr[i] == 0 && incompleteOrders.arr[i] == 0)
+            {
+                m_orderRoot.style.display = DisplayStyle.Flex;
+
+                NetworkSerializableOrder order = OrderSystem.Instance.GetOrder(i);
+
+                if (order.receivingPlayer == ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum)
+                {
+                    VisualElement orderElement = GenerateOrderElement(activeOrders, completeOrders, incompleteOrders,
+                        acceptedOrders, i);
+
+                    numOrderElements++;
+                    m_orderScrollViewContainer.Add(orderElement);
+                    m_activeOrderElements.Add(orderElement);
+                }
+            }
+        }
+
+        for (int i = 0; i < activeOrders.arr.Length; i++)
+        {
+            if (activeOrders.arr[i] != 0 && completeOrders.arr[i] != 0)
             {
                 m_orderRoot.style.display = DisplayStyle.Flex;
                 
@@ -944,124 +987,167 @@ private void OnGasRefillButtonClicked()
 
                 if (order.receivingPlayer == ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum)
                 {
-                    VisualElement orderElement = m_orderElementAsset.Instantiate();
-                    orderElement.AddToClassList("order-client-view");
-                    orderElement.AddToClassList("order");
-                    ProgressBar orderTimer = orderElement.Q<ProgressBar>("order-timer");
-                    
-                    if (order.orderTimeLimit != -1)
-                    {
-                        orderTimer.style.visibility = Visibility.Visible;
-                        orderTimer.lowValue =  order.orderTimeRemaining / (float)order.orderTimeLimit;
-                        orderTimer.title = $"{order.orderTimeRemaining}s";
-                    }
+                    VisualElement orderElement = GenerateOrderElement(activeOrders, completeOrders, incompleteOrders,
+                        acceptedOrders, i);
 
-                    orderElement.Q<Label>("order-number-label").text = $"Order {i + 1}:";
-                    orderElement.Q<Label>("order-description").text = order.textDescription.ToString();
-                    orderElement.Q<Label>("send-to-player-label").style.visibility = Visibility.Hidden;
-                    orderElement.Q<Label>("score-reward-label").text = $"Reward: {order.scoreReward}G";
-
-                    string mapDestinationText = $"Destination Warehouse: ";
-                    orderElement.Q<Label>("map-destination-label").text = mapDestinationText;
-                    
-                    ulong destinationNetworkObjectId = MapDataNetworkBehaviour.Instance.GetNetworkIdOfDestination(order.destinationWarehouse);
-                    
-                    Sprite destinationSprite = null;
-                    
-                    foreach (NetworkBehaviour networkBehaviour in FindObjectsOfType<NetworkBehaviour>())
-                    {
-                        if (networkBehaviour.NetworkObjectId == destinationNetworkObjectId)
-                        {
-                            destinationSprite = networkBehaviour.transform.GetChild(2).GetComponent<SpriteRenderer>().sprite;
-                            break;
-                        }
-                    }
-
-                    orderElement.Q<VisualElement>("map-destination-image").style.backgroundImage = destinationSprite.texture;
-
-                    List<(int, int)> destinationInventory =
-                        InventorySystem.Instance.GetInventory(order.destinationWarehouse, InventoryType.Destination);
-                    
-                    VisualElement itemsContainer = orderElement.Q<VisualElement>("order-items-container");
-                    foreach (string key in order.requiredItems.Keys)
-                    {
-                        int itemNum = Int32.Parse(key);
-
-                        int quantityInDestinationInventory = 0; 
-                        for (int j = 0; j < destinationInventory.Count; j++)
-                        {
-                            if (destinationInventory[j].Item1 == itemNum)
-                            {
-                                quantityInDestinationInventory = destinationInventory[j].Item2;
-                                break;
-                            }
-                        }
-                        
-                        InventorySlot slot = new InventorySlot(false);
-                        int numRequiredLeft = order.requiredItems[key] - quantityInDestinationInventory;
-                        slot.HoldItem(InventorySystem.Instance.m_items[itemNum], numRequiredLeft);
-                        if (numRequiredLeft > 0)
-                        {
-                            itemsContainer.Add(slot);
-                        }
-                    }
-
-                    if (completeOrders.arr[i] != 0)
-                    {
-                        orderElement.Q<VisualElement>("checkmark-overlay").style.visibility = Visibility.Visible;
-                    }
-                    else if (incompleteOrders.arr[i] != 0)
-                    {
-                        orderElement.Q <VisualElement>("x-overlay").style.display = DisplayStyle.Flex;
-                    }
-
-                    Button loadAllButton = orderElement.Q<Button>("send-order-button");
-
-                    m_loadAllButtons[i] = loadAllButton;
-
-                    loadAllButton.style.visibility = Visibility.Hidden;
-
-                    Button acceptOrderButton = orderElement.Q<Button>("accept-button");
-                    acceptOrderButton.style.visibility = Visibility.Hidden;
-                    
-                    Button rejectOrderButton = orderElement.Q<Button>("reject-button");
-                    rejectOrderButton.style.visibility = Visibility.Hidden;
-                    
-                    if (acceptedOrders.arr[i] == 2)
-                    {
-                        VisualElement root = orderElement.Q<VisualElement>("root");
-                        root.style.borderBottomColor = Color.green;
-                        root.style.borderTopColor = Color.green;
-                        root.style.borderRightColor = Color.green;
-                        root.style.borderLeftColor = Color.green;
-                        
-                        if (m_currentLoadingWarehouseNum == order.destinationWarehouse && completeOrders.arr[i] != 0 &&
-                            incompleteOrders.arr[i] != 0)
-                        {
-                            loadAllButton.style.visibility = Visibility.Visible;
-                            int temp = i;
-                            loadAllButton.clicked += () => { LoadAllFromOrderCallback(temp); };
-
-                            loadAllButton.text = "Deposit Items";
-                        }
-                    }
-                    else if (acceptedOrders.arr[i] == 0)
-                    {
-                        acceptOrderButton.style.visibility = Visibility.Visible;
-                        rejectOrderButton.style.visibility = Visibility.Visible;
-
-                        int temp = i;
-                        acceptOrderButton.clicked += () => { m_mouseClickSFX.Play(); OrderSystem.Instance.AcceptOrder(temp); };
-                        
-                        rejectOrderButton.clicked += () => { m_mouseClickSFX.Play(); OrderSystem.Instance.RejectOrder(temp); };
-
-                    }
-
+                    numOrderElements++;
                     m_orderScrollViewContainer.Add(orderElement);
                     m_activeOrderElements.Add(orderElement);
                 }
             }
         }
+        
+        for (int i = 0; i < activeOrders.arr.Length; i++)
+        {
+            if (activeOrders.arr[i] != 0 && incompleteOrders.arr[i] != 0)
+            {
+                m_orderRoot.style.display = DisplayStyle.Flex;
+                
+                NetworkSerializableOrder order = OrderSystem.Instance.GetOrder(i);
+
+                if (order.receivingPlayer == ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum)
+                {
+                    VisualElement orderElement = GenerateOrderElement(activeOrders, completeOrders, incompleteOrders,
+                        acceptedOrders, i);
+
+                    numOrderElements++;
+                    m_orderScrollViewContainer.Add(orderElement);
+                    m_activeOrderElements.Add(orderElement);
+                }
+            }
+        }
+
+        if (numOrderElements != numChildren)
+        {
+            float width = m_orderScrollViewContainer.resolvedStyle.width;
+            m_orderScrollViewScroller.value = 0;
+            m_orderScrollViewScroller.lowValue = 0;
+            m_orderScrollViewScroller.highValue = width;
+
+            m_orderScrollViewScroller.slider.Q<VisualElement>("unity-dragger").style.width =
+                Mathf.Max(width / numOrderElements, 20f);
+        }
+    }
+
+    private VisualElement GenerateOrderElement(NetworkSerializableIntArray activeOrders, NetworkSerializableIntArray completeOrders, NetworkSerializableIntArray incompleteOrders, NetworkSerializableIntArray acceptedOrders, int orderIndex)
+    {
+        NetworkSerializableOrder order = OrderSystem.Instance.GetOrder(orderIndex);
+        VisualElement orderElement = m_orderElementAsset.Instantiate();
+        orderElement.AddToClassList("order-client-view");
+        orderElement.AddToClassList("order");
+        ProgressBar orderTimer = orderElement.Q<ProgressBar>("order-timer");
+        
+        if (order.orderTimeLimit != -1)
+        {
+            orderTimer.style.visibility = Visibility.Visible;
+            orderTimer.lowValue =  order.orderTimeRemaining / (float)order.orderTimeLimit;
+            orderTimer.title = $"{order.orderTimeRemaining}s";
+        }
+
+        orderElement.Q<Label>("order-number-label").text = $"Order {orderIndex + 1}:";
+        orderElement.Q<Label>("order-description").text = order.textDescription.ToString();
+        orderElement.Q<Label>("send-to-player-label").style.visibility = Visibility.Hidden;
+        orderElement.Q<Label>("score-reward-label").text = $"Reward: {order.scoreReward}G";
+
+        string mapDestinationText = $"Destination Warehouse: ";
+        orderElement.Q<Label>("map-destination-label").text = mapDestinationText;
+        
+        ulong destinationNetworkObjectId = MapDataNetworkBehaviour.Instance.GetNetworkIdOfDestination(order.destinationWarehouse);
+        
+        Sprite destinationSprite = null;
+        
+        foreach (NetworkBehaviour networkBehaviour in FindObjectsOfType<NetworkBehaviour>())
+        {
+            if (networkBehaviour.NetworkObjectId == destinationNetworkObjectId)
+            {
+                destinationSprite = networkBehaviour.transform.GetChild(2).GetComponent<SpriteRenderer>().sprite;
+                break;
+            }
+        }
+
+        orderElement.Q<VisualElement>("map-destination-image").style.backgroundImage = destinationSprite.texture;
+
+        List<(int, int)> destinationInventory =
+            InventorySystem.Instance.GetInventory(order.destinationWarehouse, InventoryType.Destination);
+        
+        VisualElement itemsContainer = orderElement.Q<VisualElement>("order-items-container");
+        foreach (string key in order.requiredItems.Keys)
+        {
+            int itemNum = Int32.Parse(key);
+
+            int quantityInDestinationInventory = 0; 
+            for (int j = 0; j < destinationInventory.Count; j++)
+            {
+                if (destinationInventory[j].Item1 == itemNum)
+                {
+                    quantityInDestinationInventory = destinationInventory[j].Item2;
+                    break;
+                }
+            }
+            
+            InventorySlot slot = new InventorySlot(false);
+            int numRequiredLeft = order.requiredItems[key] - quantityInDestinationInventory;
+            slot.HoldItem(InventorySystem.Instance.m_items[itemNum], numRequiredLeft);
+            if (numRequiredLeft > 0)
+            {
+                itemsContainer.Add(slot);
+            }
+        }
+
+        if (completeOrders.arr[orderIndex] != 0)
+        {
+            orderElement.Q<VisualElement>("checkmark-overlay").style.visibility = Visibility.Visible;
+        }
+        else if (incompleteOrders.arr[orderIndex] != 0)
+        {
+            orderElement.Q <VisualElement>("x-overlay").style.display = DisplayStyle.Flex;
+        }
+
+        Button loadAllButton = orderElement.Q<Button>("send-order-button");
+
+        m_loadAllButtons[orderIndex] = loadAllButton;
+
+        loadAllButton.style.visibility = Visibility.Hidden;
+
+        Button acceptOrderButton = orderElement.Q<Button>("accept-button");
+        acceptOrderButton.style.visibility = Visibility.Hidden;
+        
+        Button rejectOrderButton = orderElement.Q<Button>("reject-button");
+        rejectOrderButton.style.visibility = Visibility.Hidden;
+        
+        if (acceptedOrders.arr[orderIndex] == 2)
+        {
+            VisualElement root = orderElement.Q<VisualElement>("root");
+            root.style.borderBottomColor = Color.green;
+            root.style.borderTopColor = Color.green;
+            root.style.borderRightColor = Color.green;
+            root.style.borderLeftColor = Color.green;
+            
+            if (m_currentLoadingWarehouseNum == order.destinationWarehouse && completeOrders.arr[orderIndex] != 0 &&
+                incompleteOrders.arr[orderIndex] != 0)
+            {
+                loadAllButton.style.visibility = Visibility.Visible;
+                int temp = orderIndex;
+                loadAllButton.clicked += () => { LoadAllFromOrderCallback(temp); };
+
+                loadAllButton.text = "Deposit Items";
+            }
+        }
+        else if (acceptedOrders.arr[orderIndex] == 0)
+        {
+            acceptOrderButton.style.visibility = Visibility.Visible;
+            rejectOrderButton.style.visibility = Visibility.Visible;
+
+            int temp = orderIndex;
+            acceptOrderButton.clicked += () => { m_mouseClickSFX.Play(); OrderSystem.Instance.AcceptOrder(temp); };
+            
+            rejectOrderButton.clicked += () => { m_mouseClickSFX.Play(); OrderSystem.Instance.RejectOrder(temp); };
+
+        }
+
+        orderElement.style.width = m_orderScrollViewContainer.parent.resolvedStyle.width / 3f;
+        
+        return orderElement;
     }
 
     private void OnScoreChanged(NetworkSerializableIntArray previous, NetworkSerializableIntArray current)

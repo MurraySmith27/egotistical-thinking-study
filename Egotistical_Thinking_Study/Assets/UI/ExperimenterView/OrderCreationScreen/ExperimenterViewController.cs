@@ -255,6 +255,17 @@ public class ExperimenterViewController : MonoBehaviour
                             child.style.backgroundColor = m_gasFillColorGradient.Evaluate(newGasValue / (float)maxGas);
                         }
                     });
+                
+                
+                int currentGas = playerGameObject.GetComponent<PlayerNetworkBehaviour>().m_numGasRemaining.Value;
+                int maxGas = GameRoot.Instance.configData.MaxGasPerPlayer;
+                m_gasBarElementsPerPlayer[playerNum].value = (100f * currentGas) / maxGas;
+                m_gasBarElementsPerPlayer[playerNum].title = $"{currentGas}/{maxGas}";
+                
+                foreach (VisualElement child in m_gasBarElementsPerPlayer[playerNum].Q<VisualElement>("unity-progress-bar").Children())
+                {
+                    child.style.backgroundColor = m_gasFillColorGradient.Evaluate(currentGas / (float)maxGas);
+                }
 
                 playerGameObject.GetComponent<PlayerNetworkBehaviour>().m_numGasRemaining.OnValueChanged += m_gasBarCallback[playerNum];
                 
