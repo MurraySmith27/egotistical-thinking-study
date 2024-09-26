@@ -109,7 +109,7 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
     public override void OnNetworkSpawn() {
         if (this.IsServer) {
             position.Value = gameObject.transform.position;
-            m_playerNum.Value = 0;
+            // m_playerNum.Value = 0;
 
             m_numGasRemaining.Value = GameRoot.Instance.configData.MaxGasPerPlayer;
 
@@ -123,15 +123,21 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
             playerCamera = GameObject.FindGameObjectWithTag("PlayerCamera");
             
             ClientConnectionHandler.Instance.m_onRecieveClientSideSessionInfo += SetRotation;
-
-            if (m_playerNum.Value == ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum)
-            {
-                m_hoverIndicator.SetActive(true);
-                // m_hoverIndicator.GetComponentInChildren<Animator>().Play();//
-            }
         }
 
         position.OnValueChanged += UpdatePosition;
+    }
+    
+    void Update() {
+        if (NetworkManager.Singleton.IsClient && m_playerNum.Value == ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum)
+        {
+            m_hoverIndicator.SetActive(true);
+            // m_hoverIndicator.GetComponentInChildren<Animator>().Play();//
+        }
+        else
+        {
+            m_hoverIndicator.SetActive(false);
+        }
     }
 
     void OnDestroy()

@@ -15,12 +15,17 @@ public class ExperimenterViewController : MonoBehaviour
 
     [SerializeField] private VisualTreeAsset m_gasRefillButtonElement;
 
+    [SerializeField] private Gradient m_gasFillColorGradient;
+
     private VisualElement m_root;
     private VisualElement m_orderContainer;
 
     private List<VisualElement> m_orderElements;
 
     private Dictionary<int, VisualElement> m_gasRefillElementsPerPlayer = new Dictionary<int, VisualElement>();
+    private Dictionary<int, ProgressBar> m_gasBarElementsPerPlayer = new Dictionary<int, ProgressBar>();
+
+    private Dictionary<int, NetworkVariable<int>.OnValueChangedDelegate> m_gasBarCallback = new Dictionary<int, NetworkVariable<int>.OnValueChangedDelegate>();
     
     private string m_cachedConfigFilePath;
     private string m_cachedMapFilePath;
@@ -202,6 +207,8 @@ public class ExperimenterViewController : MonoBehaviour
         }
     }
     
+    
+    
     private void OnClientConnected(ulong clientId)
     {
         foreach (Guid guid in ClientConnectionHandler.Instance.serverSideClientList.Keys)
@@ -228,6 +235,28 @@ public class ExperimenterViewController : MonoBehaviour
                 {
                     scoreLabel.text = $"{OrderSystem.Instance.currentScorePerPlayer.Value.arr[playerNum]}G";
                 }
+
+                m_gasBarElementsPerPlayer.Add(playerNum, gasRefillElement.Q<ProgressBar>("gas-bar"));
+
+                m_gasBarElementsPerPlayer[playerNum].lowValue = 0;
+                m_gasBarElementsPerPlayer[playerNum].highValue = 100;
+                m_gasBarElementsPerPlayer[playerNum].title = $"{GameRoot.Instance.configData.MaxGasPerPlayer}/{GameRoot.Instance.configData.MaxGasPerPlayer}";
+
+                int temp = playerNum;
+                m_gasBarCallback.Add(playerNum,
+                    (int oldGasValue, int newGasValue) =>
+                    {
+                        int maxGas = GameRoot.Instance.configData.MaxGasPerPlayer;
+                        m_gasBarElementsPerPlayer[playerNum].value = (100f * newGasValue) / maxGas;
+                        m_gasBarElementsPerPlayer[playerNum].title = $"{newGasValue}/{maxGas}";
+                        
+                        foreach (VisualElement child in m_gasBarElementsPerPlayer[playerNum].Q<VisualElement>("unity-progress-bar").Children())
+                        {
+                            child.style.backgroundColor = m_gasFillColorGradient.Evaluate(newGasValue / (float)maxGas);
+                        }
+                    });
+
+                playerGameObject.GetComponent<PlayerNetworkBehaviour>().m_numGasRemaining.OnValueChanged += m_gasBarCallback[playerNum];
                 
                 m_gasRefillElementsPerPlayer.Add(playerNum, gasRefillElement);
 

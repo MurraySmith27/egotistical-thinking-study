@@ -56,6 +56,8 @@ public class OrderSystem : NetworkBehaviour
 
     public NetworkVariable<int> incorrectDepositScorePenalty = new NetworkVariable<int>();
 
+    public AudioSource m_correctSFX;
+
     void Awake()
     {
         if (_instance != null && _instance != this)
@@ -296,5 +298,20 @@ public class OrderSystem : NetworkBehaviour
     {
         acceptedOrders.Value.arr[orderIndex] = 1;
         acceptedOrders.SetDirty(true);
+    }
+    
+    [ServerRpc(RequireOwnership = false)]
+    public void OnOrderItemCorrectBroadcast_ServerRpc(int orderIndex)
+    {
+        OnOrderItemCorrect_ClientRpc(orderIndex);
+    }
+
+    [ClientRpc]
+    private void OnOrderItemCorrect_ClientRpc(int orderIndex)
+    {
+        if (OrderSystem.Instance.orders.Value.orders[orderIndex].receivingPlayer == ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum)
+        {
+            m_correctSFX.Play();
+        }
     }
 }

@@ -406,7 +406,7 @@ private void OnGasRefillButtonClicked()
                         ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum, InventoryType.Player,
                         m_currentLoadingWarehouseNum, InventoryType.Destination, details.GUID, 1);
 
-                    OnOrderItemCorrect_ClientRpc(foundOrderIndex);
+                    OrderSystem.Instance.OnOrderItemCorrectBroadcast_ServerRpc(foundOrderIndex);
                 }
                 else
                 {
@@ -469,16 +469,6 @@ private void OnGasRefillButtonClicked()
         m_ghostIcon.style.backgroundImage = backgroundImage.texture;
 
         m_ghostIcon.style.visibility = Visibility.Visible;
-    }
-
-
-    [ClientRpc]
-    private void OnOrderItemCorrect_ClientRpc(int orderIndex)
-    {
-        if (OrderSystem.Instance.orders.Value.orders[orderIndex].receivingPlayer == ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum)
-        {
-            m_incorrectSFX.Play();
-        }
     }
 
     private void OnPointerMove(PointerMoveEvent evt)
