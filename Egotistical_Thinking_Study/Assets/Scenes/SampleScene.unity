@@ -2720,6 +2720,8 @@ MonoBehaviour:
     m_ColorSpace: -1
     m_NumColorKeys: 6
     m_NumAlphaKeys: 2
+  m_movementDisableButtonEnabledSprite: {fileID: 21300000, guid: d55f62677a169a3479cf4acaccd27aec, type: 3}
+  m_movementDisableButtonDisabledSprite: {fileID: 21300000, guid: 0db06b8c3ce02224a980628803b94f2e, type: 3}
 --- !u!114 &2102443910
 MonoBehaviour:
   m_ObjectHideFlags: 0

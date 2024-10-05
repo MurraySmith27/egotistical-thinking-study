@@ -8,6 +8,7 @@ using UnityEngine.InputSystem;
 using Unity.Netcode;
 using Unity.Networking.Transport;
 using UnityEditor;
+using UnityEngine.Serialization;
 using UnityEngine.Tilemaps;
 
 public delegate void PlayerEnterGasStationRadiusEvent(int playerNum);
@@ -27,12 +28,28 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
     [SerializeField] private AudioSource m_fillUpGasSFX;
 
     [SerializeField] private GameObject m_hoverIndicator;
+
+    [SerializeField] private GameObject m_movementDisabledIndicator;
     
     private Vector3 lastPosition;
     
     private InputAction clickAction;
     private InputAction mousePosition;
     private NetworkVariable<Vector3> position = new NetworkVariable<Vector3>();
+
+    private NetworkVariable<bool> movementEnabled = new NetworkVariable<bool>();
+
+    public bool MovementEnabled
+    {
+        get
+        {
+            return movementEnabled.Value;
+        }
+        private set
+        {
+            movementEnabled.Value = value;
+        }
+    }
     
     public PlayerEnterGasStationRadiusEvent m_onPlayerEnterGasStationRadius;
     
@@ -113,6 +130,8 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
 
             m_numGasRemaining.Value = GameRoot.Instance.configData.MaxGasPerPlayer;
 
+            movementEnabled.Value = true;
+            m_numGasRemaining.OnValueChanged -= OnGasValueChangedServerSide;
             m_numGasRemaining.OnValueChanged += OnGasValueChangedServerSide;
         }
         else if (this.IsClient)
@@ -125,7 +144,12 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
             ClientConnectionHandler.Instance.m_onRecieveClientSideSessionInfo += SetRotation;
         }
 
+        position.OnValueChanged -= UpdatePosition;
         position.OnValueChanged += UpdatePosition;
+
+        movementEnabled.OnValueChanged -= OnMovementEnableToggled;
+        movementEnabled.OnValueChanged += OnMovementEnableToggled;
+
     }
     
     void Update() {
@@ -142,7 +166,27 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
 
     void OnDestroy()
     {
+        position.OnValueChanged -= UpdatePosition;
+        movementEnabled.OnValueChanged -= OnMovementEnableToggled;
         clickAction.performed -= OnClick;
+        m_numGasRemaining.OnValueChanged -= OnGasValueChangedServerSide;
+    }
+
+    private void OnMovementEnableToggled(bool oldValue, bool newValue)
+    {
+        if (this.IsServer && oldValue != newValue)
+        {
+            if (isMoving || moveCoroutine != null)
+            {
+                StopCoroutine(moveCoroutine);
+
+                isMoving = false;
+
+                m_currentDestinationPos = new Vector2Int(999999999, 999999999);
+            }
+        }
+        
+        m_movementDisabledIndicator.SetActive(!newValue);
     }
 
     private void OnGasValueChangedServerSide(int old, int current)
@@ -160,7 +204,7 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
         if (this.IsServer &&
             GameRoot.Instance.configData.IsPlayerCollisionEnabled && other.gameObject.layer == LayerMask.NameToLayer("PlayerHurtbox"))
         {
-            if (isMoving)
+            if (isMoving || moveCoroutine != null)
             {
                 StopCoroutine(moveCoroutine);
 
@@ -202,6 +246,12 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
         {
             RefillGas_ServerRpc();
         }
+    }
+    
+    //should only be called from server
+    public void ToggleWhetherEnabled()
+    {
+        movementEnabled.Value = !movementEnabled.Value;
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -326,16 +376,20 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
     [ServerRpc(RequireOwnership=false)]
     void MovePlayerTo_ServerRpc(Vector2Int destinationPos,  int playerNum, ServerRpcParams serverRpcParams = default)
     {
-        if (m_playerNum.Value != playerNum || destinationPos == m_currentDestinationPos)
+        if (m_playerNum.Value != playerNum || destinationPos == m_currentDestinationPos || !movementEnabled.Value)
         {
             return;
         }
         
         m_currentDestinationPos = destinationPos;
         
-        if (moveCoroutine != null)
+        if (isMoving || moveCoroutine != null)
         {
             StopCoroutine(moveCoroutine);
+
+            isMoving = false;
+                
+            m_currentDestinationPos = new Vector2Int(999999999, 999999999);
         }
         Vector3 playerPos = transform.position;
         Vector2 playerPosVec2 = new((playerPos.x / MapGenerator.Instance.tileWidth),

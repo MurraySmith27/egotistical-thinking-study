@@ -240,10 +240,6 @@ public class OrderSystem : NetworkBehaviour
                     {
                         orders.Value.orders[i].orderTimeRemaining--;
                         orders.SetDirty(true);
-                        if (onOrderChanged != null && onOrderChanged.GetInvocationList().Length > 0)
-                        {
-                            onOrderChanged(i);
-                        }
                     }
                     else if (incompleteOrders.Value.arr[i] == 0 && completeOrders.Value.arr[i] != 1)
                     {
@@ -257,6 +253,10 @@ public class OrderSystem : NetworkBehaviour
                             onOrderIncomplete(i);
                         }
                     }
+                }
+                if (onOrderChanged != null && onOrderChanged.GetInvocationList().Length > 0)
+                {
+                    onOrderChanged(i);
                 }
             }
 

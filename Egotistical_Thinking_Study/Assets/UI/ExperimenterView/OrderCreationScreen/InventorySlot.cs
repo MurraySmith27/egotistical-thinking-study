@@ -43,6 +43,11 @@ public class InventorySlot : VisualElement
         countLabel.text = $"{itemCount}";
     }
 
+    public void SetCountLabelText(string text)
+    {
+        countLabel.text = text;
+    }
+
     private void OnPointerDown(PointerDownEvent evt)
     {
         if (evt.button != 0 || ItemGuid.Equals(""))

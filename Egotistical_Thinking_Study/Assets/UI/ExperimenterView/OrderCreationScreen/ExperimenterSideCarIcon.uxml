@@ -11,6 +11,9 @@
                 <ui:ProgressBar value="22" name="gas-bar" style="align-self: center; top: auto; left: 25%; width: 75%;" />
             </ui:VisualElement>
         </ui:VisualElement>
-        <ui:Button text="Refill" parse-escape-sequences="true" display-tooltip-when-elided="true" name="refill-button" style="position: absolute; width: 28%; height: 98%; left: 70%; font-size: 25px; background-color: rgba(188, 188, 188, 0); background-image: url(&apos;project://database/Assets/Art/kenney_ui-pack/PNG/Blue/Default/button_rectangle_depth_flat.png?fileID=21300000&amp;guid=c9466e4a6a84fbe488b25f9275c6a6db&amp;type=3#button_rectangle_depth_flat&apos;);" />
+        <ui:VisualElement name="buttons-root" style="flex-grow: 1; position: absolute; left: 70%; height: 98%; width: 28%;">
+            <ui:Button text="Disable" parse-escape-sequences="true" display-tooltip-when-elided="true" name="disable-button" style="position: absolute; width: 100%; height: 50%; font-size: 25px; background-color: rgba(188, 188, 188, 0); background-image: url(&apos;project://database/Assets/Art/kenney_ui-pack/PNG/Red/Default/button_rectangle_depth_flat.png?fileID=21300000&amp;guid=d55f62677a169a3479cf4acaccd27aec&amp;type=3#button_rectangle_depth_flat&apos;);" />
+            <ui:Button text="Refill" parse-escape-sequences="true" display-tooltip-when-elided="true" name="refill-button" style="position: absolute; width: 100%; height: 50%; font-size: 25px; background-color: rgba(188, 188, 188, 0); background-image: url(&apos;project://database/Assets/Art/kenney_ui-pack/PNG/Blue/Default/button_rectangle_depth_flat.png?fileID=21300000&amp;guid=c9466e4a6a84fbe488b25f9275c6a6db&amp;type=3#button_rectangle_depth_flat&apos;); top: 50%;" />
+        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

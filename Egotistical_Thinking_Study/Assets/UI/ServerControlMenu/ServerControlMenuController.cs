@@ -22,6 +22,9 @@ public class ServerControlMenuController : MonoBehaviour
     private Button loadConfigFileButton;
     private Button startGameButton;
 
+    private bool configFileLoaded = false;
+    private bool mapFileLoaded = false;
+
     void OnEnable()
     {
         var root = GetComponent<UIDocument>().rootVisualElement;
@@ -89,8 +92,17 @@ public class ServerControlMenuController : MonoBehaviour
         }
 
         int lastSlashLocation = path.LastIndexOf("/");
+
+        mapFileLabel.style.backgroundColor = Color.clear;
         
         mapFileLabel.text = "Map File: " + path.Substring(lastSlashLocation + 1, path.Length - lastSlashLocation - 1);
+
+        mapFileLoaded = true;
+
+        if (configFileLoaded)
+        {
+            SetLevelReadyToGoText();
+        }
 
         gameRoot.SetMap(lines);
     }
@@ -120,7 +132,26 @@ public class ServerControlMenuController : MonoBehaviour
         //         configData.WarehouseContents[i].Add(wc[i][j]);
         //     }
         // }
+        
+        int lastSlashLocation = path.LastIndexOf("/");
+        
+        mapFileLabel.style.backgroundColor = Color.clear;
+        
+        mapFileLabel.text = "Config File: " + path.Substring(lastSlashLocation + 1, path.Length - lastSlashLocation - 1);
 
+        configFileLoaded = true;
+
+        if (mapFileLoaded)
+        {
+            SetLevelReadyToGoText();
+        }
+        
         gameRoot.SetConfigData(configData);
+    }
+
+    private void SetLevelReadyToGoText()
+    {
+        mapFileLabel.style.backgroundColor = Color.green;
+        mapFileLabel.text = "Game Ready";
     }
 }

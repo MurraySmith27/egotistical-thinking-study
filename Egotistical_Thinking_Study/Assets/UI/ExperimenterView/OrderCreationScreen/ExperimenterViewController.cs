@@ -17,6 +17,9 @@ public class ExperimenterViewController : MonoBehaviour
 
     [SerializeField] private Gradient m_gasFillColorGradient;
 
+    [SerializeField] private Sprite m_movementDisableButtonEnabledSprite;
+    [SerializeField] private Sprite m_movementDisableButtonDisabledSprite;
+
     private VisualElement m_root;
     private VisualElement m_orderContainer;
 
@@ -274,6 +277,8 @@ public class ExperimenterViewController : MonoBehaviour
                 gasRefillElement.Q<VisualElement>("icon").style.backgroundImage = Background.FromSprite(playerIcon);
 
                 gasRefillElement.Q<Button>("refill-button").clicked += () => OnGasRefillButtonClicked(guid);
+
+                gasRefillElement.Q<Button>("disable-button").clicked += () => OnEnableButtonToggled(guid);
             }
         }
     }
@@ -285,6 +290,26 @@ public class ExperimenterViewController : MonoBehaviour
         GameObject playerGameObject = GameObject.FindGameObjectWithTag($"Player{playerNum}");
 
         playerGameObject.GetComponent<PlayerNetworkBehaviour>().RefillGas();
+    }
+    
+    private void OnEnableButtonToggled(Guid playerGuid)
+    {
+        m_mouseClickSFX.Play();
+        int playerNum = ClientConnectionHandler.Instance.serverSideClientList[playerGuid].playerNum;
+        GameObject playerGameObject = GameObject.FindGameObjectWithTag($"Player{playerNum}");
+
+        PlayerNetworkBehaviour playerNetworkBehaviour = playerGameObject.GetComponent<PlayerNetworkBehaviour>();
+        playerNetworkBehaviour.ToggleWhetherEnabled();
+
+        Sprite backgroundImage = playerNetworkBehaviour.MovementEnabled ? m_movementDisableButtonEnabledSprite : m_movementDisableButtonDisabledSprite;
+
+        string enableToggleButtonText = playerNetworkBehaviour.MovementEnabled ? "Disable" : "Enable";
+
+        Button enableToggleButton = m_gasRefillElementsPerPlayer[playerNum].Q<Button>("disable-button");
+        
+        enableToggleButton.style.backgroundImage =
+            Background.FromSprite(backgroundImage);
+        enableToggleButton.text = enableToggleButtonText;
     }
     
     
@@ -299,6 +324,31 @@ public class ExperimenterViewController : MonoBehaviour
                                   (float)order.orderTimeLimit;
             orderTimer.title = $"{order.orderTimeRemaining}s";
             orderTimer.MarkDirtyRepaint();
+        }
+        
+        List<(int, int)> destinationInventory =
+            InventorySystem.Instance.GetInventory(order.destinationWarehouse, InventoryType.Destination);
+        
+        VisualElement itemsContainer = orderElement.Q<VisualElement>("order-items-container");
+        itemsContainer.Clear();
+        foreach (string key in order.requiredItems.Keys)
+        {
+            int itemNum = Int32.Parse(key);
+
+            int quantityInDestinationInventory = 0; 
+            for (int j = 0; j < destinationInventory.Count; j++)
+            {
+                if (destinationInventory[j].Item1 == itemNum)
+                {
+                    quantityInDestinationInventory = destinationInventory[j].Item2;
+                    break;
+                }
+            }
+            
+            InventorySlot slot = new InventorySlot(false);
+            slot.HoldItem(InventorySystem.Instance.m_items[itemNum], -1);
+            slot.SetCountLabelText($"{quantityInDestinationInventory}/{order.requiredItems[key]}");
+            itemsContainer.Add(slot);
         }
     }
 
