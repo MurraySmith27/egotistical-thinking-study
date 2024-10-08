@@ -119,6 +119,67 @@ public class NetworkSerializableOrder : INetworkSerializable
     }
 }
 
+public class NetworkSerializableRoadblock : INetworkSerializable
+{
+    public int informedPlayer;
+    public NetworkSerializableIntArray affectedTilesXPositions;
+    public NetworkSerializableIntArray affectedTilesYPositions;
+
+    public List<(int, int)> affectedTiles
+    {
+        get
+        {
+            List<(int, int)> list = new();
+            for (int i = 0; i < affectedTilesXPositions.arr.Length; i++)
+            {
+                list.Add((affectedTilesXPositions.arr[i], affectedTilesYPositions.arr[i]));
+            }
+
+            return list;
+        }
+        set
+        {
+            List<int> x = new();
+            List<int> y = new();
+            foreach ((int, int) tile in value)
+            {
+                x.Add(tile.Item1);
+                y.Add(tile.Item2);
+            }
+
+            affectedTilesXPositions.arr = x.ToArray();
+            affectedTilesYPositions.arr = y.ToArray();
+        }
+    }
+
+    public NetworkSerializableRoadblock()
+    {
+        informedPlayer = -1;
+        affectedTilesXPositions = new NetworkSerializableIntArray();
+        affectedTilesYPositions = new NetworkSerializableIntArray();
+    }
+
+    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+    {
+        if (serializer.IsWriter)
+        {
+            serializer.SerializeValue(ref affectedTilesXPositions);
+            serializer.SerializeValue(ref affectedTilesYPositions);
+            
+            var writer = serializer.GetFastBufferWriter();
+            writer.WriteValueSafe(informedPlayer);
+        }
+        else
+        {
+            var reader = serializer.GetFastBufferReader();
+            reader.ReadValueSafe(out informedPlayer);
+            
+            serializer.SerializeValue(ref affectedTilesXPositions);
+            serializer.SerializeValue(ref affectedTilesYPositions);
+        }
+    }
+}
+
 public class NetworkSerializableOrderArray : INetworkSerializable
 {
     // public NetworkSerializableOrder[] arr;
@@ -145,6 +206,36 @@ public class NetworkSerializableOrderArray : INetworkSerializable
             if (orders != null)
             {
                 serializer.SerializeValue(ref orders);
+            }
+        }
+    }
+}
+
+public class NetworkSerializableRoadblockArray : INetworkSerializable
+{
+    public NetworkSerializableRoadblock[] roadblocks;
+
+    public NetworkSerializableRoadblockArray()
+    {
+        roadblocks = new NetworkSerializableRoadblock[0];
+    }
+    
+    public NetworkSerializableRoadblockArray(NetworkSerializableRoadblock[] _orders)
+    {
+        roadblocks = _orders;
+    }
+    
+    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+    {
+        if (serializer.IsWriter)
+        {
+            serializer.SerializeValue(ref roadblocks);
+        }
+        else
+        {
+            if (roadblocks != null)
+            {
+                serializer.SerializeValue(ref roadblocks);
             }
         }
     }

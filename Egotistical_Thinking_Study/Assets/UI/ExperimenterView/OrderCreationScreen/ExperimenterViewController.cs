@@ -2,8 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Unity.Netcode;
 using Unity.VisualScripting;
+using UnityEditor.Search;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
@@ -12,6 +14,11 @@ public class ExperimenterViewController : MonoBehaviour
 {
     [SerializeField] private AudioSource m_mouseClickSFX;
     [SerializeField] private VisualTreeAsset m_orderElement;
+
+    [SerializeField] private VisualTreeAsset m_roadblockElement;
+
+    [SerializeField] private Sprite m_roadblockActiveButtonSprite;
+    [SerializeField] private Sprite m_roadblockInactiveButtonSprite;
 
     [SerializeField] private VisualTreeAsset m_gasRefillButtonElement;
 
@@ -22,8 +29,11 @@ public class ExperimenterViewController : MonoBehaviour
 
     private VisualElement m_root;
     private VisualElement m_orderContainer;
+    private VisualElement m_roadblockContainer;
 
     private List<VisualElement> m_orderElements;
+    
+    private List<VisualElement> m_roadblockElements;
 
     private Dictionary<int, VisualElement> m_gasRefillElementsPerPlayer = new Dictionary<int, VisualElement>();
     private Dictionary<int, ProgressBar> m_gasBarElementsPerPlayer = new Dictionary<int, ProgressBar>();
@@ -39,8 +49,45 @@ public class ExperimenterViewController : MonoBehaviour
 
         m_orderElements = new List<VisualElement>();
 
+        m_roadblockElements = new List<VisualElement>();
+
         m_orderContainer = m_root.Q<VisualElement>("order-container");
 
+        m_roadblockContainer = m_root.Q<VisualElement>("roadblocks-list");
+
+        UpdateOrdersList();
+
+        UpdateRoadblocksList();
+        
+        ClientConnectionHandler.Instance.m_onClientConnected += OnClientConnected;
+
+        m_root.Q<Label>("ip-label").text = $"IP: {ServerManager.m_ipAddress}";
+        
+        m_root.Q<Label>("port-label").text = $"Port: {ServerManager.m_port}";
+        
+        m_root.Q<Label>("score-label").text = $"Total Score: {OrderSystem.Instance.currentScorePerPlayer.Value.arr.Sum()}G";
+
+        TimeSpan t = TimeSpan.FromSeconds(GameTimerSystem.Instance.timerSecondsRemaining.Value);
+        m_root.Q<Label>("timer-label").text = t.ToString(@"mm\:ss");
+
+        m_root.Q<Button>("pause-resume-button").clicked += OnPauseResumeButtonClicked;
+        
+        m_root.Q<Button>("reset-button").clicked += OnResetButtonClicked;
+        
+        m_root.Q<Button>("main-menu-button").clicked += OnMainMenuButtonClicked;
+        
+        GameTimerSystem.Instance.timerSecondsRemaining.OnValueChanged += OnTimerValueChanged;
+        
+        OrderSystem.Instance.onScoreChanged += OnScoreChanged;
+
+        OrderSystem.Instance.onOrderChanged += OnOrderValueChanged;
+        OrderSystem.Instance.onOrderComplete += OnOrderComplete;
+        OrderSystem.Instance.onOrderIncomplete += OnOrderIncomplete;
+        OrderSystem.Instance.onOrderRejected += OnOrderRejected;
+    }
+
+    private void UpdateOrdersList()
+    {
         Order[] orders = GameRoot.Instance.configData.Orders;
         for (int i = 0; i < orders.Length; i++)
         {
@@ -99,32 +146,82 @@ public class ExperimenterViewController : MonoBehaviour
             m_orderElements.Add(orderElement);
             m_orderContainer.MarkDirtyRepaint();
         }
+    }
 
-        ClientConnectionHandler.Instance.m_onClientConnected += OnClientConnected;
+    private void UpdateRoadblocksList()
+    {
+        List<Roadblock> roadblocks = GameRoot.Instance.configData.Roadblocks;
+        
+        for (int i = 0 ; i < roadblocks.Count; i++)
+        {
+            Roadblock roadblock = roadblocks[i];
+            VisualElement roadblockElement = m_roadblockElement.Instantiate();
 
-        m_root.Q<Label>("ip-label").text = $"IP: {ServerManager.m_ipAddress}";
-        
-        m_root.Q<Label>("port-label").text = $"Port: {ServerManager.m_port}";
-        
-        m_root.Q<Label>("score-label").text = $"Total Score: {OrderSystem.Instance.currentScorePerPlayer.Value.arr.Sum()}G";
+            roadblockElement.Q<Label>("roadblock-title").text = $"Roadblock {i}";
 
-        TimeSpan t = TimeSpan.FromSeconds(GameTimerSystem.Instance.timerSecondsRemaining.Value);
-        m_root.Q<Label>("timer-label").text = t.ToString(@"mm\:ss");
+            roadblockElement.Q<Label>("informed-player").text = $"Informed Player: {roadblock.informedPlayer}";
 
-        m_root.Q<Button>("pause-resume-button").clicked += OnPauseResumeButtonClicked;
-        
-        m_root.Q<Button>("reset-button").clicked += OnResetButtonClicked;
-        
-        m_root.Q<Button>("main-menu-button").clicked += OnMainMenuButtonClicked;
-        
-        GameTimerSystem.Instance.timerSecondsRemaining.OnValueChanged += OnTimerValueChanged;
-        
-        OrderSystem.Instance.onScoreChanged += OnScoreChanged;
+            StringBuilder affectedTilesString = new();
 
-        OrderSystem.Instance.onOrderChanged += OnOrderValueChanged;
-        OrderSystem.Instance.onOrderComplete += OnOrderComplete;
-        OrderSystem.Instance.onOrderIncomplete += OnOrderIncomplete;
-        OrderSystem.Instance.onOrderRejected += OnOrderRejected;
+            for (int j = 0; j < roadblock.blockedTiles.Count; j++)
+            {
+                List<int> affectedTile = roadblock.blockedTiles[j];
+                affectedTilesString.Append($"({affectedTile[0]}, {affectedTile[1]})");
+
+                if (j != roadblock.blockedTiles.Count - 1)
+                {
+                    affectedTilesString.Append(", ");
+                }
+            }
+            roadblockElement.Q<Label>("affected-tiles").text = $"Affected Tiles: {affectedTilesString}";
+
+            Label enabledWithOrder = roadblockElement.Q<Label>("enabled-with-order");
+            if (roadblock.autoActivateOnOrder == -1)
+            {
+                enabledWithOrder.style.display = DisplayStyle.None;
+            }
+            else
+            {
+                enabledWithOrder.style.display = DisplayStyle.Flex;
+                enabledWithOrder.text = $"Enabled when order {roadblock.autoActivateOnOrder} accepted";
+            }
+            
+            Label disabledWithOrderComplete = roadblockElement.Q<Label>("disabled-when-order-complete");
+            if (roadblock.autoActivateOnOrder == -1)
+            {
+                disabledWithOrderComplete.style.display = DisplayStyle.None;
+            }
+            else
+            {
+                disabledWithOrderComplete.style.display = DisplayStyle.Flex;
+                disabledWithOrderComplete.text = $"Disabled when order {roadblock.autoDeactivateOnCompleteOrder} complete";
+            }
+            
+            //set up button callback
+            Button toggleButton = roadblockElement.Q<Button>("toggle-button");
+
+            int temp = i;
+            toggleButton.clicked += () =>
+            {
+                if (RoadblockSystem.Instance.IsRoadblockActive(temp))
+                {
+                    RoadblockSystem.Instance.DeactivateRoadblock(temp);
+                    toggleButton.style.backgroundImage = Background.FromSprite(m_roadblockInactiveButtonSprite);
+                    toggleButton.text = "Enable";
+                }
+                else
+                {
+                    RoadblockSystem.Instance.ActivateRoadblock(temp);
+                    toggleButton.style.backgroundImage = Background.FromSprite(m_roadblockActiveButtonSprite);
+                    toggleButton.text = "Disable";
+                }
+            };
+            
+            roadblockElement.MarkDirtyRepaint();
+            m_roadblockContainer.Add(roadblockElement);
+            m_roadblockElements.Add(roadblockElement);
+            m_roadblockContainer.MarkDirtyRepaint();
+        }
     }
 
     private void OnTimerValueChanged(int oldTimerValueSeconds, int currentTimerValueSeconds)

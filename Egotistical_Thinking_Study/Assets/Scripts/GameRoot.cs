@@ -23,6 +23,14 @@ public struct Warehouse
     public int PlayerOwner;
 }
 
+public struct Roadblock
+{
+    public int informedPlayer;
+    public List<List<int>> blockedTiles;
+    public int autoActivateOnOrder;
+    public int autoDeactivateOnCompleteOrder;
+}
+
 public class ConfigData
 {
     public Warehouse[] Warehouses;
@@ -39,6 +47,7 @@ public class ConfigData
     public int InventoryCapacityPerPlayer;
     public bool IsPlayerCollisionEnabled;
     public bool TrucksPathAroundEachOther;
+    public List<Roadblock> Roadblocks;
 }
 
 public class GameRoot : MonoBehaviour

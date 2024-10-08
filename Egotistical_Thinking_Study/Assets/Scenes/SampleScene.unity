@@ -2689,6 +2689,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_mouseClickSFX: {fileID: 1198937716}
   m_orderElement: {fileID: 9197481963319205126, guid: 71e99ac59c69e5342abfb1b48206c635, type: 3}
+  m_roadblockElement: {fileID: 9197481963319205126, guid: 336218de6dd99834ca99093b9cfe4231, type: 3}
   m_gasRefillButtonElement: {fileID: 9197481963319205126, guid: 7bb3f9cda53069d45974d46ea5639cde, type: 3}
   m_gasFillColorGradient:
     serializedVersion: 2
