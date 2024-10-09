@@ -329,7 +329,8 @@ public class ExperimenterViewController : MonoBehaviour
                 
                 if (!GameRoot.Instance.configData.IsScoreShared)
                 {
-                    scoreLabel.parent.Remove(scoreLabel);
+                    // scoreLabel.parent.Remove(scoreLabel);
+                    scoreLabel.text = "";
                 }
                 else
                 {
