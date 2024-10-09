@@ -57,7 +57,7 @@ public class ExperimenterViewController : MonoBehaviour
 
         UpdateOrdersList();
 
-        UpdateRoadblocksList();
+        // UpdateRoadblocksList();
         
         ClientConnectionHandler.Instance.m_onClientConnected += OnClientConnected;
 
