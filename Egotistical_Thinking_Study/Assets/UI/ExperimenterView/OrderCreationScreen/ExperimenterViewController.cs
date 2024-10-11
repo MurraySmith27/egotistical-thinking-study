@@ -57,7 +57,7 @@ public class ExperimenterViewController : MonoBehaviour
 
         UpdateOrdersList();
 
-        // UpdateRoadblocksList();
+        UpdateRoadblocksList();
         
         ClientConnectionHandler.Instance.m_onClientConnected += OnClientConnected;
 
@@ -84,6 +84,27 @@ public class ExperimenterViewController : MonoBehaviour
         OrderSystem.Instance.onOrderComplete += OnOrderComplete;
         OrderSystem.Instance.onOrderIncomplete += OnOrderIncomplete;
         OrderSystem.Instance.onOrderRejected += OnOrderRejected;
+
+        RoadblockSystem.OnRoadblockActivate -= OnRoadblockActivate;
+        RoadblockSystem.OnRoadblockActivate += OnRoadblockActivate;
+        
+        RoadblockSystem.OnRoadblockDeactivate -= OnRoadblockDeactivate;
+        RoadblockSystem.OnRoadblockDeactivate += OnRoadblockDeactivate;
+    }
+
+    private void OnDestroy()
+    {
+        RoadblockSystem.OnRoadblockActivate -= OnRoadblockActivate;
+        RoadblockSystem.OnRoadblockDeactivate -= OnRoadblockDeactivate;
+
+        if (OrderSystem.Instance != null)
+        {
+            OrderSystem.Instance.onScoreChanged -= OnScoreChanged;
+            OrderSystem.Instance.onOrderChanged -= OnOrderValueChanged;
+            OrderSystem.Instance.onOrderComplete -= OnOrderComplete;
+            OrderSystem.Instance.onOrderIncomplete -= OnOrderIncomplete;
+            OrderSystem.Instance.onOrderRejected -= OnOrderRejected;
+        }
     }
 
     private void UpdateOrdersList()
@@ -183,7 +204,7 @@ public class ExperimenterViewController : MonoBehaviour
             else
             {
                 enabledWithOrder.style.display = DisplayStyle.Flex;
-                enabledWithOrder.text = $"Enabled when order {roadblock.autoActivateOnOrder} accepted";
+                enabledWithOrder.text = $"Enabled when order {roadblock.autoActivateOnOrder + 1} accepted";
             }
             
             Label disabledWithOrderComplete = roadblockElement.Q<Label>("disabled-when-order-complete");
@@ -194,7 +215,7 @@ public class ExperimenterViewController : MonoBehaviour
             else
             {
                 disabledWithOrderComplete.style.display = DisplayStyle.Flex;
-                disabledWithOrderComplete.text = $"Disabled when order {roadblock.autoDeactivateOnCompleteOrder} complete";
+                disabledWithOrderComplete.text = $"Disabled when order {roadblock.autoDeactivateOnCompleteOrder + 1} complete";
             }
             
             //set up button callback
@@ -203,17 +224,14 @@ public class ExperimenterViewController : MonoBehaviour
             int temp = i;
             toggleButton.clicked += () =>
             {
+                m_mouseClickSFX.Play();
                 if (RoadblockSystem.Instance.IsRoadblockActive(temp))
                 {
                     RoadblockSystem.Instance.DeactivateRoadblock(temp);
-                    toggleButton.style.backgroundImage = Background.FromSprite(m_roadblockInactiveButtonSprite);
-                    toggleButton.text = "Enable";
                 }
                 else
                 {
                     RoadblockSystem.Instance.ActivateRoadblock(temp);
-                    toggleButton.style.backgroundImage = Background.FromSprite(m_roadblockActiveButtonSprite);
-                    toggleButton.text = "Disable";
                 }
             };
             
@@ -222,6 +240,20 @@ public class ExperimenterViewController : MonoBehaviour
             m_roadblockElements.Add(roadblockElement);
             m_roadblockContainer.MarkDirtyRepaint();
         }
+    }
+
+    private void OnRoadblockActivate(int roadblockNum)
+    {
+        Button toggleButton = m_roadblockElements[roadblockNum].Q<Button>("toggle-button");
+        toggleButton.style.backgroundImage = Background.FromSprite(m_roadblockActiveButtonSprite);
+        toggleButton.text = "Disable";
+    }
+
+    private void OnRoadblockDeactivate(int roadblockNum)
+    {
+        Button toggleButton = m_roadblockElements[roadblockNum].Q<Button>("toggle-button");
+        toggleButton.style.backgroundImage = Background.FromSprite(m_roadblockInactiveButtonSprite);
+        toggleButton.text = "Enable";
     }
 
     private void OnTimerValueChanged(int oldTimerValueSeconds, int currentTimerValueSeconds)
@@ -377,6 +409,8 @@ public class ExperimenterViewController : MonoBehaviour
                 gasRefillElement.Q<Button>("refill-button").clicked += () => OnGasRefillButtonClicked(guid);
 
                 gasRefillElement.Q<Button>("disable-button").clicked += () => OnEnableButtonToggled(guid);
+
+                gasRefillElement.Q<Button>("reset-button").clicked += () => OnPlayerResetButtonClicked(guid);
             }
         }
     }
@@ -408,6 +442,16 @@ public class ExperimenterViewController : MonoBehaviour
         enableToggleButton.style.backgroundImage =
             Background.FromSprite(backgroundImage);
         enableToggleButton.text = enableToggleButtonText;
+    }
+
+    private void OnPlayerResetButtonClicked(Guid playerGuid)
+    {
+        m_mouseClickSFX.Play();
+        int playerNum = ClientConnectionHandler.Instance.serverSideClientList[playerGuid].playerNum;
+        GameObject playerGameObject = GameObject.FindGameObjectWithTag($"Player{playerNum}");
+
+        PlayerNetworkBehaviour playerNetworkBehaviour = playerGameObject.GetComponent<PlayerNetworkBehaviour>();
+        playerNetworkBehaviour.ResetPositionToSpawn();
     }
     
     

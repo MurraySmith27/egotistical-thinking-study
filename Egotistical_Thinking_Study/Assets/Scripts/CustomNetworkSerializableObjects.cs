@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Netcode;
 
 public class NetworkSerializableUlongArray : INetworkSerializable
@@ -122,17 +123,17 @@ public class NetworkSerializableOrder : INetworkSerializable
 public class NetworkSerializableRoadblock : INetworkSerializable
 {
     public int informedPlayer;
-    public NetworkSerializableIntArray affectedTilesXPositions;
-    public NetworkSerializableIntArray affectedTilesYPositions;
+    public int[] affectedTilesXPositions;
+    public int[] affectedTilesYPositions;
 
     public List<(int, int)> affectedTiles
     {
         get
         {
             List<(int, int)> list = new();
-            for (int i = 0; i < affectedTilesXPositions.arr.Length; i++)
+            for (int i = 0; i < affectedTilesXPositions.Length; i++)
             {
-                list.Add((affectedTilesXPositions.arr[i], affectedTilesYPositions.arr[i]));
+                list.Add((affectedTilesXPositions[i], affectedTilesYPositions[i]));
             }
 
             return list;
@@ -147,35 +148,33 @@ public class NetworkSerializableRoadblock : INetworkSerializable
                 y.Add(tile.Item2);
             }
 
-            affectedTilesXPositions.arr = x.ToArray();
-            affectedTilesYPositions.arr = y.ToArray();
+            affectedTilesXPositions = x.ToArray();
+            affectedTilesYPositions = y.ToArray();
         }
     }
 
     public NetworkSerializableRoadblock()
     {
         informedPlayer = -1;
-        affectedTilesXPositions = new NetworkSerializableIntArray();
-        affectedTilesYPositions = new NetworkSerializableIntArray();
+        affectedTilesXPositions = new int[0];
+        affectedTilesYPositions = new int[0];
     }
 
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {
         if (serializer.IsWriter)
         {
-            serializer.SerializeValue(ref affectedTilesXPositions);
-            serializer.SerializeValue(ref affectedTilesYPositions);
-            
             var writer = serializer.GetFastBufferWriter();
             writer.WriteValueSafe(informedPlayer);
+            writer.WriteValueSafe(affectedTilesXPositions);
+            writer.WriteValueSafe(affectedTilesYPositions);
         }
         else
         {
             var reader = serializer.GetFastBufferReader();
             reader.ReadValueSafe(out informedPlayer);
-            
-            serializer.SerializeValue(ref affectedTilesXPositions);
-            serializer.SerializeValue(ref affectedTilesYPositions);
+            reader.ReadValueSafe(out affectedTilesXPositions);
+            reader.ReadValueSafe(out affectedTilesYPositions);
         }
     }
 }

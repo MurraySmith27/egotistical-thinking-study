@@ -112,6 +112,8 @@ public class GameRoot : MonoBehaviour
 
         CameraNetworkBehaviour.Instance.OnGameStart();
 
+        RoadblockSystem.Instance.OnGameStart();
+
         GameTimerSystem.Instance.OnGameStart();
     }
 

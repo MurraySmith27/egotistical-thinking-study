@@ -81,5 +81,10 @@ public class CameraNetworkBehaviour : NetworkBehaviour
     {
         cameraRotationPerPlayer.Value = new NetworkSerializableIntArray();
         cameraRotationPerPlayer.Value.arr = GameRoot.Instance.configData.CameraRotationPerPlayer;
+
+        if (IsServer)
+        {
+            GetComponent<MoveCameraExperimenter>().Inititalize();
+        }
     }
 }

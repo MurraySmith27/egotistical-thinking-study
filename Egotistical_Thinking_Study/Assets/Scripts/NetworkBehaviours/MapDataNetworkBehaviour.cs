@@ -119,9 +119,72 @@ public class MapDataNetworkBehaviour : NetworkBehaviour
             
             playerNetworkObjectIds.Value = new NetworkSerializableUlongArray();
             playerNetworkObjectIds.Value.arr = new ulong[0];
+
+            RoadblockSystem.OnRoadblockActivate -= OnRoadblockActivate;
+            RoadblockSystem.OnRoadblockActivate += OnRoadblockActivate;
+            
+            RoadblockSystem.OnRoadblockDeactivate -= OnRoadblockDeactivate;
+            RoadblockSystem.OnRoadblockDeactivate += OnRoadblockDeactivate;
         }
         else
         {
+        }
+    }
+
+    private void OnDisable()
+    {
+        RoadblockSystem.OnRoadblockActivate -= OnRoadblockActivate;
+        
+        RoadblockSystem.OnRoadblockDeactivate -= OnRoadblockDeactivate;
+    }
+
+    private void OnEnable()
+    {
+        if (this.IsServer)
+        {
+            RoadblockSystem.OnRoadblockActivate -= OnRoadblockActivate;
+            RoadblockSystem.OnRoadblockActivate += OnRoadblockActivate;
+
+            RoadblockSystem.OnRoadblockDeactivate -= OnRoadblockDeactivate;
+            RoadblockSystem.OnRoadblockDeactivate += OnRoadblockDeactivate;
+        }
+    }
+
+    //should only be called from server side
+    private void OnRoadblockActivate(int roadblockNum)
+    {
+        if (IsServer)
+        {
+            //go in and activate all the tiles
+            List<(int, int)> affectedTiles = RoadblockSystem.Instance.GetRoadblockAffectedTiles(roadblockNum);
+            foreach ((int, int) affectedTile in affectedTiles)
+            {
+                GameObject tileObject = MapGenerator.Instance.map[affectedTile.Item1][affectedTile.Item2];
+
+                MapNetworkBehaviour mapNetworkBehaviour = tileObject.GetComponentInChildren<MapNetworkBehaviour>();
+                
+                mapNetworkBehaviour.DisableTileServerSide();
+                mapNetworkBehaviour.DisableTile_ClientRpc(RoadblockSystem.Instance.GetRoadblockInformedPlayer(roadblockNum));
+            }
+        }
+    }
+    
+    //should only be called from server side
+    private void OnRoadblockDeactivate(int roadblockNum)
+    {
+        if (IsServer)
+        {
+            //go in and activate all the tiles
+            List<(int, int)> affectedTiles = RoadblockSystem.Instance.GetRoadblockAffectedTiles(roadblockNum);
+            foreach ((int, int) affectedTile in affectedTiles)
+            {
+                GameObject tileObject = MapGenerator.Instance.map[affectedTile.Item1][affectedTile.Item2];
+
+                MapNetworkBehaviour mapNetworkBehaviour = tileObject.GetComponentInChildren<MapNetworkBehaviour>();
+                
+                mapNetworkBehaviour.EnableTileServerSide();
+                mapNetworkBehaviour.EnableTile_ClientRpc(RoadblockSystem.Instance.GetRoadblockInformedPlayer(roadblockNum));
+            }
         }
     }
 

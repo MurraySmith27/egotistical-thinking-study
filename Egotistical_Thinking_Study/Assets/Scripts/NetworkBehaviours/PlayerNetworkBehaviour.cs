@@ -10,6 +10,7 @@ using Unity.Networking.Transport;
 using UnityEditor;
 using UnityEngine.Serialization;
 using UnityEngine.Tilemaps;
+using UnityEngine.UIElements;
 
 public delegate void PlayerEnterGasStationRadiusEvent(int playerNum);
 public delegate void PlayerExitGasStationRadiusEvent(int playerNum);
@@ -70,6 +71,8 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
     private bool m_nearGasStation = false;
 
     private Vector2Int m_currentDestinationPos;
+
+    private Vector2Int spawnTilePosition;
     
     void Awake() {
         clickAction = clientInput["mouseClick"];
@@ -133,6 +136,12 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
             movementEnabled.Value = true;
             m_numGasRemaining.OnValueChanged -= OnGasValueChangedServerSide;
             m_numGasRemaining.OnValueChanged += OnGasValueChangedServerSide;
+            
+            
+            Vector3 playerPos = transform.position;
+            Vector2 playerPosVec2 = new((playerPos.x / MapGenerator.Instance.tileWidth),
+                (playerPos.y / MapGenerator.Instance.tileHeight));
+            spawnTilePosition = new((int)Math.Round(playerPosVec2.x),(int)Math.Round(playerPosVec2.y));
         }
         else if (this.IsClient)
         {
@@ -189,6 +198,27 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
         m_movementDisabledIndicator.SetActive(!newValue);
     }
 
+    //should only be called from the server
+    public void ResetPositionToSpawn()
+    {
+        if (IsServer)
+        {
+            position.Value = new Vector3(spawnTilePosition.x * MapGenerator.Instance.tileWidth,
+                spawnTilePosition.y * MapGenerator.Instance.tileHeight, transform.position.z);
+            OnPositionChange(position.Value);
+            
+            StopCoroutine(moveCoroutine);
+             
+            OnPositionChange(position.Value);
+
+            lastPosition = position.Value;
+            
+            isMoving = false;
+                
+            m_currentDestinationPos = new Vector2Int(999999999, 999999999);
+        }
+    }
+    
     private void OnGasValueChangedServerSide(int old, int current)
     {
         if (current == GameRoot.Instance.configData.MaxGasPerPlayer && GameRoot.Instance.configData.MaxGasPerPlayer != -1)
@@ -411,8 +441,6 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
         isMoving = true;
         float playerZ = transform.position.z;
         
-        Debug.Log($"moving player! Path legnth: {path.Count}");
-
         lastPosition = Vector3.zero;
         Vector3 nextPosition = new Vector3(path[0].x * MapGenerator.Instance.tileWidth,
             path[0].y * MapGenerator.Instance.tileHeight, playerZ);
@@ -426,9 +454,21 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
                 yield break;
             }
             
+            List<(int, int)> disabledRoadTiles = RoadblockSystem.Instance.GetAllDisabledTiles();
+            
+            if (disabledRoadTiles.Contains(((int)destination.x, -(int)destination.y)))
+            {
+                //attempting to move into disabled road tile, block movement and stop moving
+                m_currentDestinationPos = new Vector2Int(999999999, 999999999);
+                isMoving = false;
+                yield break;
+            }
+            
             lastPosition = nextPosition;
             nextPosition = new Vector3(destination.x * MapGenerator.Instance.tileWidth,
                 destination.y * MapGenerator.Instance.tileHeight, playerZ);
+            
+            
             if (GameRoot.Instance.configData.MaxGasPerPlayer > 0)
             {
                 m_numGasRemaining.Value--;

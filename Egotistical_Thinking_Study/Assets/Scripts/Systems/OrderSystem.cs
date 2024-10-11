@@ -8,6 +8,8 @@ using UnityEngine;
 using UnityEngine.Serialization;
 
 
+public delegate void OrderSentEvent(int orderIndex);
+
 public delegate void OrderCompleteEvent(int orderIndex);
 
 public delegate void OrderIncompleteEvent(int orderIndex);
@@ -31,6 +33,8 @@ public class OrderSystem : NetworkBehaviour
             return _instance;
         }
     }
+
+    public OrderSentEvent onOrderSent;
 
     public OrderCompleteEvent onOrderComplete;
 
@@ -274,6 +278,8 @@ public class OrderSystem : NetworkBehaviour
     {
         activeOrders.Value.arr[orderIndex] = 1;
         activeOrders.SetDirty(true);
+
+        onOrderSent?.Invoke(orderIndex);
     }
 
     public void AcceptOrder(int orderIndex)
