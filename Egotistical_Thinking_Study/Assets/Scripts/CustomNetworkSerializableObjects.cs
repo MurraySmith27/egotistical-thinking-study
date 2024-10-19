@@ -126,6 +126,9 @@ public class NetworkSerializableRoadblock : INetworkSerializable
     public int[] affectedTilesXPositions;
     public int[] affectedTilesYPositions;
 
+    public int duration;
+    
+    
     public List<(int, int)> affectedTiles
     {
         get
@@ -168,6 +171,7 @@ public class NetworkSerializableRoadblock : INetworkSerializable
             writer.WriteValueSafe(informedPlayer);
             writer.WriteValueSafe(affectedTilesXPositions);
             writer.WriteValueSafe(affectedTilesYPositions);
+            writer.WriteValueSafe(duration);
         }
         else
         {
@@ -175,6 +179,7 @@ public class NetworkSerializableRoadblock : INetworkSerializable
             reader.ReadValueSafe(out informedPlayer);
             reader.ReadValueSafe(out affectedTilesXPositions);
             reader.ReadValueSafe(out affectedTilesYPositions);
+            reader.ReadValueSafe(out duration);
         }
     }
 }

@@ -218,6 +218,17 @@ public class ExperimenterViewController : MonoBehaviour
                 disabledWithOrderComplete.text = $"Disabled when order {roadblock.autoDeactivateOnCompleteOrder + 1} complete";
             }
             
+            Label durationLabel = roadblockElement.Q<Label>("duration");
+            if (roadblock.duration == -1)
+            {
+                durationLabel.style.display = DisplayStyle.None;
+            }
+            else
+            {
+                durationLabel.style.display = DisplayStyle.Flex;
+                durationLabel.text = $"Duration: {roadblock.duration}s";
+            }
+            
             //set up button callback
             Button toggleButton = roadblockElement.Q<Button>("toggle-button");
 

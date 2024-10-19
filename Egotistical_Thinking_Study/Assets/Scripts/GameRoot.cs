@@ -29,6 +29,7 @@ public struct Roadblock
     public List<List<int>> blockedTiles;
     public int autoActivateOnOrder;
     public int autoDeactivateOnCompleteOrder;
+    public int duration;
 }
 
 public class ConfigData

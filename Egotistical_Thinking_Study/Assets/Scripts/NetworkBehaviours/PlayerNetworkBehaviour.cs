@@ -238,8 +238,11 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
             {
                 StopCoroutine(moveCoroutine);
 
-                position.Value = lastPosition;
-             
+                if (isMoving)
+                {
+                    position.Value = lastPosition;
+                }
+
                 OnPositionChange(lastPosition);
 
                 isMoving = false;
@@ -323,8 +326,6 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
         RaycastHit hit;
         Camera playerCameraComponent = playerCamera.GetComponent<Camera>();
         Ray ray = playerCameraComponent.ViewportPointToRay(new Vector3((mousePos.x - topLeftCorner.x) / width, ((mousePos.y) / height), 0));
-        
-        Debug.Log($"ray at {ray.origin} in direction: {ray.direction}");
         
         Debug.DrawRay(ray.origin, ray.origin + ray.direction * 100, color:Color.red, duration: 5f, false);
         if (Physics.Raycast(ray.origin, ray.direction, out hit, 100, ~LayerMask.NameToLayer("MapTile")))

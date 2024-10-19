@@ -6,6 +6,7 @@
             <ui:Label tabindex="-1" text="Affected Tiles: " parse-escape-sequences="true" display-tooltip-when-elided="true" name="affected-tiles" />
             <ui:Label tabindex="-1" text="Enabled when order x accepted" parse-escape-sequences="true" display-tooltip-when-elided="true" name="enabled-with-order" />
             <ui:Label tabindex="-1" text="Disabled when order x complete" parse-escape-sequences="true" display-tooltip-when-elided="true" name="disabled-when-order-complete" />
+            <ui:Label tabindex="-1" text="Duration: 0s" parse-escape-sequences="true" display-tooltip-when-elided="true" name="duration" />
         </ui:VisualElement>
         <ui:Button text="Enable" parse-escape-sequences="true" display-tooltip-when-elided="true" name="toggle-button" style="flex-shrink: 1; flex-grow: 1; background-image: url(&apos;project://database/Assets/Art/kenney_ui-pack/PNG/Green/Double/button_rectangle_depth_flat.png?fileID=21300000&amp;guid=d3f773e8efd4abf489d270cfae5956af&amp;type=3#button_rectangle_depth_flat&apos;); background-color: rgb(255, 255, 255); max-width: 25%; min-width: 25%;" />
     </ui:VisualElement>

@@ -159,10 +159,9 @@ public class RoadblockSystem : NetworkBehaviour
     }
 
 
-//should only be activated from server
+    //should only be activated from server
     public void ActivateRoadblock(int roadblockNum)
     {
-        Debug.Log($"activating roadblock {roadblockNum}. is active: {activeRoadblocks.Value.arr[roadblockNum]}");
         if (activeRoadblocks.Value.arr[roadblockNum] == 0)
         {
             activeRoadblocks.Value.arr[roadblockNum] = 1;
