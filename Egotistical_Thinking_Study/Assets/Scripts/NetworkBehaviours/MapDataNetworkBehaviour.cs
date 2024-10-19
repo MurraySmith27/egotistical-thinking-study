@@ -37,6 +37,8 @@ public class MapDataNetworkBehaviour : NetworkBehaviour
     private const string WAREHOUSE_IMAGES_DIRECTORY_PATH = "WarehouseIcons";
     
     private const string TRUCK_IMAGES_DIRECTORY_PATH = "TruckIcons";
+
+    private List<Coroutine> roadblockTimerCountdownCoroutines = new List<Coroutine>();
     
     void Awake()
     {
@@ -134,7 +136,6 @@ public class MapDataNetworkBehaviour : NetworkBehaviour
     private void OnDisable()
     {
         RoadblockSystem.OnRoadblockActivate -= OnRoadblockActivate;
-        
         RoadblockSystem.OnRoadblockDeactivate -= OnRoadblockDeactivate;
     }
 
@@ -164,7 +165,7 @@ public class MapDataNetworkBehaviour : NetworkBehaviour
                 MapNetworkBehaviour mapNetworkBehaviour = tileObject.GetComponentInChildren<MapNetworkBehaviour>();
                 
                 mapNetworkBehaviour.DisableTileServerSide();
-                mapNetworkBehaviour.DisableTile_ClientRpc(RoadblockSystem.Instance.GetRoadblockInformedPlayer(roadblockNum));
+                mapNetworkBehaviour.DisableTile_ClientRpc(RoadblockSystem.Instance.GetRoadblockInformedPlayer(roadblockNum), RoadblockSystem.Instance.GetRoadblockDuration(roadblockNum));
             }
         }
     }

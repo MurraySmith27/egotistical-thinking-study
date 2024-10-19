@@ -298,8 +298,6 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
 
     public void OnClick(InputAction.CallbackContext context)
     {
-
-        Debug.Log("on click!");
         if (GameTimerSystem.Instance.isGamePaused.Value)
         {
             return;

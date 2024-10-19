@@ -29,6 +29,8 @@ public class RoadblockSystem : NetworkBehaviour
     public NetworkVariable<NetworkSerializableRoadblockArray> roadblocks =
         new NetworkVariable<NetworkSerializableRoadblockArray>();
 
+    private List<int> _timeLeftPerRoadblock;
+    
     void Awake()
     {
         if (_instance != null && _instance != this)
@@ -102,6 +104,13 @@ public class RoadblockSystem : NetworkBehaviour
             
             OrderSystem.Instance.onOrderComplete -= OnOrderComplete;
             OrderSystem.Instance.onOrderComplete += OnOrderComplete;
+
+            _timeLeftPerRoadblock = new List<int>();
+
+            for (int i = 0; i < roadblocks.Value.roadblocks.Length; i++)
+            {
+                _timeLeftPerRoadblock.Add(-1);
+            }
         }
     }
 
@@ -162,20 +171,39 @@ public class RoadblockSystem : NetworkBehaviour
     //should only be activated from server
     public void ActivateRoadblock(int roadblockNum)
     {
-        if (activeRoadblocks.Value.arr[roadblockNum] == 0)
+        if (IsServer)
         {
-            activeRoadblocks.Value.arr[roadblockNum] = 1;
-            OnRoadblockActivate?.Invoke(roadblockNum);
+            if (activeRoadblocks.Value.arr[roadblockNum] == 0)
+            {
+                activeRoadblocks.Value.arr[roadblockNum] = 1;
+                OnRoadblockActivate?.Invoke(roadblockNum);
+
+                int duration = roadblocks.Value.roadblocks[roadblockNum].duration;
+                if (duration != -1)
+                {
+                    StartCoroutine(DeactivateRoadblockAfterTime(roadblockNum, duration));
+                }
+            }
         }
+    }
+
+    private IEnumerator DeactivateRoadblockAfterTime(int roadblockNum, int duration)
+    {
+        yield return new WaitForSeconds(duration);
+        
+        DeactivateRoadblock(roadblockNum);
     }
 
     //should only be activated from server
     public void DeactivateRoadblock(int roadblockNum)
     {
-        if (activeRoadblocks.Value.arr[roadblockNum] == 1)
+        if (IsServer)
         {
-            activeRoadblocks.Value.arr[roadblockNum] = 0;
-            OnRoadblockDeactivate?.Invoke(roadblockNum);
+            if (activeRoadblocks.Value.arr[roadblockNum] == 1)
+            {
+                activeRoadblocks.Value.arr[roadblockNum] = 0;
+                OnRoadblockDeactivate?.Invoke(roadblockNum);
+            }
         }
     }
 
@@ -206,6 +234,11 @@ public class RoadblockSystem : NetworkBehaviour
     public List<(int, int)> GetRoadblockAffectedTiles(int roadblockNum)
     {
         return roadblocks.Value.roadblocks[roadblockNum].affectedTiles;
+    }
+
+    public int GetRoadblockDuration(int roadblockNum)
+    {
+        return roadblocks.Value.roadblocks[roadblockNum].duration;
     }
 
     public List<(int, int)> GetAllDisabledTiles()

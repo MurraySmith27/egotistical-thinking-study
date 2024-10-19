@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using Unity.Netcode;
 
@@ -7,8 +9,13 @@ public class MapNetworkBehaviour : NetworkBehaviour
 {
     [SerializeField] private GameObject tileObject;
     [SerializeField] private GameObject tileDisabledObject;
+
+    [SerializeField] private TMP_Text countdownTimerText;
     
     private NetworkVariable<Vector3> position = new NetworkVariable<Vector3>();
+
+    private int currentCountdownValue = -1;
+    private Coroutine countdownCoroutine;
 
     public override void OnNetworkSpawn() {
         if (this.IsServer) {
@@ -64,7 +71,7 @@ public class MapNetworkBehaviour : NetworkBehaviour
     }
 
     [ClientRpc]
-    public void DisableTile_ClientRpc(int affectedPlayer)
+    public void DisableTile_ClientRpc(int affectedPlayer, int duration)
     {
         if (affectedPlayer == ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum)
         {
@@ -77,6 +84,33 @@ public class MapNetworkBehaviour : NetworkBehaviour
             {
                 tileDisabledObject.SetActive(true);
             }
+
+            int prevCountdownValue = currentCountdownValue; 
+            currentCountdownValue = Math.Max(currentCountdownValue, duration);
+            
+            if (currentCountdownValue != prevCountdownValue)
+            {
+                StopCoroutine(countdownCoroutine);
+            }
+
+            countdownCoroutine = StartCoroutine(RoadblockTimerCountdown());
+        }
+    }
+
+    private IEnumerator RoadblockTimerCountdown()
+    {
+        if (countdownTimerText != null)
+        {
+            countdownTimerText.gameObject.SetActive(true);
+
+            while (currentCountdownValue >= 0)
+            {
+                countdownTimerText.text = $"{currentCountdownValue}";
+                currentCountdownValue--;
+                yield return new WaitForSeconds(1);
+            }
+
+            countdownTimerText.gameObject.SetActive(false);
         }
     }
 

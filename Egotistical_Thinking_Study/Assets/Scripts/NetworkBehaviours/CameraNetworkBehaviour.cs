@@ -41,7 +41,6 @@ public class CameraNetworkBehaviour : NetworkBehaviour
         if (!this.IsServer)
         {
             ClientConnectionHandler.Instance.m_onRecieveClientSideSessionInfo += SetCameraProperties;
-
         }
         SetCameraXPos(0, MapDataNetworkBehaviour.Instance.mapWidth.Value);
         SetCameraYPos(0, MapDataNetworkBehaviour.Instance.mapHeight.Value);
