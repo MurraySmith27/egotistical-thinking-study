@@ -163,9 +163,10 @@ public class MapDataNetworkBehaviour : NetworkBehaviour
                 GameObject tileObject = MapGenerator.Instance.map[affectedTile.Item1][affectedTile.Item2];
 
                 MapNetworkBehaviour mapNetworkBehaviour = tileObject.GetComponentInChildren<MapNetworkBehaviour>();
-                
-                mapNetworkBehaviour.DisableTileServerSide();
-                mapNetworkBehaviour.DisableTile_ClientRpc(RoadblockSystem.Instance.GetRoadblockInformedPlayer(roadblockNum), RoadblockSystem.Instance.GetRoadblockDuration(roadblockNum));
+
+                int duration = RoadblockSystem.Instance.GetRoadblockDuration(roadblockNum);
+                mapNetworkBehaviour.DisableTileServerSide(duration);
+                mapNetworkBehaviour.DisableTile_ClientRpc(RoadblockSystem.Instance.GetRoadblockInformedPlayer(roadblockNum), duration);
             }
         }
     }

@@ -29,7 +29,9 @@ public class RoadblockSystem : NetworkBehaviour
     public NetworkVariable<NetworkSerializableRoadblockArray> roadblocks =
         new NetworkVariable<NetworkSerializableRoadblockArray>();
 
-    private List<int> _timeLeftPerRoadblock;
+    private List<bool> isRoadblockCountdownCoroutineRunning = new List<bool>();
+
+    private List<Coroutine> roadblockCountdownCoroutines = new List<Coroutine>();
     
     void Awake()
     {
@@ -80,7 +82,12 @@ public class RoadblockSystem : NetworkBehaviour
 
             roadblocksArr[i].informedPlayer = configRoadblocks[i].informedPlayer;
 
+            roadblocksArr[i].duration = configRoadblocks[i].duration;
+
             active.arr[i] = 0;
+
+            roadblockCountdownCoroutines.Add(null);
+            isRoadblockCountdownCoroutineRunning.Add(false);
         }
 
         roadblockArray.roadblocks = roadblocksArr;
@@ -104,13 +111,6 @@ public class RoadblockSystem : NetworkBehaviour
             
             OrderSystem.Instance.onOrderComplete -= OnOrderComplete;
             OrderSystem.Instance.onOrderComplete += OnOrderComplete;
-
-            _timeLeftPerRoadblock = new List<int>();
-
-            for (int i = 0; i < roadblocks.Value.roadblocks.Length; i++)
-            {
-                _timeLeftPerRoadblock.Add(-1);
-            }
         }
     }
 
@@ -178,10 +178,19 @@ public class RoadblockSystem : NetworkBehaviour
                 activeRoadblocks.Value.arr[roadblockNum] = 1;
                 OnRoadblockActivate?.Invoke(roadblockNum);
 
-                int duration = roadblocks.Value.roadblocks[roadblockNum].duration;
-                if (duration != -1)
+                if (isRoadblockCountdownCoroutineRunning[roadblockNum])
                 {
-                    StartCoroutine(DeactivateRoadblockAfterTime(roadblockNum, duration));
+                    if (roadblockCountdownCoroutines[roadblockNum] != null)
+                    {
+                        StopCoroutine(roadblockCountdownCoroutines[roadblockNum]);
+                    }
+                    isRoadblockCountdownCoroutineRunning[roadblockNum] = false;
+                }
+                
+                int duration = roadblocks.Value.roadblocks[roadblockNum].duration;
+                if (duration > 0)
+                {
+                    roadblockCountdownCoroutines[roadblockNum] = StartCoroutine(DeactivateRoadblockAfterTime(roadblockNum, duration));
                 }
             }
         }
@@ -189,9 +198,13 @@ public class RoadblockSystem : NetworkBehaviour
 
     private IEnumerator DeactivateRoadblockAfterTime(int roadblockNum, int duration)
     {
+        isRoadblockCountdownCoroutineRunning[roadblockNum] = true;
+        Debug.Log($"waiting for duration: {duration}");
         yield return new WaitForSeconds(duration);
         
         DeactivateRoadblock(roadblockNum);
+        
+        isRoadblockCountdownCoroutineRunning[roadblockNum] = false;
     }
 
     //should only be activated from server
@@ -203,6 +216,15 @@ public class RoadblockSystem : NetworkBehaviour
             {
                 activeRoadblocks.Value.arr[roadblockNum] = 0;
                 OnRoadblockDeactivate?.Invoke(roadblockNum);
+            }
+            
+            if (isRoadblockCountdownCoroutineRunning[roadblockNum])
+            {
+                if (roadblockCountdownCoroutines[roadblockNum] != null)
+                {
+                    StopCoroutine(roadblockCountdownCoroutines[roadblockNum]);
+                }
+                isRoadblockCountdownCoroutineRunning[roadblockNum] = false;
             }
         }
     }

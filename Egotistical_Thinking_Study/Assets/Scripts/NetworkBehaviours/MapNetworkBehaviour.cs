@@ -38,9 +38,15 @@ public class MapNetworkBehaviour : NetworkBehaviour
         {
             tileDisabledObject.SetActive(false);
         }
+        
+        if (countdownCoroutine != null) { 
+            StopCoroutine(countdownCoroutine);
+        }
+
+        currentCountdownValue = 0;
     }
 
-    public void DisableTileServerSide()
+    public void DisableTileServerSide(int duration)
     {
         if (tileObject != null)
         {
@@ -50,6 +56,24 @@ public class MapNetworkBehaviour : NetworkBehaviour
         if (tileDisabledObject != null)
         {
             tileDisabledObject.SetActive(true);
+        }
+
+        int prevCountdownValue = currentCountdownValue; 
+        currentCountdownValue = Math.Max(currentCountdownValue, duration);
+       
+        countdownTimerText?.gameObject.SetActive(currentCountdownValue > 0);
+        
+        if (currentCountdownValue > 0)
+        {
+            if (currentCountdownValue != prevCountdownValue)
+            {
+                if (countdownCoroutine != null)
+                {
+                    StopCoroutine(countdownCoroutine);
+                }
+                countdownCoroutine = StartCoroutine(RoadblockTimerCountdown());
+            }
+
         }
     }
 
@@ -67,13 +91,16 @@ public class MapNetworkBehaviour : NetworkBehaviour
             {
                 tileDisabledObject.SetActive(false);
             }
+            
+            currentCountdownValue = 0;
         }
     }
 
     [ClientRpc]
     public void DisableTile_ClientRpc(int affectedPlayer, int duration)
     {
-        if (affectedPlayer == ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum)
+        int playerNum = ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum;
+        if (affectedPlayer == playerNum)
         {
             if (tileObject != null)
             {
@@ -84,27 +111,37 @@ public class MapNetworkBehaviour : NetworkBehaviour
             {
                 tileDisabledObject.SetActive(true);
             }
-
+            
             int prevCountdownValue = currentCountdownValue; 
             currentCountdownValue = Math.Max(currentCountdownValue, duration);
             
-            if (currentCountdownValue != prevCountdownValue)
-            {
-                StopCoroutine(countdownCoroutine);
-            }
+            countdownTimerText?.gameObject.SetActive(currentCountdownValue > 0);
 
-            countdownCoroutine = StartCoroutine(RoadblockTimerCountdown());
+            if (currentCountdownValue > 0)
+            {
+                if (currentCountdownValue != prevCountdownValue)
+                {
+                    if (countdownCoroutine != null)
+                    {
+                        StopCoroutine(countdownCoroutine);
+                    }
+
+                    countdownCoroutine = StartCoroutine(RoadblockTimerCountdown());
+                }
+            }
         }
     }
 
     private IEnumerator RoadblockTimerCountdown()
     {
+        Debug.Log("Roadblock timer coroutine!");
         if (countdownTimerText != null)
         {
             countdownTimerText.gameObject.SetActive(true);
 
             while (currentCountdownValue >= 0)
             {
+                Debug.Log($"Roadblock timer coroutine counting down value: {currentCountdownValue}!");
                 countdownTimerText.text = $"{currentCountdownValue}";
                 currentCountdownValue--;
                 yield return new WaitForSeconds(1);
@@ -116,14 +153,19 @@ public class MapNetworkBehaviour : NetworkBehaviour
 
     private void SetRotation()
     {
+        int playerNum = ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum;
+
+        int rotation = CameraNetworkBehaviour.Instance.cameraRotationPerPlayer.Value.arr[playerNum];
+
+        float yawRotation = rotation * 90f;
+        
         if (!gameObject.name.Contains("Road"))
         {
-            int playerNum = ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum;
-
-            int rotation = CameraNetworkBehaviour.Instance.cameraRotationPerPlayer.Value.arr[playerNum];
-
-            float yawRotation = rotation * 90f;
             transform.rotation = Quaternion.Euler(0, 0, yawRotation);
+        }
+        else if (countdownTimerText != null)
+        {
+            (countdownTimerText.transform as RectTransform).rotation = Quaternion.Euler(0, 0, yawRotation);
         }
     }
 }
