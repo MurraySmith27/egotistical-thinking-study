@@ -66,6 +66,10 @@ public class ExperimenterViewController : MonoBehaviour
         
         m_root.Q<Label>("score-label").text = $"Total Score: {OrderSystem.Instance.currentScorePerPlayer.Value.arr.Sum()}G";
 
+        m_root.Q<Label>("revenue-label").text = $"{OrderSystem.Instance.currentRevenuePerPlayer.Value.arr.Sum()}G";
+        
+        m_root.Q<Label>("deductions-label").text = $"{OrderSystem.Instance.currentDeductionsPerPlayer.Value.arr.Sum()}G";
+
         TimeSpan t = TimeSpan.FromSeconds(GameTimerSystem.Instance.timerSecondsRemaining.Value);
         m_root.Q<Label>("timer-label").text = t.ToString(@"mm\:ss");
 
@@ -78,6 +82,8 @@ public class ExperimenterViewController : MonoBehaviour
         GameTimerSystem.Instance.timerSecondsRemaining.OnValueChanged += OnTimerValueChanged;
         
         OrderSystem.Instance.onScoreChanged += OnScoreChanged;
+        OrderSystem.Instance.onDeductionsChanged += OnDeductionsChanged;
+        OrderSystem.Instance.onRevenueChanged += OnRevenueChanged;
 
         OrderSystem.Instance.onOrderChanged += OnOrderValueChanged;
         OrderSystem.Instance.onOrderComplete += OnOrderComplete;
@@ -99,6 +105,8 @@ public class ExperimenterViewController : MonoBehaviour
         if (OrderSystem.Instance != null)
         {
             OrderSystem.Instance.onScoreChanged -= OnScoreChanged;
+            OrderSystem.Instance.onDeductionsChanged -= OnDeductionsChanged;
+            OrderSystem.Instance.onRevenueChanged -= OnRevenueChanged;
             OrderSystem.Instance.onOrderChanged -= OnOrderValueChanged;
             OrderSystem.Instance.onOrderComplete -= OnOrderComplete;
             OrderSystem.Instance.onOrderIncomplete -= OnOrderIncomplete;
@@ -349,6 +357,32 @@ public class ExperimenterViewController : MonoBehaviour
         }
     }
     
+    private void OnRevenueChanged(int[] revenuePerPlayer)
+    {
+        m_root.Q<Label>("revenue-label").text = $"{revenuePerPlayer.Sum()}G";
+        
+        for (int i = 0; i < revenuePerPlayer.Length; i++)
+        {
+            if (m_gasRefillElementsPerPlayer.ContainsKey(i))
+            {
+                m_gasRefillElementsPerPlayer[i].Q<Label>("revenue-label").text = $"{revenuePerPlayer[i]}G";
+            }
+        }
+    }
+    
+    private void OnDeductionsChanged(int[] deductionsPerPlayer)
+    {
+        m_root.Q<Label>("deductions-label").text = $"{deductionsPerPlayer.Sum()}G";
+        
+        for (int i = 0; i < deductionsPerPlayer.Length; i++)
+        {
+            if (m_gasRefillElementsPerPlayer.ContainsKey(i))
+            {
+                m_gasRefillElementsPerPlayer[i].Q<Label>("deductions-label").text = $"{deductionsPerPlayer[i]}G";
+            }
+        }
+    }
+    
     
     
     private void OnClientConnected(ulong clientId)
@@ -368,15 +402,23 @@ public class ExperimenterViewController : MonoBehaviour
                 m_root.Q<VisualElement>("refill-buttons-parent").Add(gasRefillElement);
 
                 Label scoreLabel = gasRefillElement.Q<Label>("score-label");
+
+                Label revenueLabel = gasRefillElement.Q<Label>("revenue-label");
+                
+                Label deductionsLabel = gasRefillElement.Q<Label>("deductions-label");
                 
                 if (!GameRoot.Instance.configData.IsScoreShared)
                 {
                     // scoreLabel.parent.Remove(scoreLabel);
-                    scoreLabel.text = "";
+                    scoreLabel.text = "0G";
+                    revenueLabel.text = "0G";
+                    deductionsLabel.text = "0G";
                 }
                 else
                 {
                     scoreLabel.text = $"{OrderSystem.Instance.currentScorePerPlayer.Value.arr[playerNum]}G";
+                    revenueLabel.text = $"{OrderSystem.Instance.currentRevenuePerPlayer.Value.arr[playerNum]}G";
+                    deductionsLabel.text = $"{OrderSystem.Instance.currentDeductionsPerPlayer.Value.arr[playerNum]}G";
                 }
 
                 m_gasBarElementsPerPlayer.Add(playerNum, gasRefillElement.Q<ProgressBar>("gas-bar"));

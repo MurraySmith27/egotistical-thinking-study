@@ -1,5 +1,6 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <ui:Template name="InventoryElement" src="project://database/Assets/UI/Shared/InventoryElement.uxml?fileID=9197481963319205126&amp;guid=4fd3fec64779a8c4c9d6a7feb711d6f2&amp;type=3#InventoryElement" />
+    <ui:Template name="score-label-root" src="project://database/Assets/UI/ExperimenterView/score-label-root.uxml?fileID=9197481963319205126&amp;guid=791835caaee8ba84d8e975477f2c4a40&amp;type=3#score-label-root" />
     <Style src="project://database/Assets/UI/ExperimenterView/ExperimenterView.uss?fileID=7433441132597879392&amp;guid=4db16f4e505707543ad7a194ba4d15da&amp;type=3#ExperimenterView" />
     <Style src="project://database/Assets/UI/Shared/InventoryStyleSheet.uss?fileID=7433441132597879392&amp;guid=12734419a02e5734c81a16aba3a1dd5c&amp;type=3#InventoryStyleSheet" />
     <ui:VisualElement name="root" style="flex-grow: 1; flex-direction: row;">
@@ -24,14 +25,12 @@
             </ui:VisualElement>
             <ui:VisualElement name="score-label-root" style="flex-grow: 1;">
                 <ui:VisualElement name="timer-root" style="flex-grow: 0.1; flex-shrink: 0.1; flex-direction: row;">
-                    <ui:VisualElement name="score-label-root" style="flex-grow: 1; background-color: rgba(255, 237, 175, 0); border-left-color: rgba(255, 207, 23, 0); border-right-color: rgba(255, 207, 23, 0); border-top-color: rgba(255, 207, 23, 0); border-bottom-color: rgba(255, 207, 23, 0); border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; border-top-left-radius: 5px; border-top-right-radius: 5px; border-bottom-right-radius: 5px; border-bottom-left-radius: 5px; flex-direction: row; background-image: url(&apos;project://database/Assets/Art/kenney_ui-pack/PNG/Yellow/Default/button_rectangle_border.png?fileID=21300000&amp;guid=25328c949b2909d4a876a094e3991da2&amp;type=3#button_rectangle_border&apos;); padding-right: 20px; padding-left: 5px;">
-                        <ui:VisualElement name="money-icon" style="flex-grow: 1; background-image: url(&apos;project://database/Assets/Art/Icons/gold_coin.png?fileID=21300000&amp;guid=0a5f2fae349391440b701229cb614fe1&amp;type=3#gold_coin&apos;); position: relative; width: 75px; height: 75px; justify-content: center; align-self: center;" />
-                        <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="score-label" style="font-size: 40%; -unity-font-style: bold; color: rgb(0, 0, 0); -unity-text-align: middle-center;" />
-                    </ui:VisualElement>
+                    <ui:Instance template="score-label-root" name="score-label-root" />
                     <ui:VisualElement name="timer-parent" style="flex-grow: 1; background-color: rgba(255, 170, 170, 0); border-top-left-radius: 10px; border-top-right-radius: 10px; border-bottom-right-radius: 10px; border-bottom-left-radius: 10px; -unity-text-align: upper-left; justify-content: center; align-items: center; background-image: url(&apos;project://database/Assets/Art/kenney_ui-pack/PNG/Grey/Default/button_rectangle_border.png?fileID=21300000&amp;guid=0f794d6c2b6cb83418a62722e0685b3c&amp;type=3#button_rectangle_border&apos;);">
                         <ui:Label tabindex="-1" text="0:00" parse-escape-sequences="true" display-tooltip-when-elided="true" name="timer-label" style="font-size: 50%; -unity-text-align: middle-center;" />
                     </ui:VisualElement>
                 </ui:VisualElement>
+                <ui:VisualElement name="score-details-root" style="flex-grow: 0.1; flex-shrink: 0.1; flex-direction: row;" />
                 <ui:VisualElement name="refill-buttons-parent" style="flex-grow: 2; flex-shrink: 1;" />
                 <ui:VisualElement name="spacer" style="flex-grow: 1;" />
             </ui:VisualElement>

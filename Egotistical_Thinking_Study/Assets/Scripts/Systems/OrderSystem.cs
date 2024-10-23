@@ -46,6 +46,10 @@ public class OrderSystem : NetworkBehaviour
     
     public ScoreChangedEvent onScoreChanged;
     
+    public ScoreChangedEvent onRevenueChanged;
+    
+    public ScoreChangedEvent onDeductionsChanged;
+    
     public NetworkVariable<NetworkSerializableOrderArray> orders = new NetworkVariable<NetworkSerializableOrderArray>();
 
     public NetworkVariable<NetworkSerializableIntArray> activeOrders = new NetworkVariable<NetworkSerializableIntArray>();
@@ -57,6 +61,12 @@ public class OrderSystem : NetworkBehaviour
     public NetworkVariable<NetworkSerializableIntArray> acceptedOrders = new NetworkVariable<NetworkSerializableIntArray>();
 
     public NetworkVariable<NetworkSerializableIntArray> currentScorePerPlayer = new NetworkVariable<NetworkSerializableIntArray>();
+
+    public NetworkVariable<NetworkSerializableIntArray> currentRevenuePerPlayer =
+        new NetworkVariable<NetworkSerializableIntArray>();
+    
+    public NetworkVariable<NetworkSerializableIntArray> currentDeductionsPerPlayer =
+        new NetworkVariable<NetworkSerializableIntArray>();
 
     public NetworkVariable<int> incorrectDepositScorePenalty = new NetworkVariable<int>();
 
@@ -158,9 +168,24 @@ public class OrderSystem : NetworkBehaviour
 
     private void DoAddScoreToPlayer(int playerNum, int scoreToAdd)
     {
+        
         currentScorePerPlayer.Value.arr[playerNum] += scoreToAdd;
         currentScorePerPlayer.SetDirty(true);
-        onScoreChanged(currentScorePerPlayer.Value.arr);
+        
+        if (scoreToAdd > 0)
+        {
+            currentRevenuePerPlayer.Value.arr[playerNum] += scoreToAdd;
+            currentRevenuePerPlayer.SetDirty(true);
+            onRevenueChanged?.Invoke(currentRevenuePerPlayer.Value.arr);
+        }
+        else
+        {
+            currentDeductionsPerPlayer.Value.arr[playerNum] -= scoreToAdd;
+            currentDeductionsPerPlayer.SetDirty(true);
+            onDeductionsChanged?.Invoke(currentDeductionsPerPlayer.Value.arr);
+        }
+        
+        onScoreChanged?.Invoke(currentScorePerPlayer.Value.arr);
     }
 
     public void OnGameStart()
@@ -174,6 +199,8 @@ public class OrderSystem : NetworkBehaviour
 
             orders.Value = new NetworkSerializableOrderArray();
             currentScorePerPlayer.Value = new NetworkSerializableIntArray();
+            currentRevenuePerPlayer.Value = new NetworkSerializableIntArray();
+            currentDeductionsPerPlayer.Value = new NetworkSerializableIntArray();
 
             incorrectDepositScorePenalty.Value = GameRoot.Instance.configData.IncorrectItemPenalty;
             
@@ -201,10 +228,14 @@ public class OrderSystem : NetworkBehaviour
             acceptedOrders.Value.arr = new int[GameRoot.Instance.configData.Orders.Length];
             
             currentScorePerPlayer.Value.arr = new int[GameRoot.Instance.configData.NumPlayers];
+            currentRevenuePerPlayer.Value.arr = new int[GameRoot.Instance.configData.NumPlayers];
+            currentDeductionsPerPlayer.Value.arr = new int[GameRoot.Instance.configData.NumPlayers];
 
             for (int i = 0; i < GameRoot.Instance.configData.NumPlayers; i++)
             {
                 currentScorePerPlayer.Value.arr[i] = GameRoot.Instance.configData.StartingMoneyPerPlayer;
+                currentRevenuePerPlayer.Value.arr[i] = GameRoot.Instance.configData.StartingMoneyPerPlayer;
+                currentDeductionsPerPlayer.Value.arr[i] = 0;
             }
 
             for (int i = 0; i < GameRoot.Instance.configData.Orders.Length; i++)

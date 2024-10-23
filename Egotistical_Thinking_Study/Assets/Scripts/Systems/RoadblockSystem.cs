@@ -199,7 +199,7 @@ public class RoadblockSystem : NetworkBehaviour
     private IEnumerator DeactivateRoadblockAfterTime(int roadblockNum, int duration)
     {
         isRoadblockCountdownCoroutineRunning[roadblockNum] = true;
-        Debug.Log($"waiting for duration: {duration}");
+        
         yield return new WaitForSeconds(duration);
         
         DeactivateRoadblock(roadblockNum);
