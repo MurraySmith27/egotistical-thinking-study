@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -23,7 +24,11 @@ public class MapDataNetworkBehaviour : NetworkBehaviour
     public NetworkVariable<NetworkSerializableUlongArray> warehouseNetworkObjectIds { get; private set; }
     public NetworkVariable<NetworkSerializableUlongArray> destinationNetworkObjectIds { get; private set; }
     public NetworkVariable<NetworkSerializableUlongArray> playerNetworkObjectIds { get; private set; }
-
+    
+    public NetworkVariable<NetworkSerializableIntArray> totalScoreVisiblePerPlayer { get; private set; }
+    public NetworkVariable<NetworkSerializableIntArray> revenueVisiblePerPlayer { get; private set; }
+    public NetworkVariable<NetworkSerializableIntArray> deductionsVisiblePerPlayer { get; private set; }
+    
     public NetworkVariable<int> maxGasPerPlayer = new NetworkVariable<int>();
 
     public NetworkVariable<bool> isScoreShared = new NetworkVariable<bool>();
@@ -54,6 +59,10 @@ public class MapDataNetworkBehaviour : NetworkBehaviour
         warehouseNetworkObjectIds = new NetworkVariable<NetworkSerializableUlongArray>();
         destinationNetworkObjectIds = new NetworkVariable<NetworkSerializableUlongArray>();
         playerNetworkObjectIds = new NetworkVariable<NetworkSerializableUlongArray>();
+
+        totalScoreVisiblePerPlayer = new NetworkVariable<NetworkSerializableIntArray>();
+        revenueVisiblePerPlayer = new NetworkVariable<NetworkSerializableIntArray>();
+        deductionsVisiblePerPlayer = new NetworkVariable<NetworkSerializableIntArray>();
     }
 
     void Start()
@@ -81,6 +90,12 @@ public class MapDataNetworkBehaviour : NetworkBehaviour
         {
             maxGasPerPlayer.Value = GameRoot.Instance.configData.MaxGasPerPlayer;
             isScoreShared.Value = GameRoot.Instance.configData.IsScoreShared;
+
+            RegisterScoreVisibility(
+                GameRoot.Instance.configData.TotalScoreVisiblePerPlayer.Cast<int>().ToArray(),
+                GameRoot.Instance.configData.RevenueVisiblePerPlayer.Cast<int>().ToArray(),
+                GameRoot.Instance.configData.DeductionsVisiblePerPlayer.Cast<int>().ToArray()
+                );
         }
     }
     
@@ -121,6 +136,13 @@ public class MapDataNetworkBehaviour : NetworkBehaviour
             
             playerNetworkObjectIds.Value = new NetworkSerializableUlongArray();
             playerNetworkObjectIds.Value.arr = new ulong[0];
+            
+            totalScoreVisiblePerPlayer.Value = new NetworkSerializableIntArray();
+            totalScoreVisiblePerPlayer.Value.arr = new int[0];
+            revenueVisiblePerPlayer.Value = new NetworkSerializableIntArray();
+            revenueVisiblePerPlayer.Value.arr = new int[0];
+            deductionsVisiblePerPlayer.Value = new NetworkSerializableIntArray();
+            deductionsVisiblePerPlayer.Value.arr = new int[0];
 
             RoadblockSystem.OnRoadblockActivate -= OnRoadblockActivate;
             RoadblockSystem.OnRoadblockActivate += OnRoadblockActivate;
@@ -326,6 +348,40 @@ public class MapDataNetworkBehaviour : NetworkBehaviour
         if (!Application.isEditor)
         {
             OverrideWarehouseIconsFromDisk();
+        }
+    }
+
+    public bool IsTotalScoreVisiblePerPlayer(int playerNum)
+    {
+        return totalScoreVisiblePerPlayer.Value.arr[playerNum] == 1;
+    }
+    
+    public bool IsRevenueVisiblePerPlayer(int playerNum)
+    {
+        return totalScoreVisiblePerPlayer.Value.arr[playerNum] == 1;
+    }
+    
+    public bool IsDeductionsVisiblePerPlayer(int playerNum)
+    {
+        return totalScoreVisiblePerPlayer.Value.arr[playerNum] == 1;
+    }
+    
+    
+
+    public void RegisterScoreVisibility(int[] totalScoreVisibility, int[] revenueVisibility,
+        int[] deductionsVisibility)
+    {
+        totalScoreVisiblePerPlayer.Value.arr = new int[totalScoreVisibility.Length];
+        
+        revenueVisiblePerPlayer.Value.arr = new int[revenueVisibility.Length];
+        
+        deductionsVisiblePerPlayer.Value.arr = new int[deductionsVisibility.Length];
+
+        for (int i = 0; i < totalScoreVisibility.Length; i++)
+        {
+            totalScoreVisiblePerPlayer.Value.arr[i] = totalScoreVisibility[i];
+            revenueVisiblePerPlayer.Value.arr[i] = revenueVisibility[i];
+            deductionsVisiblePerPlayer.Value.arr[i] = deductionsVisibility[i];
         }
     }
 

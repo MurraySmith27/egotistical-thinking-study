@@ -39,6 +39,9 @@ public class ConfigData
     public Order[] Orders;
     public int MaxGasPerPlayer;
     public int[] CameraRotationPerPlayer;
+    public bool[] RevenueVisiblePerPlayer;
+    public bool[] DeductionsVisiblePerPlayer;
+    public bool[] TotalScoreVisiblePerPlayer;
     public int NumPlayers;
     public bool IsScoreShared;
     public int IncorrectItemPenalty;

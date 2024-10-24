@@ -153,7 +153,7 @@ public class ClientMenuController : MonoBehaviour
 
         m_orderScrollViewScroller.slider.lowValue = 0;
         m_orderScrollViewScroller.slider.highValue = 0;
-        
+
         m_orderScrollViewScroller.valueChanged -= OnOrderScrollerValueChanged;
         m_orderScrollViewScroller.valueChanged += OnOrderScrollerValueChanged;
 
@@ -198,16 +198,77 @@ public class ClientMenuController : MonoBehaviour
         m_ownedWarehouseInventoryElement.Q<Label>("header").text = $"Warehouse";
 
         // m_ownedWarehouseInventoryElement.style.opacity = 0.5f;
-        
+
         int playerNum = ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum;
 
-        if (MapDataNetworkBehaviour.Instance.isScoreShared.Value)
+        int numScoreTypesVisible = 0;
+
+        bool isTotalScoreVisible = MapDataNetworkBehaviour.Instance.IsTotalScoreVisiblePerPlayer(playerNum);
+        bool isRevenueVisible = MapDataNetworkBehaviour.Instance.IsRevenueVisiblePerPlayer(playerNum);
+        bool isDeductionsVisible = MapDataNetworkBehaviour.Instance.IsDeductionsVisiblePerPlayer(playerNum);
+        if (isTotalScoreVisible)
+            numScoreTypesVisible++;
+
+        if (isRevenueVisible)
+            numScoreTypesVisible++;
+
+        if (isDeductionsVisible)
+            numScoreTypesVisible++;
+
+        Label scoreLabel = m_root.Q<Label>("score-label");
+        if (isTotalScoreVisible || numScoreTypesVisible > 1)
         {
-            m_root.Q<Label>("score-label").text = $"{OrderSystem.Instance.currentScorePerPlayer.Value.arr.Sum()}G";
+            if (MapDataNetworkBehaviour.Instance.isScoreShared.Value)
+            {
+                scoreLabel.text = $"{OrderSystem.Instance.currentScorePerPlayer.Value.arr.Sum()}G";
+            }
+            else
+            {
+                scoreLabel.text =
+                    $"{OrderSystem.Instance.currentScorePerPlayer.Value.arr[playerNum]}G";
+            }
         }
         else
         {
-            m_root.Q<Label>("score-label").text = $"{OrderSystem.Instance.currentScorePerPlayer.Value.arr[playerNum]}G";
+            scoreLabel.text = "???";
+        }
+
+        Label revenueLabel = m_root.Q<Label>("revenue-label");
+        if (isRevenueVisible || numScoreTypesVisible > 1)
+        {
+            if (MapDataNetworkBehaviour.Instance.isScoreShared.Value)
+            {
+                revenueLabel.text =
+                    $"{OrderSystem.Instance.currentRevenuePerPlayer.Value.arr.Sum()}G";
+            }
+            else
+            {
+                revenueLabel.text =
+                    $"{OrderSystem.Instance.currentRevenuePerPlayer.Value.arr[playerNum]}G";
+            }
+        }
+        else
+        {
+            revenueLabel.text = "???";
+        }
+
+        Label deductionsLabel = m_root.Q<Label>("deductions-label");
+        if (isDeductionsVisible || numScoreTypesVisible > 1)
+        {
+            if (MapDataNetworkBehaviour.Instance.isScoreShared.Value)
+            {
+                deductionsLabel.text =
+                    $"{OrderSystem.Instance.currentDeductionsPerPlayer.Value.arr.Sum()}G";
+            }
+            else
+            {
+                deductionsLabel.text =
+                    $"{OrderSystem.Instance.currentDeductionsPerPlayer.Value.arr[playerNum]}G";
+            }
+        }
+        else
+        {
+            deductionsLabel.text = "???";
         }
 
         ProgressBar gasBar = m_root.Q<ProgressBar>("truck-gas-bar");
@@ -279,6 +340,10 @@ public class ClientMenuController : MonoBehaviour
         OrderSystem.Instance.acceptedOrders.OnValueChanged += OnAcceptedOrdersChanged;
 
         OrderSystem.Instance.currentScorePerPlayer.OnValueChanged += OnScoreChanged;
+
+        OrderSystem.Instance.currentRevenuePerPlayer.OnValueChanged += OnRevenueChanged;
+        
+        OrderSystem.Instance.currentDeductionsPerPlayer.OnValueChanged += OnDeductionsChanged;
 
         GameTimerSystem.Instance.timerSecondsRemaining.OnValueChanged += OnTimerValueChanged;
 
@@ -1153,17 +1218,82 @@ private void OnGasRefillButtonClicked()
     private void OnScoreChanged(NetworkSerializableIntArray previous, NetworkSerializableIntArray current)
     {
         int score = 0;
+        int playerNum = ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum;
         if (MapDataNetworkBehaviour.Instance.isScoreShared.Value)
         {
             score = current.arr.Sum();
         }
         else
         {
-            int playerNum = ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum;
             score = current.arr[playerNum];
         }
         
-        m_root.Q<Label>("score-label").text = $"{score}G";
+        bool isTotalScoreVisible = MapDataNetworkBehaviour.Instance.IsTotalScoreVisiblePerPlayer(playerNum);
+        bool isRevenueVisible = MapDataNetworkBehaviour.Instance.IsRevenueVisiblePerPlayer(playerNum);
+        bool isDeductionsVisible = MapDataNetworkBehaviour.Instance.IsDeductionsVisiblePerPlayer(playerNum);
+
+        if (isTotalScoreVisible || (isRevenueVisible && isDeductionsVisible))
+        {
+            m_root.Q<Label>("score-label").text = $"{score}G";
+        }
+        else
+        {
+            m_root.Q<Label>("score-label").text = $"???";
+        }
+    }
+
+    private void OnRevenueChanged(NetworkSerializableIntArray previous, NetworkSerializableIntArray current)
+    {
+        int revenue = 0;
+        int playerNum = ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum;
+        if (MapDataNetworkBehaviour.Instance.isScoreShared.Value)
+        {
+            revenue = current.arr.Sum();
+        }
+        else
+        {
+            revenue = current.arr[playerNum];
+        }
+        
+        bool isTotalScoreVisible = MapDataNetworkBehaviour.Instance.IsTotalScoreVisiblePerPlayer(playerNum);
+        bool isRevenueVisible = MapDataNetworkBehaviour.Instance.IsRevenueVisiblePerPlayer(playerNum);
+        bool isDeductionsVisible = MapDataNetworkBehaviour.Instance.IsDeductionsVisiblePerPlayer(playerNum);
+
+        if (isRevenueVisible || (isTotalScoreVisible && isDeductionsVisible))
+        {
+            m_root.Q<Label>("revenue-label").text = $"{revenue}G";
+        }
+        else
+        {
+            m_root.Q<Label>("revenue-label").text = $"???";
+        }
+    }
+    
+    private void OnDeductionsChanged(NetworkSerializableIntArray previous, NetworkSerializableIntArray current)
+    {
+        int deductions = 0;
+        int playerNum = ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum;
+        if (MapDataNetworkBehaviour.Instance.isScoreShared.Value)
+        {
+            deductions = current.arr.Sum();
+        }
+        else
+        {
+            deductions = current.arr[playerNum];
+        }
+        
+        bool isTotalScoreVisible = MapDataNetworkBehaviour.Instance.IsTotalScoreVisiblePerPlayer(playerNum);
+        bool isRevenueVisible = MapDataNetworkBehaviour.Instance.IsRevenueVisiblePerPlayer(playerNum);
+        bool isDeductionsVisible = MapDataNetworkBehaviour.Instance.IsDeductionsVisiblePerPlayer(playerNum);
+
+        if (isDeductionsVisible || (isTotalScoreVisible && isRevenueVisible))
+        {
+            m_root.Q<Label>("deductions-label").text = $"{deductions}G";
+        }
+        else
+        {
+            m_root.Q<Label>("deductions-label").text = $"???";
+        }
     }
     
     void OnGasValueChanged(int previous, int current)
