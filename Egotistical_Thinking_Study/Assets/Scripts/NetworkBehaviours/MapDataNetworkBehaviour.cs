@@ -91,11 +91,18 @@ public class MapDataNetworkBehaviour : NetworkBehaviour
             maxGasPerPlayer.Value = GameRoot.Instance.configData.MaxGasPerPlayer;
             isScoreShared.Value = GameRoot.Instance.configData.IsScoreShared;
 
-            RegisterScoreVisibility(
-                GameRoot.Instance.configData.TotalScoreVisiblePerPlayer.Cast<int>().ToArray(),
-                GameRoot.Instance.configData.RevenueVisiblePerPlayer.Cast<int>().ToArray(),
-                GameRoot.Instance.configData.DeductionsVisiblePerPlayer.Cast<int>().ToArray()
-                );
+            int[] totalScoreVisible = new int[GameRoot.Instance.configData.TotalScoreVisiblePerPlayer.Length];
+            int[] revenueVisible = new int[GameRoot.Instance.configData.RevenueVisiblePerPlayer.Length];
+            int[] deductionsVisible = new int[GameRoot.Instance.configData.DeductionsVisiblePerPlayer.Length];
+
+            for (int i = 0; i < GameRoot.Instance.configData.TotalScoreVisiblePerPlayer.Length; i++)
+            {
+                totalScoreVisible[i] = GameRoot.Instance.configData.TotalScoreVisiblePerPlayer[i] ? 1 : 0;
+                revenueVisible[i] = GameRoot.Instance.configData.RevenueVisiblePerPlayer[i] ? 1 : 0;
+                deductionsVisible[i] = GameRoot.Instance.configData.DeductionsVisiblePerPlayer[i] ? 1 : 0;
+            }
+
+            RegisterScoreVisibility(totalScoreVisible, revenueVisible, deductionsVisible);
         }
     }
     
@@ -353,17 +360,17 @@ public class MapDataNetworkBehaviour : NetworkBehaviour
 
     public bool IsTotalScoreVisiblePerPlayer(int playerNum)
     {
-        return totalScoreVisiblePerPlayer.Value.arr[playerNum] == 1;
+        return totalScoreVisiblePerPlayer.Value.arr[playerNum] != 0;
     }
     
     public bool IsRevenueVisiblePerPlayer(int playerNum)
     {
-        return totalScoreVisiblePerPlayer.Value.arr[playerNum] == 1;
+        return revenueVisiblePerPlayer.Value.arr[playerNum] != 0;
     }
     
     public bool IsDeductionsVisiblePerPlayer(int playerNum)
     {
-        return totalScoreVisiblePerPlayer.Value.arr[playerNum] == 1;
+        return deductionsVisiblePerPlayer.Value.arr[playerNum] != 0;
     }
     
     
