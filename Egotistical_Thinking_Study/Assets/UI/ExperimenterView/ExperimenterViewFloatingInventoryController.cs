@@ -79,7 +79,7 @@ public class ExperimenterViewFloatingInventoryController : MonoBehaviour
         
         Debug.Log($"ON CLICK, WIDTH: {Screen.width}, height: {Screen.height}");
         
-        Vector2 topLeftCorner = new Vector2(Screen.width * 0.3f - 96, 0f);
+        Vector2 topLeftCorner = new Vector2(Screen.width * 0.3f, 0f);
         Vector2 bottomRightCorner = new Vector2(Screen.width,Screen.height * 0.75f);
         
         float width = bottomRightCorner.x - topLeftCorner.x;
