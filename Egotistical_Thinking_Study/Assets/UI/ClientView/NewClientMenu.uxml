@@ -1,7 +1,7 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:Template name="score-label-root" src="project://database/Assets/UI/ExperimenterView/score-label-root.uxml?fileID=9197481963319205126&amp;guid=791835caaee8ba84d8e975477f2c4a40&amp;type=3#score-label-root" />
     <ui:Template name="InventoryElement" src="project://database/Assets/UI/Shared/InventoryElement.uxml?fileID=9197481963319205126&amp;guid=4fd3fec64779a8c4c9d6a7feb711d6f2&amp;type=3#InventoryElement" />
     <ui:Template name="PlayerInventoryElement" src="project://database/Assets/UI/ClientView/PlayerInventoryElement.uxml?fileID=9197481963319205126&amp;guid=ce8c8203dad104a4fb1d0f831fff2a49&amp;type=3#PlayerInventoryElement" />
-    <ui:Template name="score-label-root" src="project://database/Assets/UI/ExperimenterView/score-label-root.uxml?fileID=9197481963319205126&amp;guid=791835caaee8ba84d8e975477f2c4a40&amp;type=3#score-label-root" />
     <Style src="project://database/Assets/UI/Shared/InventoryStyleSheet.uss?fileID=7433441132597879392&amp;guid=12734419a02e5734c81a16aba3a1dd5c&amp;type=3#InventoryStyleSheet" />
     <Style src="project://database/Assets/UI/ClientView/ClientMenu.uss?fileID=7433441132597879392&amp;guid=73af3c5d9c6254f42ad0b14461d13d99&amp;type=3#ClientMenu" />
     <ui:VisualElement name="root" style="flex-grow: 1; flex-direction: row;">
@@ -14,7 +14,7 @@
                     <ui:Label tabindex="-1" text="You:" parse-escape-sequences="true" display-tooltip-when-elided="true" name="you-label" style="flex-shrink: 2; flex-grow: 2; align-self: center; -unity-text-align: middle-center; -unity-font-style: bold; font-size: 30%; background-color: rgba(255, 227, 76, 0);" />
                     <ui:VisualElement name="you-icon" style="flex-grow: 1; width: 75px; height: 75px; align-self: center; background-image: url(&apos;project://database/Assets/Art/Icons/mapitems/thumbnail_A%20Yellow%20Truck.png?fileID=21300000&amp;guid=1a4c0cafce6464c4d8bc3750437f21a0&amp;type=3#thumbnail_A Yellow Truck&apos;); margin-bottom: 20px;" />
                 </ui:VisualElement>
-                <ui:Instance template="score-label-root" name="score-label-root" style="width: 200px; height: 100px; margin-left: 400px;" />
+                <ui:Instance template="score-label-root" name="score-label-root" style="width: 300px; height: 100px; margin-left: 400px;" />
             </ui:VisualElement>
             <ui:VisualElement name="game-view" style="flex-grow: 1; background-image: url(&apos;project://database/Assets/UI/Shared/GameViewRenderTexture.asset?fileID=8600000&amp;guid=24b9b189363a5ef45adf6d482555cb46&amp;type=2#GameViewRenderTexture&apos;); margin-top: 100px; background-color: rgb(0, 0, 0);" />
         </ui:VisualElement>
@@ -34,7 +34,7 @@
                         <ui:VisualElement style="flex-grow: 1;" />
                     </ui:VisualElement>
                     <ui:ProgressBar value="100" name="truck-gas-bar" title="gas-bar" style="flex-shrink: 2; flex-grow: 2; align-self: center; position: absolute; width: 75%; height: 100%; left: 25%; justify-content: center; font-size: 60%;" />
-                    <ui:Button text="Refill (5G)" parse-escape-sequences="true" display-tooltip-when-elided="true" name="gas-refill-button" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; width: 25%; height: 100%; display: flex; visibility: hidden;" />
+                    <ui:Button text="Refill" parse-escape-sequences="true" display-tooltip-when-elided="true" name="gas-refill-button" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; width: 25%; height: 100%; display: flex; visibility: hidden;" />
                 </ui:VisualElement>
                 <ui:VisualElement name="truck-inventory-root" style="flex-grow: 1; min-width: 25%; min-height: 25%;">
                     <ui:Instance template="PlayerInventoryElement" name="owned-truck-inventory-root" style="flex-grow: 1;" />

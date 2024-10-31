@@ -224,8 +224,10 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
         if (current == GameRoot.Instance.configData.MaxGasPerPlayer && GameRoot.Instance.configData.MaxGasPerPlayer != -1)
         {
             m_fillUpGasSFX.Play();
+
+            int cost = (current - old) * GameRoot.Instance.configData.GasRefillCostPerUnit;
             
-            OrderSystem.Instance.AddScoreToPlayer(m_playerNum.Value, Mathf.Min(-GameRoot.Instance.configData.GasRefillCost, GameRoot.Instance.configData.GasRefillCost));
+            OrderSystem.Instance.AddScoreToPlayer(m_playerNum.Value, -Mathf.Abs(cost));
         }
     }
 

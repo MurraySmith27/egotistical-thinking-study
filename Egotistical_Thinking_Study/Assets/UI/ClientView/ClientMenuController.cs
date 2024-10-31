@@ -216,6 +216,9 @@ public class ClientMenuController : MonoBehaviour
             numScoreTypesVisible++;
 
         Label scoreLabel = m_root.Q<Label>("score-label");
+        Label revenueLabel = m_root.Q<Label>("revenue-label");
+        Label deductionsLabel = m_root.Q<Label>("deductions-label");
+        
         if (isTotalScoreVisible || numScoreTypesVisible > 1)
         {
             if (MapDataNetworkBehaviour.Instance.isScoreShared.Value)
@@ -227,13 +230,21 @@ public class ClientMenuController : MonoBehaviour
                 scoreLabel.text =
                     $"{OrderSystem.Instance.currentScorePerPlayer.Value.arr[playerNum]}G";
             }
+
+            if (numScoreTypesVisible == 1)
+            {
+                m_root.Q<VisualElement>("revenue-deductions-root").style.visibility = Visibility.Hidden;
+            }
+            else
+            {
+                m_root.Q<VisualElement>("revenue-deductions-root").style.visibility = Visibility.Visible;
+            }
         }
         else
         {
             scoreLabel.text = "???";
         }
 
-        Label revenueLabel = m_root.Q<Label>("revenue-label");
         if (isRevenueVisible || numScoreTypesVisible > 1)
         {
             if (MapDataNetworkBehaviour.Instance.isScoreShared.Value)
@@ -251,8 +262,7 @@ public class ClientMenuController : MonoBehaviour
         {
             revenueLabel.text = "???";
         }
-
-        Label deductionsLabel = m_root.Q<Label>("deductions-label");
+        
         if (isDeductionsVisible || numScoreTypesVisible > 1)
         {
             if (MapDataNetworkBehaviour.Instance.isScoreShared.Value)

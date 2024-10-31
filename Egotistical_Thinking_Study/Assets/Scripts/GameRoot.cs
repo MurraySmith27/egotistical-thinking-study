@@ -45,7 +45,7 @@ public class ConfigData
     public int NumPlayers;
     public bool IsScoreShared;
     public int IncorrectItemPenalty;
-    public int GasRefillCost;
+    public int GasRefillCostPerUnit;
     public int GameTimerSeconds;
     public int StartingMoneyPerPlayer;
     public int InventoryCapacityPerPlayer;

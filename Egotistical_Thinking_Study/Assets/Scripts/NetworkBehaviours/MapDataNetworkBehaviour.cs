@@ -373,7 +373,7 @@ public class MapDataNetworkBehaviour : NetworkBehaviour
         return deductionsVisiblePerPlayer.Value.arr[playerNum] != 0;
     }
     
-    
+  
 
     public void RegisterScoreVisibility(int[] totalScoreVisibility, int[] revenueVisibility,
         int[] deductionsVisibility)
