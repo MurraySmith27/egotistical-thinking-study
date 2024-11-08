@@ -43,7 +43,6 @@ VisualElement {
     -unity-text-outline-width: 1;
     -unity-text-outline-color: rgba(0,0,0,255);
     position: absolute;
-    padding-left: 80%;
     padding-top: 60%;
 }
 
