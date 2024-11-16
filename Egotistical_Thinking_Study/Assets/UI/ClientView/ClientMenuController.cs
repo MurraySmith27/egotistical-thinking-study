@@ -1189,7 +1189,8 @@ private void OnGasRefillButtonClicked()
         
         Button rejectOrderButton = orderElement.Q<Button>("reject-button");
         rejectOrderButton.style.visibility = Visibility.Hidden;
-        
+
+        int temp = orderIndex;
         if (acceptedOrders.arr[orderIndex] == 2)
         {
             VisualElement root = orderElement.Q<VisualElement>("root");
@@ -1202,7 +1203,7 @@ private void OnGasRefillButtonClicked()
                 incompleteOrders.arr[orderIndex] != 0)
             {
                 loadAllButton.style.visibility = Visibility.Visible;
-                int temp = orderIndex;
+                
                 loadAllButton.clicked += () => { LoadAllFromOrderCallback(temp); };
 
                 loadAllButton.text = "Deposit Items";
@@ -1212,13 +1213,12 @@ private void OnGasRefillButtonClicked()
         {
             acceptOrderButton.style.visibility = Visibility.Visible;
             rejectOrderButton.style.visibility = Visibility.Visible;
-
-            int temp = orderIndex;
-            acceptOrderButton.clicked += () => { m_mouseClickSFX.Play(); OrderSystem.Instance.AcceptOrder(temp); };
-            
-            rejectOrderButton.clicked += () => { m_mouseClickSFX.Play(); OrderSystem.Instance.RejectOrder(temp); };
-
         }
+        
+        Debug.LogError("registering callbacks!!!");
+        acceptOrderButton.clicked += () => { m_mouseClickSFX.Play(); OrderSystem.Instance.AcceptOrder(temp); };
+            
+        rejectOrderButton.clicked += () => { m_mouseClickSFX.Play(); OrderSystem.Instance.RejectOrder(temp); };
 
         orderElement.style.width = m_orderScrollViewContainer.parent.resolvedStyle.width / 3f;
         

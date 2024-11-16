@@ -75,9 +75,9 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
     private Vector2Int spawnTilePosition;
     
     void Awake() {
-        clickAction = clientInput["mouseClick"];
+        clickAction = clientInput["MouseClick"];
 
-        mousePosition = clientInput["mousePosition"];
+        mousePosition = clientInput["MousePosition"];
 
         m_playerNum = new NetworkVariable<int>();
 
@@ -147,6 +147,7 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
         {
             clickAction.performed -= OnClick;
             clickAction.performed += OnClick;
+            clickAction.Enable();
 
             playerCamera = GameObject.FindGameObjectWithTag("PlayerCamera");
             
@@ -345,7 +346,7 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
                 }
                 lastTileHit = hit.transform.GetComponentInChildren<Tilemap>(false);
             
-                // lastTileHit.color = Color.red;
+                 lastTileHit.color = Color.red;
                 
             }
             else

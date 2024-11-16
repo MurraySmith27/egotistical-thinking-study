@@ -360,6 +360,8 @@ public class InventorySystem : NetworkBehaviour
                         return networkObject.GetComponent<InventoryNetworkBehaviour>().GetInventory();
                     }
                 }
+                
+                Debug.LogError($"could not find player with inventory num: {inventoryNum}. Network object id: {playerNetworkObjectId}");
             }
             else if (inventoryType == InventoryType.Warehouse)
             {

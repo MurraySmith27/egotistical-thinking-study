@@ -125,7 +125,7 @@ public class OrderSystem : NetworkBehaviour
                         }
                     }
                     
-                    if (complete && incompleteOrders.Value.arr[i] != 1)
+                    if (complete && incompleteOrders.Value.arr[i] != 1 && completeOrders.Value.arr[i] == 0)
                     {
                         if (this.IsServer)
                         {
@@ -169,6 +169,7 @@ public class OrderSystem : NetworkBehaviour
     private void DoAddScoreToPlayer(int playerNum, int scoreToAdd)
     {
         
+        Debug.Log($"adding {scoreToAdd} score to player: {playerNum}");
         currentScorePerPlayer.Value.arr[playerNum] += scoreToAdd;
         currentScorePerPlayer.SetDirty(true);
         
