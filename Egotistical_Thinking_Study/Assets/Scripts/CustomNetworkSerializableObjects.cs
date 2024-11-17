@@ -22,20 +22,32 @@ public class NetworkSerializableUlongArray : INetworkSerializable
     
 }
 
-public class NetworkSerializableIntArray : INetworkSerializable
+public struct NetworkSerializableIntArray : INetworkSerializable
 {
     public int[] arr;
 
+    public NetworkSerializableIntArray(int[] _arr)
+    {
+        arr = _arr;
+    }
+
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {
-        if (serializer.IsWriter)
+        if (arr == null)
         {
-            serializer.GetFastBufferWriter().WriteValueSafe(arr);
+            arr = new int[0];
         }
-        else
-        {
-            serializer.GetFastBufferReader().ReadValueSafe(out arr);
-        }
+        var length = 0;
+        if (!serializer.IsReader)
+            length = arr.Length;
+        
+        serializer.SerializeValue(ref length);
+
+        if (serializer.IsReader)
+            arr = new int[length];
+
+        for (var n = 0; n < length; ++n)
+            serializer.SerializeValue(ref arr[n]);
     }
 }
 

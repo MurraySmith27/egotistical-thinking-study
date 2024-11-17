@@ -41,7 +41,7 @@ VisualElement {
     align-self: flex-end;
     -unity-text-align: lower-right;
     -unity-text-outline-width: 1;
-    -unity-text-outline-color: rgba(0,0,0,255);
+    -unity-text-outline-color: rgb(0, 0, 0);
     position: absolute;
     padding-top: 60%;
 }
@@ -69,4 +69,18 @@ VisualElement {
 }
 
 VisualElement {
+}
+
+.alert-banner {
+    flex-grow: 1;
+    position: absolute;
+    height: 10%;
+    width: 100%;
+    top: 90%;
+    background-color: rgb(255, 235, 155);
+    transition-duration: 0.3s;
+}
+
+.alert-banner-out {
+    translate: 0 200px;
 }

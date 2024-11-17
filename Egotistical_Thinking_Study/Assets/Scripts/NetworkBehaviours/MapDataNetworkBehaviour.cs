@@ -144,12 +144,9 @@ public class MapDataNetworkBehaviour : NetworkBehaviour
             playerNetworkObjectIds.Value = new NetworkSerializableUlongArray();
             playerNetworkObjectIds.Value.arr = new ulong[0];
             
-            totalScoreVisiblePerPlayer.Value = new NetworkSerializableIntArray();
-            totalScoreVisiblePerPlayer.Value.arr = new int[0];
-            revenueVisiblePerPlayer.Value = new NetworkSerializableIntArray();
-            revenueVisiblePerPlayer.Value.arr = new int[0];
-            deductionsVisiblePerPlayer.Value = new NetworkSerializableIntArray();
-            deductionsVisiblePerPlayer.Value.arr = new int[0];
+            totalScoreVisiblePerPlayer.Value = new NetworkSerializableIntArray( new int[0]);
+            revenueVisiblePerPlayer.Value = new NetworkSerializableIntArray(new int[0]);
+            deductionsVisiblePerPlayer.Value = new NetworkSerializableIntArray(new int[0]);
 
             RoadblockSystem.OnRoadblockActivate -= OnRoadblockActivate;
             RoadblockSystem.OnRoadblockActivate += OnRoadblockActivate;
@@ -378,11 +375,9 @@ public class MapDataNetworkBehaviour : NetworkBehaviour
     public void RegisterScoreVisibility(int[] totalScoreVisibility, int[] revenueVisibility,
         int[] deductionsVisibility)
     {
-        totalScoreVisiblePerPlayer.Value.arr = new int[totalScoreVisibility.Length];
-        
-        revenueVisiblePerPlayer.Value.arr = new int[revenueVisibility.Length];
-        
-        deductionsVisiblePerPlayer.Value.arr = new int[deductionsVisibility.Length];
+        totalScoreVisiblePerPlayer.Value = new NetworkSerializableIntArray(new int[deductionsVisibility.Length]);
+        revenueVisiblePerPlayer.Value = new NetworkSerializableIntArray(new int[deductionsVisibility.Length]);
+        deductionsVisiblePerPlayer.Value = new NetworkSerializableIntArray(new int[deductionsVisibility.Length]);
 
         for (int i = 0; i < totalScoreVisibility.Length; i++)
         {

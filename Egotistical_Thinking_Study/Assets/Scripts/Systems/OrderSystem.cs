@@ -193,15 +193,15 @@ public class OrderSystem : NetworkBehaviour
     {
         if (this.IsServer)
         {
-            activeOrders.Value = new NetworkSerializableIntArray();
-            completeOrders.Value = new NetworkSerializableIntArray();
-            incompleteOrders.Value = new NetworkSerializableIntArray();
-            acceptedOrders.Value = new NetworkSerializableIntArray();
+            activeOrders.Value = new NetworkSerializableIntArray(new int[GameRoot.Instance.configData.Orders.Length]);
+            completeOrders.Value = new NetworkSerializableIntArray(new int[GameRoot.Instance.configData.Orders.Length]);
+            incompleteOrders.Value = new NetworkSerializableIntArray(new int[GameRoot.Instance.configData.Orders.Length]);
+            acceptedOrders.Value = new NetworkSerializableIntArray(new int[GameRoot.Instance.configData.Orders.Length]);
 
             orders.Value = new NetworkSerializableOrderArray();
-            currentScorePerPlayer.Value = new NetworkSerializableIntArray();
-            currentRevenuePerPlayer.Value = new NetworkSerializableIntArray();
-            currentDeductionsPerPlayer.Value = new NetworkSerializableIntArray();
+            currentScorePerPlayer.Value = new NetworkSerializableIntArray(new int[GameRoot.Instance.configData.NumPlayers]);
+            currentRevenuePerPlayer.Value = new NetworkSerializableIntArray(new int[GameRoot.Instance.configData.NumPlayers]);
+            currentDeductionsPerPlayer.Value = new NetworkSerializableIntArray(new int[GameRoot.Instance.configData.NumPlayers]);
 
             incorrectDepositScorePenalty.Value = GameRoot.Instance.configData.IncorrectItemPenalty;
             
@@ -222,15 +222,6 @@ public class OrderSystem : NetworkBehaviour
             }
             
             orders.Value.orders = newOrders.ToArray();
-
-            activeOrders.Value.arr = new int[GameRoot.Instance.configData.Orders.Length];
-            completeOrders.Value.arr = new int[GameRoot.Instance.configData.Orders.Length];
-            incompleteOrders.Value.arr = new int[GameRoot.Instance.configData.Orders.Length];
-            acceptedOrders.Value.arr = new int[GameRoot.Instance.configData.Orders.Length];
-            
-            currentScorePerPlayer.Value.arr = new int[GameRoot.Instance.configData.NumPlayers];
-            currentRevenuePerPlayer.Value.arr = new int[GameRoot.Instance.configData.NumPlayers];
-            currentDeductionsPerPlayer.Value.arr = new int[GameRoot.Instance.configData.NumPlayers];
 
             for (int i = 0; i < GameRoot.Instance.configData.NumPlayers; i++)
             {

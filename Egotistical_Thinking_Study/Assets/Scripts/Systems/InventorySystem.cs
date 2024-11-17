@@ -117,8 +117,7 @@ public class InventorySystem : NetworkBehaviour
     {
         if (this.IsServer)
         {
-            m_warehousePlayerOwners.Value = new NetworkSerializableIntArray();
-            m_warehousePlayerOwners.Value.arr = new int[0];
+            m_warehousePlayerOwners.Value = new NetworkSerializableIntArray(new int[0]);
         }
     }
 
@@ -214,7 +213,7 @@ public class InventorySystem : NetworkBehaviour
         {
             NetworkManager.Singleton.OnClientConnectedCallback += OnNewClientConnected;
 
-            m_warehousePlayerOwners.Value.arr = new int[MapGenerator.Instance.warehouses.Count];
+            m_warehousePlayerOwners.Value = new NetworkSerializableIntArray(new int[MapGenerator.Instance.warehouses.Count]);
 
             //initialize warehouse inventories
             for (int i = 0; i < MapGenerator.Instance.warehouses.Count; i++)

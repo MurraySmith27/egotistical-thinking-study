@@ -81,10 +81,8 @@ public class InventoryNetworkBehaviour : NetworkBehaviour
     public void InitializeEmpty(int numItems)
     {
         m_numItems.Value = numItems;
-        m_itemQuantities.Value = new NetworkSerializableIntArray();
-        m_itemQuantities.Value.arr = new int[numItems];
-        m_itemPlacements.Value = new NetworkSerializableIntArray();
-        m_itemPlacements.Value.arr = new int[numItems];
+        m_itemQuantities.Value = new NetworkSerializableIntArray(new int[numItems]);
+        m_itemPlacements.Value = new NetworkSerializableIntArray(new int[numItems]);
         for (int i = 0; i < m_numItems.Value; i++)
         {
             m_itemQuantities.Value.arr[i] = 0;

@@ -34,7 +34,7 @@
                         <ui:VisualElement style="flex-grow: 1;" />
                     </ui:VisualElement>
                     <ui:ProgressBar value="100" name="truck-gas-bar" title="gas-bar" style="flex-shrink: 2; flex-grow: 2; align-self: center; position: absolute; width: 75%; height: 100%; left: 25%; justify-content: center; font-size: 60%;" />
-                    <ui:Button text="Refill" parse-escape-sequences="true" display-tooltip-when-elided="true" name="gas-refill-button" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; width: 25%; height: 100%; display: flex; visibility: hidden;" />
+                    <ui:Button text="Refill" parse-escape-sequences="true" display-tooltip-when-elided="true" name="gas-refill-button" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; width: 25%; height: 100%; display: flex; visibility: hidden; font-size: 30%;" />
                 </ui:VisualElement>
                 <ui:VisualElement name="truck-inventory-root" style="flex-grow: 1; min-width: 25%; min-height: 25%;">
                     <ui:Instance template="PlayerInventoryElement" name="owned-truck-inventory-root" style="flex-grow: 1;" />
@@ -43,5 +43,8 @@
             </ui:VisualElement>
         </ui:VisualElement>
         <ui:VisualElement name="ghost-icon" style="flex-grow: 1; visibility: hidden; position: absolute; width: 128px; height: 128px;" />
+        <ui:VisualElement name="alert-banner" class="alert-banner alert-banner-out">
+            <ui:Label tabindex="-1" text="ALERT ALERT ALERT ALERT" parse-escape-sequences="true" display-tooltip-when-elided="true" name="alert-banner-label" style="font-size: 30%; -unity-text-align: upper-center;" />
+        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

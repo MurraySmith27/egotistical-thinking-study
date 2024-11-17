@@ -42,6 +42,8 @@ public class ClientMenuController : MonoBehaviour
     
     [SerializeField] private float m_warehouseItemSlotSize;
 
+    [SerializeField] private float m_alertActiveTime = 5f;
+
     private VisualElement m_playerInventoryRoot;
 
     private VisualElement m_playerInventoryElement;
@@ -728,7 +730,7 @@ private void OnGasRefillButtonClicked()
 
     void Update()
     {
-        if (m_initialized) {
+        if (m_initialized && NetworkManager.Singleton.IsClient) {
             //set warehouse view active if close enough.
             if (m_thisPlayerGameObject == null)
             {
@@ -823,6 +825,7 @@ private void OnGasRefillButtonClicked()
                         inventoryElement.style.borderRightColor = Color.green;
                         
                         m_inRangeOfOwnedInventory = true;
+                        UpdateOrdersList(OrderSystem.Instance.activeOrders.Value, OrderSystem.Instance.completeOrders.Value, OrderSystem.Instance.incompleteOrders.Value, OrderSystem.Instance.acceptedOrders.Value);
                     }
                     else if (nearestWarehouseType == InventoryType.Destination)
                     {
@@ -839,9 +842,9 @@ private void OnGasRefillButtonClicked()
                         playerInventoryElement.style.borderRightColor = Color.green;
 
                         m_approachDestinationSFX.Play();
+                        UpdateOrdersList(OrderSystem.Instance.activeOrders.Value, OrderSystem.Instance.completeOrders.Value, OrderSystem.Instance.incompleteOrders.Value, OrderSystem.Instance.acceptedOrders.Value);
                     }
                     
-                    UpdateOrdersList(OrderSystem.Instance.activeOrders.Value, OrderSystem.Instance.completeOrders.Value, OrderSystem.Instance.incompleteOrders.Value, OrderSystem.Instance.acceptedOrders.Value);
                     
                 }
                 else if (!foundNearestWarehouse && m_currentLoadingWarehouseNum != -1)
@@ -1019,6 +1022,28 @@ private void OnGasRefillButtonClicked()
     
     void OnAcceptedOrdersChanged(NetworkSerializableIntArray old, NetworkSerializableIntArray current)
     {
+        //send any alerts about accepted orders
+        for (int i = 0; i < old.arr.Length; i++)
+        {
+            if (old.arr[i] != OrderSystem.Instance.acceptedOrders.Value.arr[i])
+            {
+                NetworkSerializableOrder order = OrderSystem.Instance.orders.Value.orders[i];
+                
+                //don't send the alert if this player just accepted it.
+                if (order.receivingPlayer != ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum)
+                {
+                    string orderSuffix = string.Empty;
+                    if (order.orderTimeLimit > 0)
+                    {
+                        orderSuffix = $", and has {order.orderTimeLimit} seconds to complete it";
+                    }
+
+                    SendAlert(
+                        $"Player {order.receivingPlayer} just accepted order: \"{order.textDescription}\"{orderSuffix}");
+                }
+            }
+        }
+        
         UpdateOrdersList(OrderSystem.Instance.activeOrders.Value, OrderSystem.Instance.completeOrders.Value, OrderSystem.Instance.incompleteOrders.Value, current);
     }
 
@@ -1213,16 +1238,53 @@ private void OnGasRefillButtonClicked()
         {
             acceptOrderButton.style.visibility = Visibility.Visible;
             rejectOrderButton.style.visibility = Visibility.Visible;
-        }
-        
-        Debug.LogError("registering callbacks!!!");
-        acceptOrderButton.clicked += () => { m_mouseClickSFX.Play(); OrderSystem.Instance.AcceptOrder(temp); };
             
-        rejectOrderButton.clicked += () => { m_mouseClickSFX.Play(); OrderSystem.Instance.RejectOrder(temp); };
+            acceptOrderButton.clicked += () => { m_mouseClickSFX.Play(); OrderSystem.Instance.AcceptOrder(temp); };
+            rejectOrderButton.clicked += () => { m_mouseClickSFX.Play(); OrderSystem.Instance.RejectOrder(temp); };
+        }
 
         orderElement.style.width = m_orderScrollViewContainer.parent.resolvedStyle.width / 3f;
         
         return orderElement;
+    }
+
+
+    private bool _alertActive = false;
+    
+    private List<string> _alertQueue = new List<string>();
+    public void SendAlert(string alertText)
+    {
+        Debug.Log("sending alert!");
+        _alertQueue.Add(alertText);
+
+        if (!_alertActive)
+        {
+            SetNextAlertActive();
+        }
+    }
+
+    public void StopCurrentAlert()
+    {
+        if (_alertActive)
+        {
+            m_root.Q<VisualElement>("alert-banner").AddToClassList("alert-banner-out");
+            _alertActive = false;
+            Invoke(nameof(SetNextAlertActive), 0.3f);
+        }
+    }
+
+    private void SetNextAlertActive()
+    {
+        if (_alertQueue.Count > 0)
+        {
+            _alertActive = true;
+            string next = _alertQueue[0];
+            Debug.Log($"showing actual alert! text: {next}");
+            m_root.Q<VisualElement>("alert-banner").RemoveFromClassList("alert-banner-out");
+            m_root.Q<Label>("alert-banner-label").text = next;
+            _alertQueue.RemoveAt(0);
+            Invoke(nameof(StopCurrentAlert), m_alertActiveTime);
+        }
     }
 
     private void OnScoreChanged(NetworkSerializableIntArray previous, NetworkSerializableIntArray current)
