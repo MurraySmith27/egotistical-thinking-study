@@ -855,10 +855,10 @@ MonoBehaviour:
   - {fileID: 1354401770332528486, guid: 6b0707f80e7d5490d9d309d5ebac1a48, type: 3}
   - {fileID: 1354401770332528486, guid: eb24a97c341a79c4aa1bd935bb3412ea, type: 3}
   - {fileID: 1354401770332528486, guid: 8de7cf0b92e7f144f96e8a014250a7de, type: 3}
-  roadConnectionLettersNorth: 520050005700
-  roadConnectionLettersEast: 52005000
-  roadConnectionLettersSouth: 52005000
-  roadConnectionLettersWest: 52005000
+  roadConnectionLettersNorth: 52005000570044004700
+  roadConnectionLettersEast: 52005000570044004700
+  roadConnectionLettersSouth: 52005000570044004700
+  roadConnectionLettersWest: 52005000570044004700
   warehouseLetters: 5700
   destinationLetters: 4400
   gasStationLetters: 4700
@@ -1482,6 +1482,7 @@ MonoBehaviour:
     m_NumColorKeys: 6
     m_NumAlphaKeys: 2
   m_warehouseItemSlotSize: 100
+  m_alertActiveTime: 5
 --- !u!82 &1448438011
 AudioSource:
   m_ObjectHideFlags: 0
@@ -2503,6 +2504,7 @@ MonoBehaviour:
     m_NumColorKeys: 2
     m_NumAlphaKeys: 2
   m_warehouseItemSlotSize: 0
+  m_alertActiveTime: 5
 --- !u!114 &1728702176
 MonoBehaviour:
   m_ObjectHideFlags: 0
