@@ -3,6 +3,7 @@ using System.Linq;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Netcode;
+using UnityEngine;
 
 public class NetworkSerializableUlongArray : INetworkSerializable
 {
@@ -46,8 +47,12 @@ public struct NetworkSerializableIntArray : INetworkSerializable
         if (serializer.IsReader)
             arr = new int[length];
 
+        Debug.LogWarning($"serializing! is reader: {serializer.IsReader}. data:");
         for (var n = 0; n < length; ++n)
+        {
             serializer.SerializeValue(ref arr[n]);
+            Debug.LogWarning($"{arr[n]}");
+        }
     }
 }
 

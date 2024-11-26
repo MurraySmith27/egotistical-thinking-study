@@ -346,7 +346,7 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
                 }
                 lastTileHit = hit.transform.GetComponentInChildren<Tilemap>(false);
             
-                 lastTileHit.color = Color.red;
+                 // lastTileHit.color = Color.red;
                 
             }
             else
@@ -369,7 +369,7 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
                         {
                             if (hit2.transform.gameObject.name.Contains("Road"))
                             {
-                                float distance = Vector3.Distance(hitPos, hit2.transform.position);
+                                float distance = Vector3.Distance(transform.position, hit2.transform.position) + 10 * Vector3.Distance(hitPos, hit2.transform.position);
                                 if (distance < closestHitDistance)
                                 {
                                     closestHitPos = hit2.transform.position;

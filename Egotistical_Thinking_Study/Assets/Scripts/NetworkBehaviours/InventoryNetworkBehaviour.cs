@@ -75,6 +75,7 @@ public class InventoryNetworkBehaviour : NetworkBehaviour
     public void SetMaxInventorySlots(int maxInventorySlots)
     {
         m_maxInventorySlots.Value = maxInventorySlots;
+        m_maxInventorySlots.SetDirty(true);
         m_inventoryChangeAlert.Value++;
     }
 
@@ -88,6 +89,8 @@ public class InventoryNetworkBehaviour : NetworkBehaviour
             m_itemQuantities.Value.arr[i] = 0;
             m_itemPlacements.Value.arr[i] = -1;
         }
+        m_itemQuantities.SetDirty(true);
+        m_itemPlacements.SetDirty(true);
         m_inventoryChangeAlert.Value++;
     }
     
@@ -142,6 +145,7 @@ public class InventoryNetworkBehaviour : NetworkBehaviour
         }
         
         m_itemPlacements.Value.arr[itemIndex] = inventoryIndex;
+        m_itemPlacements.SetDirty(true);
         m_inventoryChangeAlert.Value++;
         return true;
     }
@@ -155,6 +159,7 @@ public class InventoryNetworkBehaviour : NetworkBehaviour
             return false;
         }
         m_itemQuantities.Value.arr[itemIndex]++;
+        m_itemQuantities.SetDirty(true);
         m_inventoryChangeAlert.Value++;
         return true;
     }
@@ -171,8 +176,10 @@ public class InventoryNetworkBehaviour : NetworkBehaviour
         {
             //free the inventory slot
             m_itemPlacements.Value.arr[itemIndex] = -1;
+            m_itemPlacements.SetDirty(true);
         }
         
+        m_itemQuantities.SetDirty(true);
         m_inventoryChangeAlert.Value++;
     }
 }
