@@ -349,7 +349,7 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
                  // lastTileHit.color = Color.red;
                 
             }
-            else
+            else if (Vector3.Distance(hitPos, transform.position) > 9.8f)
             {
                 Vector3 closestHitPos = Vector3.zero;
                 float closestHitDistance = float.PositiveInfinity;
