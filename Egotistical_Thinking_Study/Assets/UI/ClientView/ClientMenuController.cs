@@ -1149,7 +1149,7 @@ private void OnGasRefillButtonClicked()
         orderElement.Q<Label>("send-to-player-label").style.visibility = Visibility.Hidden;
         orderElement.Q<Label>("score-reward-label").text = $"Reward: {order.scoreReward}G";
 
-        string mapDestinationText = $"Destination Warehouse: ";
+        string mapDestinationText = $"Destination: ";
         orderElement.Q<Label>("map-destination-label").text = mapDestinationText;
         
         ulong destinationNetworkObjectId = MapDataNetworkBehaviour.Instance.GetNetworkIdOfDestination(order.destinationWarehouse);

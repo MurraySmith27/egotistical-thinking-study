@@ -244,7 +244,7 @@ public class RoadblockSystem : NetworkBehaviour
         else
         {
             return roadblocks.Value.roadblocks[roadblockNum].informedPlayer ==
-                   ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum;
+                   ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum || roadblocks.Value.roadblocks[roadblockNum].informedPlayer == -1;
         }
     }
 

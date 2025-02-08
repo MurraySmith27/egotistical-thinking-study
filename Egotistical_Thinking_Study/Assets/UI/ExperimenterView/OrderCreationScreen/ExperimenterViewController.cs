@@ -142,7 +142,7 @@ public class ExperimenterViewController : MonoBehaviour
                 itemsContainer.Add(slot);
             }
 
-            string mapDestinationText = $"Destination Warehouse:";
+            string mapDestinationText = $"Destination:";
             
             //get map sprite
             ulong destiationNetworkObjectId = MapDataNetworkBehaviour.Instance.GetNetworkIdOfDestination(orders[i].DestinationWarehouse);
@@ -187,7 +187,8 @@ public class ExperimenterViewController : MonoBehaviour
 
             roadblockElement.Q<Label>("roadblock-title").text = $"Roadblock {i}";
 
-            roadblockElement.Q<Label>("informed-player").text = $"Informed Player: {roadblock.informedPlayer}";
+            string informedPlayerText = roadblock.informedPlayer == -1 ? "All" : $"{roadblock.informedPlayer}";
+            roadblockElement.Q<Label>("informed-player").text = $"Informed Player: {informedPlayerText}";
 
             StringBuilder affectedTilesString = new();
 

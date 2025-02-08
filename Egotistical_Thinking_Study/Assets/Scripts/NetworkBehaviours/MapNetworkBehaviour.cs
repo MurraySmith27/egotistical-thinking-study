@@ -80,7 +80,7 @@ public class MapNetworkBehaviour : NetworkBehaviour
     [ClientRpc]
     public void EnableTile_ClientRpc(int affectedPlayer)
     {
-        if (affectedPlayer == ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum)
+        if (affectedPlayer == ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum || affectedPlayer == -1)
         {
             if (tileObject != null)
             {
@@ -100,7 +100,7 @@ public class MapNetworkBehaviour : NetworkBehaviour
     public void DisableTile_ClientRpc(int affectedPlayer, int duration)
     {
         int playerNum = ClientConnectionHandler.Instance.clientSideSessionInfo.playerNum;
-        if (affectedPlayer == playerNum)
+        if (affectedPlayer == playerNum || affectedPlayer == -1)
         {
             if (tileObject != null)
             {
