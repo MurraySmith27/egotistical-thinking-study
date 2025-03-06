@@ -59,7 +59,9 @@ public struct NetworkSerializableIntArray : INetworkSerializable
 public class NetworkSerializableOrder : INetworkSerializable
 {
     public int orderTimeLimit;
+    public int orderTimeToAccept;
     public int orderTimeRemaining;
+    public int orderTimeToAcceptRemaining;
     public int receivingPlayer;
     public int destinationWarehouse;
     private FixedString64Bytes[] requiredItemsKeys;
@@ -96,7 +98,9 @@ public class NetworkSerializableOrder : INetworkSerializable
     public NetworkSerializableOrder()
     {
         orderTimeLimit = -1;
+        orderTimeToAccept = -1;
         orderTimeRemaining = -1;
+        orderTimeToAcceptRemaining = -1;
         receivingPlayer = -1;
         destinationWarehouse = -1;
         requiredItemsKeys = new FixedString64Bytes[0];
@@ -112,7 +116,9 @@ public class NetworkSerializableOrder : INetworkSerializable
         {
             var writer = serializer.GetFastBufferWriter();
             writer.WriteValueSafe(orderTimeLimit);
+            writer.WriteValueSafe(orderTimeToAccept);
             writer.WriteValueSafe(orderTimeRemaining);
+            writer.WriteValueSafe(orderTimeToAcceptRemaining);
             writer.WriteValueSafe(receivingPlayer);
             writer.WriteValueSafe(destinationWarehouse); 
             writer.WriteValueSafe(requiredItemsKeys);
@@ -125,7 +131,9 @@ public class NetworkSerializableOrder : INetworkSerializable
         {
             var reader = serializer.GetFastBufferReader();
             reader.ReadValueSafe(out orderTimeLimit);
+            reader.ReadValueSafe(out orderTimeToAccept);
             reader.ReadValueSafe(out orderTimeRemaining);
+            reader.ReadValueSafe(out orderTimeToAcceptRemaining);
             reader.ReadValueSafe(out receivingPlayer);
             reader.ReadValueSafe(out destinationWarehouse);
             reader.ReadValueSafe(out requiredItemsKeys);

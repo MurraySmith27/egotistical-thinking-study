@@ -92,6 +92,7 @@
     "Orders": [
         {
             "TimeLimitSeconds": 120,
+            "TimeToAccept": 10,
             "RecievingPlayer": 0,
             "DestinationWarehouse": 0,
             "RequiredItems": {
@@ -105,6 +106,7 @@
         },
         {
             "TimeLimitSeconds": -1,
+            "TimeToAccept": 10,
             "RecievingPlayer": 0,
             "DestinationWarehouse": 2,
             "RequiredItems": {
@@ -118,6 +120,7 @@
         },
         {
             "TimeLimitSeconds": -1,
+            "TimeToAccept": 10,
             "RecievingPlayer": 0,
             "DestinationWarehouse": 1,
             "RequiredItems": {
@@ -129,6 +132,7 @@
         },
         {
             "TimeLimitSeconds": 180,
+            "TimeToAccept": 10,
             "RecievingPlayer": 1,
             "DestinationWarehouse": 7,
             "RequiredItems": {
@@ -141,6 +145,7 @@
         },
         {
             "TimeLimitSeconds": 150,
+            "TimeToAccept": 10,
             "RecievingPlayer": 1,
             "DestinationWarehouse": 4,
             "RequiredItems": {
@@ -154,6 +159,7 @@
         },
         {
             "TimeLimitSeconds": 150,
+            "TimeToAccept": 10,
             "RecievingPlayer": 0,
             "DestinationWarehouse": 5,
             "RequiredItems": {
@@ -166,6 +172,7 @@
         },
         {
             "TimeLimitSeconds": 150,
+            "TimeToAccept": 10,
             "RecievingPlayer": 1,
             "DestinationWarehouse": 8,
             "RequiredItems": {

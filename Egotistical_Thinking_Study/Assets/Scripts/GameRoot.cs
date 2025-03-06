@@ -14,6 +14,7 @@ public struct Order
     public int ScoreReward;
     public int IncompleteOrderPenalty;
     public int TimeLimitSeconds;
+    public int TimeToAccept;
 }
 
 

@@ -825,7 +825,7 @@ private void OnGasRefillButtonClicked()
                         inventoryElement.style.borderRightColor = Color.green;
                         
                         m_inRangeOfOwnedInventory = true;
-                        UpdateOrdersList(OrderSystem.Instance.activeOrders.Value, OrderSystem.Instance.completeOrders.Value, OrderSystem.Instance.incompleteOrders.Value, OrderSystem.Instance.acceptedOrders.Value);
+                        // UpdateOrdersList(OrderSystem.Instance.activeOrders.Value, OrderSystem.Instance.completeOrders.Value, OrderSystem.Instance.incompleteOrders.Value, OrderSystem.Instance.acceptedOrders.Value);
                     }
                     else if (nearestWarehouseType == InventoryType.Destination)
                     {
@@ -842,7 +842,7 @@ private void OnGasRefillButtonClicked()
                         playerInventoryElement.style.borderRightColor = Color.green;
 
                         m_approachDestinationSFX.Play();
-                        UpdateOrdersList(OrderSystem.Instance.activeOrders.Value, OrderSystem.Instance.completeOrders.Value, OrderSystem.Instance.incompleteOrders.Value, OrderSystem.Instance.acceptedOrders.Value);
+                        // UpdateOrdersList(OrderSystem.Instance.activeOrders.Value, OrderSystem.Instance.completeOrders.Value, OrderSystem.Instance.incompleteOrders.Value, OrderSystem.Instance.acceptedOrders.Value);
                     }
                     
                     
@@ -883,7 +883,7 @@ private void OnGasRefillButtonClicked()
                     
                     // m_leaveDestinationSFX.Play();
                     
-                    UpdateOrdersList(OrderSystem.Instance.activeOrders.Value, OrderSystem.Instance.completeOrders.Value , OrderSystem.Instance.incompleteOrders.Value, OrderSystem.Instance.acceptedOrders.Value);
+                    // UpdateOrdersList(OrderSystem.Instance.activeOrders.Value, OrderSystem.Instance.completeOrders.Value , OrderSystem.Instance.incompleteOrders.Value, OrderSystem.Instance.acceptedOrders.Value);
                 }
             }
             
@@ -1003,6 +1003,13 @@ private void OnGasRefillButtonClicked()
             }
 
             UpdatePlayerInventory();
+        }
+
+        if (OrderSystem.Instance.activeOrders != null && OrderSystem.Instance.completeOrders != null &&
+            OrderSystem.Instance.incompleteOrders != null && OrderSystem.Instance.acceptedOrders != null)
+        {
+            UpdateOrdersList(OrderSystem.Instance.activeOrders.Value, OrderSystem.Instance.completeOrders.Value,
+                OrderSystem.Instance.incompleteOrders.Value, OrderSystem.Instance.acceptedOrders.Value);
         }
     }
 
@@ -1140,8 +1147,16 @@ private void OnGasRefillButtonClicked()
         if (order.orderTimeLimit != -1)
         {
             orderTimer.style.visibility = Visibility.Visible;
-            orderTimer.lowValue =  order.orderTimeRemaining / (float)order.orderTimeLimit;
-            orderTimer.title = $"{order.orderTimeRemaining}s";
+            if (order.orderTimeToAcceptRemaining > 0)
+            {
+                orderTimer.lowValue = order.orderTimeToAcceptRemaining / (float)order.orderTimeToAccept;
+                orderTimer.title = $"{order.orderTimeToAcceptRemaining}s";
+            }
+            else
+            {
+                orderTimer.lowValue = order.orderTimeRemaining / (float)order.orderTimeLimit;
+                orderTimer.title = $"{order.orderTimeRemaining}s";
+            }
         }
 
         orderElement.Q<Label>("order-number-label").text = $"Order {orderIndex + 1}:";
