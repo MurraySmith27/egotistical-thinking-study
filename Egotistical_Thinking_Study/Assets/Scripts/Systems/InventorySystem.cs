@@ -221,7 +221,7 @@ public class InventorySystem : NetworkBehaviour
                 GameObject warehouse = MapGenerator.Instance.warehouses[i];
                 InventoryNetworkBehaviour inventory = warehouse.GetComponent<InventoryNetworkBehaviour>();
                 inventory.SetMaxInventorySlots(m_numInventorySlotsPerWarehouse);
-                inventory.InitializeEmpty(m_numInventorySlotsPerWarehouse);
+                inventory.InitializeEmpty(m_items.Count);
 
                 m_warehousePlayerOwners.Value.arr[i] = GameRoot.Instance.configData.Warehouses[i].PlayerOwner;
                 
@@ -247,7 +247,7 @@ public class InventorySystem : NetworkBehaviour
                 GameObject destination = MapGenerator.Instance.destinations[i];
                 InventoryNetworkBehaviour inventory = destination.GetComponent<InventoryNetworkBehaviour>();
                 inventory.SetMaxInventorySlots(m_numInventorySlotsPerWarehouse);
-                inventory.InitializeEmpty(m_numInventorySlotsPerWarehouse);
+                inventory.InitializeEmpty(m_items.Count);
                 
                 int numItems = 0;
                 foreach (string key in GameRoot.Instance.configData.Destinations[i].Contents.Keys)
