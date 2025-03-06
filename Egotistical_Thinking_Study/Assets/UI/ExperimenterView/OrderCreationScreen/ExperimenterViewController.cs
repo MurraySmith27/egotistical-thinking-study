@@ -515,9 +515,18 @@ public class ExperimenterViewController : MonoBehaviour
         NetworkSerializableOrder order = OrderSystem.Instance.orders.Value.orders[orderIndex];
         if (order.orderTimeLimit != -1)
         {
-            orderTimer.lowValue = 100f * order.orderTimeRemaining /
-                                  (float)order.orderTimeLimit;
-            orderTimer.title = $"{order.orderTimeRemaining}s";
+            if (order.orderTimeToAcceptRemaining > 0)
+            {
+                orderTimer.lowValue = 100f * order.orderTimeToAcceptRemaining /
+                                      (float)order.orderTimeToAcceptRemaining;
+                orderTimer.title = $"{order.orderTimeToAcceptRemaining}s";
+            }
+            else
+            {
+                orderTimer.lowValue = 100f * order.orderTimeRemaining /
+                                      (float)order.orderTimeLimit;
+                orderTimer.title = $"{order.orderTimeRemaining}s";
+            }
             orderTimer.MarkDirtyRepaint();
         }
         

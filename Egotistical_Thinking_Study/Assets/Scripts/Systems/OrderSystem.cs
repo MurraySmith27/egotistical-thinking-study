@@ -210,7 +210,9 @@ public class OrderSystem : NetworkBehaviour
             {
                 NetworkSerializableOrder newOrder = new NetworkSerializableOrder();
                 newOrder.orderTimeLimit = order.TimeLimitSeconds;
+                newOrder.orderTimeToAccept = order.TimeToAccept;
                 newOrder.orderTimeRemaining = order.TimeLimitSeconds;
+                newOrder.orderTimeToAcceptRemaining = order.TimeToAccept;
                 newOrder.receivingPlayer = order.RecievingPlayer;
                 newOrder.destinationWarehouse = order.DestinationWarehouse;
                 newOrder.requiredItems = order.RequiredItems;
@@ -249,7 +251,7 @@ public class OrderSystem : NetworkBehaviour
                 NetworkSerializableOrder order = orders.Value.orders[i];
                 if (order.orderTimeLimit != -1 && activeOrders.Value.arr[i] != 0)
                 {
-                    if ((order.orderTimeRemaining / (float)order.orderTimeLimit) < 0.8f)
+                    if ((order.orderTimeToAcceptRemaining <= 0))
                     {
                         //accept the order automatically
                         acceptedOrders.Value.arr[i] = 2;
@@ -262,6 +264,13 @@ public class OrderSystem : NetworkBehaviour
                         {
                             onOrderRejected(i);
                         }
+                    }
+                    else if (order.orderTimeToAcceptRemaining > 0 && 
+                        incompleteOrders.Value.arr[i] == 0 &&
+                        completeOrders.Value.arr[i] == 0)
+                    {
+                        orders.Value.orders[i].orderTimeToAcceptRemaining--;
+                        orders.SetDirty(true);
                     }
                     else if (order.orderTimeRemaining > 0 && incompleteOrders.Value.arr[i] == 0 && completeOrders.Value.arr[i] == 0)
                     {
@@ -281,6 +290,7 @@ public class OrderSystem : NetworkBehaviour
                         }
                     }
                 }
+                
                 if (onOrderChanged != null && onOrderChanged.GetInvocationList().Length > 0)
                 {
                     onOrderChanged(i);
@@ -314,6 +324,14 @@ public class OrderSystem : NetworkBehaviour
     private void AcceptOrder_ServerRPC(int orderIndex)
     {
         acceptedOrders.Value.arr[orderIndex] = 2;
+        
+        NetworkSerializableOrder order = orders.Value.orders[orderIndex];
+
+        if (order.orderTimeToAcceptRemaining >= 0)
+        {
+            order.orderTimeToAcceptRemaining = -1;
+        }
+        
         acceptedOrders.SetDirty(true);
     }
 
