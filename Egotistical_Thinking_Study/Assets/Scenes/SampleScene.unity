@@ -2274,6 +2274,50 @@ MonoBehaviour:
     GUID: 7f953371-303a-4c34-a53c-fa16b248fbe2
     Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
     CanDrop: 0
+  - Name: Item41
+    GUID: d67aa5de-cd48-4527-8cf2-7184b6c54dd9
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item42
+    GUID: e08c553e-fe95-40d5-91fd-66cc3bb419d8
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item43
+    GUID: 33b36831-30c4-4ff6-adae-9222178da023
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item44
+    GUID: fbcf1c6d-da77-4815-b1a4-30a9590ed3d5
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item45
+    GUID: 36e8ead8-2afc-4392-9f82-753115a5bffa
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item46
+    GUID: dbaf8183-affb-4488-bdec-1a768bee3617
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item47
+    GUID: dc8bce57-b2b3-445f-8865-68d8762852bf
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item48
+    GUID: 68e11f21-25f9-448e-af85-ff5ed5a159a6
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item49
+    GUID: b71ed246-e10b-487e-a934-8ad7e8ee7adb
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item50
+    GUID: bc7584a2-db5a-4e73-b276-3726347f7c6c
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
+  - Name: Item51
+    GUID: ee3c8706-a186-4f6e-b961-a64139407d3d
+    Icon: {fileID: 21300000, guid: a09a389dd0913cd4d86c3c4decd8b866, type: 3}
+    CanDrop: 0
 --- !u!4 &1635170513
 Transform:
   m_ObjectHideFlags: 0
