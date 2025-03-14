@@ -42,9 +42,9 @@
                 <ui:VisualElement name="other-players-inventory-root" style="flex-grow: 1; min-width: 25%; min-height: 25%;" />
             </ui:VisualElement>
         </ui:VisualElement>
+        <ui:VisualElement name="ghost-icon" style="flex-grow: 1; visibility: hidden; position: absolute; width: 128px; height: 128px;" />
         <ui:VisualElement name="alert-banner" class="alert-banner alert-banner-out" style="opacity: 0; display: none; visibility: hidden;">
             <ui:Label tabindex="-1" text="ALERT ALERT ALERT ALERT" parse-escape-sequences="true" display-tooltip-when-elided="true" name="alert-banner-label" style="font-size: 30%; -unity-text-align: upper-center;" />
-            <ui:VisualElement name="ghost-icon" style="flex-grow: 1; visibility: hidden; position: absolute; width: 128px; height: 128px;" />
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>
