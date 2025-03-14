@@ -81,6 +81,7 @@ public class InventoryNetworkBehaviour : NetworkBehaviour
 
     public void InitializeEmpty(int numItems)
     {
+        Debug.LogError($"initializing with {numItems}");
         m_numItems.Value = numItems;
         m_itemQuantities.Value = new NetworkSerializableIntArray(new int[numItems]);
         m_itemPlacements.Value = new NetworkSerializableIntArray(new int[numItems]);
@@ -128,6 +129,7 @@ public class InventoryNetworkBehaviour : NetworkBehaviour
 
     public bool SetItemPlacement(int itemIndex, int inventoryIndex)
     {
+        Debug.LogError($"Index: {itemIndex}. ITem placmenets length: {m_itemPlacements.Value.arr.Length}. inventory index: {inventoryIndex}");
         if (m_itemPlacements.Value.arr[itemIndex] == inventoryIndex)
         {
             return true;

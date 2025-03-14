@@ -728,6 +728,8 @@ private void OnGasRefillButtonClicked()
         m_ghostIcon.style.visibility = Visibility.Hidden;
     }
 
+    private float timeSinceLastOrderUpdate = 0f;
+    
     void Update()
     {
         if (m_initialized && NetworkManager.Singleton.IsClient) {
@@ -825,7 +827,7 @@ private void OnGasRefillButtonClicked()
                         inventoryElement.style.borderRightColor = Color.green;
                         
                         m_inRangeOfOwnedInventory = true;
-                        // UpdateOrdersList(OrderSystem.Instance.activeOrders.Value, OrderSystem.Instance.completeOrders.Value, OrderSystem.Instance.incompleteOrders.Value, OrderSystem.Instance.acceptedOrders.Value);
+                        UpdateOrdersList(OrderSystem.Instance.activeOrders.Value, OrderSystem.Instance.completeOrders.Value, OrderSystem.Instance.incompleteOrders.Value, OrderSystem.Instance.acceptedOrders.Value);
                     }
                     else if (nearestWarehouseType == InventoryType.Destination)
                     {
@@ -842,7 +844,7 @@ private void OnGasRefillButtonClicked()
                         playerInventoryElement.style.borderRightColor = Color.green;
 
                         m_approachDestinationSFX.Play();
-                        // UpdateOrdersList(OrderSystem.Instance.activeOrders.Value, OrderSystem.Instance.completeOrders.Value, OrderSystem.Instance.incompleteOrders.Value, OrderSystem.Instance.acceptedOrders.Value);
+                        UpdateOrdersList(OrderSystem.Instance.activeOrders.Value, OrderSystem.Instance.completeOrders.Value, OrderSystem.Instance.incompleteOrders.Value, OrderSystem.Instance.acceptedOrders.Value);
                     }
                     
                     
@@ -883,7 +885,7 @@ private void OnGasRefillButtonClicked()
                     
                     // m_leaveDestinationSFX.Play();
                     
-                    // UpdateOrdersList(OrderSystem.Instance.activeOrders.Value, OrderSystem.Instance.completeOrders.Value , OrderSystem.Instance.incompleteOrders.Value, OrderSystem.Instance.acceptedOrders.Value);
+                    UpdateOrdersList(OrderSystem.Instance.activeOrders.Value, OrderSystem.Instance.completeOrders.Value , OrderSystem.Instance.incompleteOrders.Value, OrderSystem.Instance.acceptedOrders.Value);
                 }
             }
             
@@ -1005,9 +1007,12 @@ private void OnGasRefillButtonClicked()
             UpdatePlayerInventory();
         }
 
-        if (OrderSystem.Instance.activeOrders != null && OrderSystem.Instance.completeOrders != null &&
+        timeSinceLastOrderUpdate += Time.deltaTime;
+        
+        if (timeSinceLastOrderUpdate >= 1f && m_initialized && OrderSystem.Instance.activeOrders != null && OrderSystem.Instance.completeOrders != null &&
             OrderSystem.Instance.incompleteOrders != null && OrderSystem.Instance.acceptedOrders != null)
         {
+            timeSinceLastOrderUpdate = 0f;
             UpdateOrdersList(OrderSystem.Instance.activeOrders.Value, OrderSystem.Instance.completeOrders.Value,
                 OrderSystem.Instance.incompleteOrders.Value, OrderSystem.Instance.acceptedOrders.Value);
         }

@@ -251,10 +251,10 @@ public class OrderSystem : NetworkBehaviour
                 NetworkSerializableOrder order = orders.Value.orders[i];
                 if (order.orderTimeLimit != -1 && activeOrders.Value.arr[i] != 0)
                 {
-                    if ((order.orderTimeToAcceptRemaining <= 0))
+                    if (acceptedOrders.Value.arr[i] == 0 && (order.orderTimeToAcceptRemaining <= 0))
                     {
-                        //accept the order automatically
-                        acceptedOrders.Value.arr[i] = 2;
+                        //decline the order automatically
+                        acceptedOrders.Value.arr[i] = 1;
                         acceptedOrders.SetDirty(true);
                     }
 
@@ -317,6 +317,7 @@ public class OrderSystem : NetworkBehaviour
 
     public void AcceptOrder(int orderIndex)
     {
+        Debug.LogError("accept order clicked");
         AcceptOrder_ServerRPC(orderIndex);
     }
 
