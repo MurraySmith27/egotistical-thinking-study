@@ -29,7 +29,6 @@ public class ServerManager : MonoBehaviour
 
         NetworkManager.Singleton.ConnectionApprovalCallback = ClientConnectionHandler.Instance.Server_ApproveConnection;
         
-        
         bool success = NetworkManager.Singleton.StartServer();
         
         if (!success) {
@@ -39,7 +38,6 @@ public class ServerManager : MonoBehaviour
 
         mainMenu.SetActive(false);
         serverControlMenu.SetActive(true);
-
         
         VisualElement rootServerMenuElement = serverControlMenu.GetComponent<UIDocument>().rootVisualElement;
         if (rootServerMenuElement != null)

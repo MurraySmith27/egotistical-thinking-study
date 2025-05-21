@@ -2,7 +2,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.Http;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Text;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Unity.Netcode;
@@ -52,13 +56,61 @@ public class MainMenuController : MonoBehaviour
 
     private string GetIpAddress()
     {
-        var host = Dns.GetHostEntry(Dns.GetHostName());
-        foreach (var ip in host.AddressList) {
-            if (ip.AddressFamily == AddressFamily.InterNetwork) {
-                return ip.ToString();
+        // var addresses = Dns.GetHostAddresses(Dns.GetHostName());
+        // foreach (var ip in addresses) {
+        //     if (ip.AddressFamily == AddressFamily.InterNetwork) {
+        //         return ip.ToString();
+        //     }
+        // }
+        // throw new System.Exception("No network adapters with an IPv4 address in the system!");
+
+        StringBuilder sb = new StringBuilder(); 
+
+        // Get a list of all network interfaces (usually one per network card, dialup, and VPN connection) 
+        NetworkInterface[] networkInterfaces = NetworkInterface.GetAllNetworkInterfaces(); 
+
+        foreach (NetworkInterface network in networkInterfaces) 
+        { 
+            // Read the IP configuration for each network 
+            IPInterfaceProperties properties = network.GetIPProperties(); 
+
+            // Each network interface may have multiple IP addresses 
+            foreach (IPAddressInformation address in properties.UnicastAddresses) 
+            { 
+                // We're only interested in IPv4 addresses for now 
+                if (address.Address.AddressFamily != AddressFamily.InterNetwork) 
+                    continue; 
+
+                // Ignore loopback addresses (e.g., 127.0.0.1) 
+                if (IPAddress.IsLoopback(address.Address)) 
+                    continue;
+
+                return address.Address.ToString();
+            } 
+        }
+
+        return sb.ToString();
+        // GetPublicIpAddressAsync();
+    }
+
+    private string _ip;
+    private async Task<string> GetPublicIpAddressAsync()
+    {
+        using (HttpClient client = new HttpClient())
+        {
+            try
+            {
+                string ip = await client.GetStringAsync("https://api.ipify.org");
+                Debug.LogError($"my ip: {ip}");
+                _ip = ip;
+                return ip.Trim();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"cannot find ip: {ex.Message}");
+                return "";
             }
         }
-        throw new System.Exception("No network adapters with an IPv4 address in the system!");
     }
 
     private int GetFreePort()
@@ -73,11 +125,18 @@ public class MainMenuController : MonoBehaviour
     void OnStartAsServerButtonClicked()
     {
         m_mouseClickSFX.Play();
+
+        if (!_isStartServerCoroutineRunning)
+            StartCoroutine(StartServer());
+    }
+
+    private bool _isStartServerCoroutineRunning = false;
+    private IEnumerator StartServer()
+    {
+        _isStartServerCoroutineRunning = true;
         string address = ServerManager.m_ipAddress;
-        if (!ServerManager.m_reset)
-        {
-            address = GetIpAddress();
-        }
+
+        address = GetIpAddress();
 
         int portNum = ServerManager.m_port;
         if (!ServerManager.m_reset)
@@ -93,9 +152,14 @@ public class MainMenuController : MonoBehaviour
         if (!IPAddress.TryParse(address, out ip)) {
             invalidConnectionDataLabel.text = "Invalid Address!";
         }
-        else {
+        else
+        {
+            Debug.LogError($"address: {address}, portnum: {portNum}");
             serverManager.StartServer(address, portNum);
         }
+
+        _isStartServerCoroutineRunning = false;
+        yield return null;
     }
 
     void OnStartAsClientButtonClicked() {

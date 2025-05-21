@@ -651,8 +651,8 @@ MonoBehaviour:
   m_DisconnectTimeoutMS: 30000
   ConnectionData:
     Address: 192.168.0.186
-    Port: 7778
-    ServerListenAddress: 127.0.0.1
+    Port: 55645
+    ServerListenAddress: 192.168.0.186
   DebugSimulator:
     PacketDelayMS: 0
     PacketJitterMS: 0
