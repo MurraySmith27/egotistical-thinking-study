@@ -10,6 +10,8 @@ public class PlayerInventoryMenuController : MonoBehaviour
 
     [SerializeField] private VisualTreeAsset m_inventoryElementAsset;
 
+    [SerializeField] private int itemSlotSize = 62;
+
     private VisualElement m_inventoryElement;
     
     private VisualElement m_root;
@@ -44,6 +46,8 @@ public class PlayerInventoryMenuController : MonoBehaviour
             InventorySlot itemSlot = new InventorySlot();
             m_inventoryItems.Add(itemSlot);
             inventoryContainer.Add(itemSlot);
+            itemSlot.style.width = itemSlotSize;
+            itemSlot.style.height = itemSlotSize;
         }
     }
 
