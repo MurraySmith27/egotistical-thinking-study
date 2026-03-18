@@ -44,6 +44,8 @@ public class ClientMenuController : MonoBehaviour
 
     [SerializeField] private float m_alertActiveTime = 5f;
 
+    [SerializeField] private float m_inventorySlotSize = 58;
+
     private VisualElement m_playerInventoryRoot;
 
     private VisualElement m_playerInventoryElement;
@@ -1206,6 +1208,9 @@ private void OnGasRefillButtonClicked()
             }
             
             InventorySlot slot = new InventorySlot(false);
+
+            slot.style.width = m_inventorySlotSize;
+            slot.style.height = m_inventorySlotSize;
             int numRequiredLeft = order.requiredItems[key] - quantityInDestinationInventory;
             slot.HoldItem(InventorySystem.Instance.m_items[itemNum], numRequiredLeft);
             if (numRequiredLeft > 0)
@@ -1550,6 +1555,8 @@ private void OnGasRefillButtonClicked()
         }
     }
 
+    private float _slotSize = -1;
+
     private void PopulateInventory(InventoryType inventoryType, int inventoryNum, List<InventorySlot> inventoryItems,
         VisualElement inventoryContainer, ProgressBar inventoryCapacityProgressBar, Color itemTintColor)
     {
@@ -1571,6 +1578,12 @@ private void OnGasRefillButtonClicked()
         int itemSlotSize = Mathf.FloorToInt(Mathf.Min(inventoryContainer.resolvedStyle.width / maxSlotsPerRow - 30,
             inventoryContainer.resolvedStyle.height / maxSlotsPerColumn - 30));
 
+
+        if (_slotSize < 0)
+        {
+            _slotSize = itemSlotSize;
+        }
+
         int numTotalItems = 0;
         for (int i = 0; i < numInventorySlots; i++)
         {
@@ -1580,8 +1593,8 @@ private void OnGasRefillButtonClicked()
 
             if (inventoryType == InventoryType.Warehouse)
             {
-                itemSlot.style.width = itemSlotSize;
-                itemSlot.style.height = itemSlotSize;
+                itemSlot.style.width = _slotSize;
+                itemSlot.style.height = _slotSize;
             }
             
             if (inventory[i].Item1 != -1)
