@@ -135,6 +135,12 @@ public class OrderSystem : NetworkBehaviour
                             NetworkSerializableOrder order = orders.Value.orders[i];
                             
                             AddScoreToPlayer(order.receivingPlayer, orders.Value.orders[i].scoreReward);
+                            
+                            //also remove all of the orders items from the destination
+                            foreach (var requiredItem in orders.Value.orders[i].requiredItems.Keys)
+                            {
+                                InventorySystem.Instance.RemoveItemFromInventory(orders.Value.orders[i].destinationWarehouse, InventoryType.Destination, requiredItem, orders.Value.orders[i].requiredItems[requiredItem]);
+                            }
                         }
 
                         if (onOrderComplete != null && onOrderComplete.GetInvocationList().Length > 0)

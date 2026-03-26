@@ -20,6 +20,8 @@ public class ClientMenuController : MonoBehaviour
     
     [SerializeField] private AudioSource m_mouseClickSFX;
 
+    [SerializeField] private AudioSource m_orderCompleteSFX;
+
     [SerializeField] private float m_loadingDistanceFromWarehouse = 1f;
 
     [SerializeField] private VisualTreeAsset m_orderElementAsset;
@@ -350,6 +352,7 @@ public class ClientMenuController : MonoBehaviour
         OrderSystem.Instance.completeOrders.OnValueChanged += OnCompleteOrdersChanged;
 
         OrderSystem.Instance.incompleteOrders.OnValueChanged += OnIncompleteOrdersChanged;
+        OrderSystem.Instance.onOrderComplete += OnOrderComplete;
 
         OrderSystem.Instance.acceptedOrders.OnValueChanged += OnAcceptedOrdersChanged;
 
@@ -1033,6 +1036,11 @@ private void OnGasRefillButtonClicked()
     {
         UpdateOrdersList(OrderSystem.Instance.activeOrders.Value, OrderSystem.Instance.completeOrders.Value, current, OrderSystem.Instance.acceptedOrders.Value);
     }
+
+    void OnOrderComplete(int orderIndex)
+    {
+        m_orderCompleteSFX.Play();
+    }
     
     void OnAcceptedOrdersChanged(NetworkSerializableIntArray old, NetworkSerializableIntArray current)
     {
@@ -1143,6 +1151,7 @@ private void OnGasRefillButtonClicked()
         }
     }
 
+    private float _orderWidth = -1;
     private VisualElement GenerateOrderElement(NetworkSerializableIntArray activeOrders, NetworkSerializableIntArray completeOrders, NetworkSerializableIntArray incompleteOrders, NetworkSerializableIntArray acceptedOrders, int orderIndex)
     {
         NetworkSerializableOrder order = OrderSystem.Instance.GetOrder(orderIndex);
@@ -1268,7 +1277,12 @@ private void OnGasRefillButtonClicked()
             rejectOrderButton.clicked += () => { m_mouseClickSFX.Play(); OrderSystem.Instance.RejectOrder(temp); };
         }
 
-        orderElement.style.width = m_orderScrollViewContainer.parent.resolvedStyle.width / 3f;
+        if (_orderWidth < 0)
+        {
+            _orderWidth = m_orderScrollViewContainer.parent.resolvedStyle.width / 3f;
+        }
+
+        orderElement.style.width = _orderWidth;
         
         return orderElement;
     }

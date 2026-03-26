@@ -329,7 +329,7 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
         Ray ray = playerCameraComponent.ViewportPointToRay(new Vector3((mousePos.x - topLeftCorner.x) / width, ((mousePos.y) / height), 0));
         
         Debug.DrawRay(ray.origin, ray.origin + ray.direction * 100, color:Color.red, duration: 5f, false);
-        if (Physics.Raycast(ray.origin, ray.direction, out hit, 100, ~LayerMask.NameToLayer("MapTile")))
+        if (Physics.Raycast(ray.origin, ray.direction, out hit, 100, (1 << LayerMask.NameToLayer("MapTile"))))
         {
             Vector3 hitPos = hit.transform.position;
 
@@ -365,7 +365,7 @@ public class PlayerNetworkBehaviour : NetworkBehaviour
                         Debug.DrawRay(newHitPos, ray.origin + ray.direction * 100, color:Color.red, duration: 5f, false);
                         RaycastHit hit2 = new();
                         if (Physics.Raycast(newHitPos, ray.direction, out hit2, 100,
-                                ~LayerMask.NameToLayer("MapTile")))
+                                (1 << LayerMask.NameToLayer("MapTile"))))
                         {
                             if (hit2.transform.gameObject.name.Contains("Road"))
                             {
