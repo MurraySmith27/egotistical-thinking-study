@@ -1444,7 +1444,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_mouseClickSFX: {fileID: 1198937716}
-  m_orderCompleteSFX: {fileID: 0}
+  m_orderCompleteSFX: {fileID: 1448438017}
   m_loadingDistanceFromWarehouse: 7.5
   m_orderElementAsset: {fileID: 9197481963319205126, guid: 71e99ac59c69e5342abfb1b48206c635, type: 3}
   m_playerInventoryElementAsset: {fileID: 9197481963319205126, guid: ce8c8203dad104a4fb1d0f831fff2a49, type: 3}
