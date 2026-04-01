@@ -1152,7 +1152,7 @@ private void OnGasRefillButtonClicked()
         }
     }
 
-    private float _orderWidth = -1;
+    private static float _orderWidth = -1;
     private VisualElement GenerateOrderElement(NetworkSerializableIntArray activeOrders, NetworkSerializableIntArray completeOrders, NetworkSerializableIntArray incompleteOrders, NetworkSerializableIntArray acceptedOrders, int orderIndex)
     {
         NetworkSerializableOrder order = OrderSystem.Instance.GetOrder(orderIndex);
