@@ -1284,7 +1284,6 @@ private void OnGasRefillButtonClicked()
         }
 
         orderElement.style.width = _orderWidth;
-        orderElement.style.maxWidth = _orderWidth;
         
         return orderElement;
     }
