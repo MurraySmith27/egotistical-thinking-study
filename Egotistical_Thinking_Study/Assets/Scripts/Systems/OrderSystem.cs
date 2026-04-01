@@ -135,7 +135,8 @@ public class OrderSystem : NetworkBehaviour
                             NetworkSerializableOrder order = orders.Value.orders[i];
                             
                             AddScoreToPlayer(order.receivingPlayer, orders.Value.orders[i].scoreReward);
-                            
+                           
+                            Debug.LogError("order complete, removing items from inventory");
                             //also remove all of the orders items from the destination
                             foreach (var requiredItem in orders.Value.orders[i].requiredItems.Keys)
                             {

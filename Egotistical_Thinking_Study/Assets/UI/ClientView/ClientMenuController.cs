@@ -1039,6 +1039,7 @@ private void OnGasRefillButtonClicked()
 
     void OnOrderComplete(int orderIndex)
     {
+        Debug.LogError("order complete");
         m_orderCompleteSFX.Play();
     }
     

@@ -90,6 +90,7 @@ public class MainMenuController : MonoBehaviour
         }
 
         return sb.ToString();
+        
         // GetPublicIpAddressAsync();
     }
 
