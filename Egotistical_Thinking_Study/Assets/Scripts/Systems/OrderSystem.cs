@@ -142,7 +142,10 @@ public class OrderSystem : NetworkBehaviour
                             {
                                 InventorySystem.Instance.RemoveItemFromInventory(orders.Value.orders[i].destinationWarehouse, InventoryType.Destination, requiredItem, orders.Value.orders[i].requiredItems[requiredItem]);
                             }
+
+                            OnOrderComplete_ClientRpc(i);
                         }
+                        
 
                         if (onOrderComplete != null && onOrderComplete.GetInvocationList().Length > 0)
                         {
@@ -369,4 +372,11 @@ public class OrderSystem : NetworkBehaviour
             m_correctSFX.Play();
         }
     }
+    
+    [ClientRpc]
+    private void OnOrderComplete_ClientRpc(int orderIndex)
+    {
+        onOrderComplete?.Invoke(orderIndex);
+    }
+    
 }
